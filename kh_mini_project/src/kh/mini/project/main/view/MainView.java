@@ -61,6 +61,7 @@ public class MainView extends JFrame{
 	
 	// Label
 		
+	
 		
 	// Button
 		// 나가기 버튼

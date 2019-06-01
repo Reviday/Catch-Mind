@@ -21,7 +21,7 @@ public class WatingRoom extends JFrame{
 // 각종 변수
 	private Image viewImage; // 이미지 저장용 변수
 	private Graphics viewGraphics; // 그래픽 저장용 변수		
-	
+	 
 //Image	
 	//MainView 배경
 	private Image backgroundImage = 
