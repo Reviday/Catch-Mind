@@ -11,12 +11,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import kh.mini.project.main.view.Main;
 
 public class WatingRoom extends JFrame{
 // Frame, Panel
 	JFrame WatingRoomView = new JFrame("Wating Room"); // 메인 프레임
+	JScrollPane scrollPane = new JScrollPane();
 	
 // 각종 변수
 	private Image viewImage; // 이미지 저장용 변수
@@ -48,7 +50,10 @@ public class WatingRoom extends JFrame{
 		setLayout(null);
 		
 	// Label
-			
+		
+	// JScrollPane
+		scrollPane.setBounds(10, 10, 200, 750);
+		add(scrollPane);
 			
 	// Button
 		// 나가기 버튼

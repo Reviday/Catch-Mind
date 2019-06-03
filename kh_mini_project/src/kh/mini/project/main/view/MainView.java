@@ -6,10 +6,12 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import kh.mini.project.waiting_room.view.WatingRoom;
@@ -18,13 +20,18 @@ public class MainView extends JFrame{
 // Frame, Panel
 	JFrame mainView = new JFrame("CatchMind"); // 메인 프레임
 	JPanel loginView = new JPanel(); // 보조 프레임(패널) - 로그인 패널
-
+	
+//Label
+	private JLabel mainMenuBar = new JLabel();
+	
+	
 // 각종 변수
 	private Image viewImage; // 이미지 저장용 변수
 	private Graphics viewGraphics; // 그래픽 저장용 변수
+	private int mouseX, mouseY; // 마우스 좌표용 변수
 	
 //Image	
-	//MainView 배경
+	// #MainView 배경
 	private Image backgroundImage = 
 			new ImageIcon(Main.class.getResource("/images/test.png")).getImage();
 			//Main 클래스의 위치를 기준으로 이미지 파일의 위치를 찾은 다음에 이미지 인스턴스를 해당 변수에 초기화 해줌(상대경로 같은 절대경로)
@@ -38,7 +45,6 @@ public class MainView extends JFrame{
 	private ImageIcon joinBasicImage = new ImageIcon(Main.class.getResource("/images/조인.png"));
 	private ImageIcon joinEnteredImage = new ImageIcon(Main.class.getResource("/images/조인.png")); 
 	
-//Label
 	
 	
 //Button
@@ -60,11 +66,29 @@ public class MainView extends JFrame{
 		setLayout(null);
 	
 	// Label
-		
+		// #메뉴바
+		mainMenuBar.setBounds(0, 0, Main.SCREEN_WIDTH, 30);
+		mainMenuBar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				mouseX = e.getX();
+				mouseY = e.getY();
+			}
+		});
+		mainMenuBar.addMouseMotionListener(new MouseMotionAdapter() {
+			// #매뉴바 드래그 시, 움직일 수 있게 한다.
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				int x = e.getXOnScreen();
+				int y = e.getYOnScreen();
+				setLocation(x - mouseX, y - mouseY);
+			}
+		});
+		add(mainMenuBar);
 	
 		
 	// Button
-		// 나가기 버튼
+		// #나가기 버튼
 		exitButton.setBounds(870, 690, 100, 30);
 		add(exitButton);
 		exitButton.addMouseListener(new MouseAdapter() {
@@ -85,11 +109,11 @@ public class MainView extends JFrame{
 			// 마우스로 버튼을 눌렀을 때 이벤트
 			@Override 
 			public void mousePressed(MouseEvent e) {
-				dispose(); // 하나의 프레임만 종료하기 위한 메소드
+				System.exit(0); // 프로세스 종료.
 			}
 		});
 		
-		// 로그인 버튼
+		// #로그인 버튼
 		loginButton.setBounds(511, 652, 170, 64);
 		add(loginButton);
 		loginButton.addMouseListener(new MouseAdapter() {
@@ -117,7 +141,7 @@ public class MainView extends JFrame{
 		});
 		
 		
-		// 회원가입 버튼
+		// #회원가입 버튼
 		joinButton.setBounds(341, 652, 170, 64);
 		add(joinButton);
 		joinButton.addMouseListener(new MouseAdapter() {
@@ -138,12 +162,12 @@ public class MainView extends JFrame{
 			// 마우스로 버튼을 눌렀을 때 이벤트
 			@Override 
 			public void mousePressed(MouseEvent e) {
-				
+				new JoinView();
 			}
 			
 		});
 		
-	// JPanel loginView => 메인에서 정한 값(너비,높이)에 따라 자동으로 위치가 정해지게 계산했음.
+	// JPanel loginView
 		loginView.setBounds(341, 460, 341, 256);
 		add(loginView);
 	}
