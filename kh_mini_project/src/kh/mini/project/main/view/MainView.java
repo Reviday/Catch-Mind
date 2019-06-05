@@ -24,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -47,14 +48,14 @@ public class MainView extends JFrame{
 	private JTextField serverIp_tf; // Server IP를 입력받기 위한 텍스트필드
 	private JTextField port_tf; // 포트번호를 입력받기 위한 텍스트필드
 	private JTextField id_tf; // ID를 입력받기 위한 텍스트 필드
-	private JTextField pw_tf; // PW를 입력받기 위한 텍스트 필드
+	private JPasswordField pw_tf; // PW를 입력받기 위한 텍스트 필드
 	
 // Network 자원 변수
 	private static Socket socket; // 사용자 소켓
 	private static int port; // 포트번호	
 	private String ip=""; // 127.0.0.1 은 자기 자신
-	private String id; // 사용자 ID
-	private String pw; // 사용자 PW => 지금은 가입없이 로그인 가능하게 하여 테스트 진행
+	private static String id=""; // 사용자 ID
+	private String pw=""; // 사용자 PW => 지금은 가입없이 로그인 가능하게 하여 테스트 진행
 	private InputStream is;
 	private OutputStream os;
 	private DataInputStream dis;
@@ -65,7 +66,7 @@ public class MainView extends JFrame{
 	private Graphics viewGraphics; // 그래픽 저장용 변수
 	private int mouseX, mouseY; // 마우스 좌표용 변수
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
-	private boolean connetionCheck = true; // Waiting room으로 넘어가기 위해 커넥션 체크.(ConnectException 이 발생하면 로그인 실패 알림을 발생시키기 위함)
+	private boolean connetionCheck = false; // Waiting room으로 넘어가기 위해 커넥션 체크.(ConnectException 이 발생하면 로그인 실패 알림을 발생시키기 위함)
 	static Vector user_list = new Vector();
 	
 //Image	
@@ -75,9 +76,10 @@ public class MainView extends JFrame{
 			//Main 클래스의 위치를 기준으로 이미지 파일의 위치를 찾은 다음에 이미지 인스턴스를 해당 변수에 초기화 해줌(상대경로 같은 절대경로)
 	
 	//Button Icon (basic : 버튼의 기본 상태, Entered : 버튼에 마우스를 가져간 상태) 
-	// => 버튼 기본상태, 마우스를 올려놨을 때 상태, 눌렀을 때 상태 3가지 가능?
 	private ImageIcon exitBasicImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
 	private ImageIcon exitEnteredImage = new ImageIcon(Main.class.getResource("/images/exite.png")); 
+	private ImageIcon conncetBasicImage = new ImageIcon(Main.class.getResource("/images/connect.png"));
+	private ImageIcon connectEnteredImage = new ImageIcon(Main.class.getResource("/images/connect.png")); 
 	private ImageIcon loginBasicImage = new ImageIcon(Main.class.getResource("/images/login.png"));
 	private ImageIcon loginEnteredImage = new ImageIcon(Main.class.getResource("/images/login.png")); 
 	private ImageIcon joinBasicImage = new ImageIcon(Main.class.getResource("/images/조인.png"));
@@ -87,6 +89,7 @@ public class MainView extends JFrame{
 	
 //Button
 	private JButton exitButton = new JButton(exitBasicImage); // 나가기 버튼
+	private JButton connetButton = new JButton(conncetBasicImage); // 연결 버튼
 	private JButton loginButton = new JButton(loginBasicImage); // 로그인 버튼
 	private JButton joinButton = new JButton(joinBasicImage); // 회원가입 버튼
 	
@@ -101,7 +104,7 @@ public class MainView extends JFrame{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
 		setBackground(new Color(0,0,0,0)); // 배경색을 투명하게 한다.(paint()메소드로 그리는 배경을 보이게 하기 위함)
 		setVisible(true); // 윈도우를 볼 수 있음.
-		setLayout(null);
+		setLayout(null); // 배치 관리자 삭제
 	
 	// Label
 		// #메뉴바
@@ -162,7 +165,7 @@ public class MainView extends JFrame{
 		id_tf.setDocument(new JTextFieldLimit(12)); //아이디 최대 12자 제한
 				
 		//PW 입력
-		pw_tf = new JTextField();
+		pw_tf = new JPasswordField();
 		pw_tf.setBounds(520, 605, 150, 30);
 		add(pw_tf);
 		pw_tf.setDocument(new JTextFieldLimit(12)); // 비밀번호 최대 12자 제한
@@ -192,6 +195,49 @@ public class MainView extends JFrame{
 				System.exit(0); // 프로세스 종료.
 			}
 		});
+		// #연결 버튼
+		connetButton.setBounds(511, 652, 170, 64);
+		add(connetButton);
+		connetButton.addMouseListener(new MouseAdapter() {
+			// 마우스를 버튼에 올려놨을 때 이벤트
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				connetButton.setIcon(connectEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
+				connetButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+			}
+			
+			// 마우스를 버튼에서 떼었을때 이벤트
+			@Override  
+			public void mouseExited(MouseEvent e) {
+				connetButton.setIcon(conncetBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
+				connetButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+			}
+			
+			// 마우스로 버튼을 눌렀을 때 이벤트
+			@Override 
+			public void mousePressed(MouseEvent e) {
+				System.out.println("연결 버튼 클릭");
+				// 연결 버튼을 누르면 Server IP, port를 저장한다.
+				ip = serverIp_tf.getText().trim(); // 빈 공간 제거
+				port = Integer.parseInt(port_tf.getText().trim());
+				
+				// 네트워크 연결 설정
+				Network();
+				
+				// connetionCheck 상태에 따른 프레임 및 알림창 상태전환
+				if(connetionCheck) {
+					connetionChecked(connetionCheck);
+					connectToLogin();
+					JOptionPane.showMessageDialog(null,"연결이 정상적으로 이루어졌습니다."
+							+ "\n이제 로그인을 하시기 바랍니다.","알림",JOptionPane.INFORMATION_MESSAGE);
+				} else { // 
+					JOptionPane.showMessageDialog(null, 
+							"로그인 실패!\nServer Port Number가 일치하지 않거나"
+							+"\n서버가 실행중이지 않습니다.\n다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
+				}
+			}
+					
+		});
 		
 		// #로그인 버튼
 		loginButton.setBounds(511, 652, 170, 64);
@@ -216,20 +262,20 @@ public class MainView extends JFrame{
 			public void mousePressed(MouseEvent e) {
 				System.out.println("로그인 버튼 클릭");
 				// 로그인 버튼을 누르면 Server IP, port, id, pw를 저장한다.
-				ip = serverIp_tf.getText().trim(); // 빈 공간 제거
-				port = Integer.parseInt(port_tf.getText().trim()); // int형 형변화
-				id = id_tf.getText().trim();
-				pw = pw_tf.getText().trim();
-					
-				Network();
 				
+				id = id_tf.getText().trim();
+				//JPasswordField는 getText()메소드를 권하지 않는다 하여 아래와 같은 방법으로 저장
+				char[] tempPw = pw_tf.getPassword();
+				for(char a : tempPw) {
+					pw += a;
+				}
+					
 				if(connetionCheck) {
 					dispose(); // MainView를 종료하고 
 					new WatingRoom(); // WatingRoom을 실행한다. 
-				} else {
+				} else { // 
 					JOptionPane.showMessageDialog(null, 
-							"로그인 실패!\nServer Port Number가 일치하지 않거나"
-							+"\n서버가 실행중이지 않습니다.\n다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
+							"로그인 실패!\n아이디와 패스워드를 다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
 				}
 			}
 			
@@ -257,7 +303,12 @@ public class MainView extends JFrame{
 			// 마우스로 버튼을 눌렀을 때 이벤트
 			@Override 
 			public void mousePressed(MouseEvent e) {
-				new JoinView();
+				if(connetionCheck) {
+					new JoinView();
+				} else {
+					JOptionPane.showMessageDialog(null, 
+							"서버와 연결 설정 후에 시도하시기 바랍니다.","알림",JOptionPane.ERROR_MESSAGE);
+				}
 			}
 			
 		});
@@ -265,6 +316,30 @@ public class MainView extends JFrame{
 	// JPanel loginView
 		loginView.setBounds(341, 460, 341, 256);
 		add(loginView);
+		
+		connetionChecked(connetionCheck);
+	}
+	
+	// 연결설정이 완료되면 로그인 버튼으로 바뀐다.
+	private void connectToLogin() {
+		connetButton.setEnabled(false);
+		connetButton.setVisible(false);
+		loginButton.setEnabled(true);
+	}
+	
+	// connetionCheck 값에 따라 
+	private void connetionChecked(boolean connetionCheck) {
+		if(connetionCheck) { // 연결 설정되어 있는 상태일 시
+			serverIp_tf.setEnabled(false);
+			port_tf.setEnabled(false);
+			id_tf.setEnabled(true);
+			pw_tf.setEnabled(true);
+		} else { // 연결 설정이 되어있기 이전 상태일 시
+			serverIp_tf.setEnabled(true);
+			port_tf.setEnabled(true);
+			id_tf.setEnabled(false);
+			pw_tf.setEnabled(false);
+		}
 	}
 	
 	private void Network() 
@@ -366,7 +441,7 @@ public class MainView extends JFrame{
 		}
 	}
 	
-	// 텍스트 필드 글자 수 제한을 위한 메소드
+	// 텍스트 필드 글자 수 제한을 위한 클래스 및 메소드
 	public class JTextFieldLimit extends PlainDocument {
 		private int limit;
 		
@@ -395,6 +470,10 @@ public class MainView extends JFrame{
 		return socket;
 	}
 	
+	// ID를 다른 클래스에서 이어받기 위한 메소드
+	public static String getId() {
+		return id;
+	}
 	
 	/* 아래 paint() 메소드는 GUI Application이 실행되거나 
 	 * 활성/비활성으로 인한 변동 영역을 감지했을때, 실행되는 메소드이다. */
