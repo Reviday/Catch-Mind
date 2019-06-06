@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -45,6 +47,10 @@ public class JoinView extends JFrame{
 	private JTextField dateOfBirth_tf; // 생년월일을 입력받기 위한 텍스트필드
 	private JTextField eMail_tf; // 이메일을 입력받기 위한 텍스트필드
 	
+// Network 자원 변수
+	private Socket socket;// 사용자 소켓
+	private int port; // 포트번호
+	
 // 각종 변수
 	private Image viewImage; // 이미지 저장용 변수
 	private Graphics viewGraphics; // 그래픽 저장용 변수	
@@ -72,6 +78,10 @@ public class JoinView extends JFrame{
 	
 	
 	public JoinView() {
+		//실행과 동시에 socket,port,ID를 MainView로부터 이어받아온다.
+		socket = MainView.getSocket();
+		port = MainView.getPort();
+		
 		Font font = new Font("Inconsolata",Font.BOLD,15);
 	// JFrame mainView
 		setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
@@ -235,8 +245,10 @@ public class JoinView extends JFrame{
 				//입력 정보를 바탕으로 User 객체를 생성
 				User u = new User(id, pw, name, dateOfBirth, eMail, gender);
 				
+//				try(ObjectOutputStream oos = new ObjectOutputStream(u)) {
+					
+//				}
 			}
-			
 		});
 		
 		

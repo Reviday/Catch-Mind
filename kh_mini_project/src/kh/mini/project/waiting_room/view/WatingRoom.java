@@ -224,7 +224,7 @@ public class WatingRoom extends JFrame{
 					JOptionPane.showMessageDialog(null, 
 							"내용을 입력하시기 바랍니다.","알림",JOptionPane.NO_OPTION);
 				} else {
-//					send_message("chatting/"+id+"/"+message);
+					send_message("chatting/"+id+"/"+message);
 					//UserID는 나중에 추가예정
 					chattingArea.append("["+id+"] : "+message+"\n");
 					chatting_tf.setText("");

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
@@ -60,13 +61,19 @@ public class MainView extends JFrame{
 	private OutputStream os;
 	private DataInputStream dis;
 	private DataOutputStream dos;
+//	InetAddress local = InetAddress.getLocalHost();
+//	String localip = local.getHostAddress();
+
+
+
 	
 // 각종 변수
 	private Image viewImage; // 이미지 저장용 변수
 	private Graphics viewGraphics; // 그래픽 저장용 변수
 	private int mouseX, mouseY; // 마우스 좌표용 변수
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
-	private boolean connetionCheck = false; // Waiting room으로 넘어가기 위해 커넥션 체크.(ConnectException 이 발생하면 로그인 실패 알림을 발생시키기 위함)
+	private boolean connectionCheck = false; // Waiting room으로 넘어가기 위해 커넥션 체크.(ConnectException 이 발생하면 로그인 실패 알림을 발생시키기 위함)
+	private boolean loginCk = false;
 	static Vector user_list = new Vector();
 	
 //Image	
@@ -225,8 +232,8 @@ public class MainView extends JFrame{
 				Network();
 				
 				// connetionCheck 상태에 따른 프레임 및 알림창 상태전환
-				if(connetionCheck) {
-					connetionChecked(connetionCheck);
+				if(connectionCheck) {
+					connetionChecked(connectionCheck);
 					connectToLogin();
 					JOptionPane.showMessageDialog(null,"연결이 정상적으로 이루어졌습니다."
 							+ "\n이제 로그인을 하시기 바랍니다.","알림",JOptionPane.INFORMATION_MESSAGE);
@@ -270,9 +277,12 @@ public class MainView extends JFrame{
 					pw += a;
 				}
 					
-				if(connetionCheck) {
-					dispose(); // MainView를 종료하고 
-					new WatingRoom(); // WatingRoom을 실행한다. 
+				if(connectionCheck) {
+					send_message("LoginCheck/"+id+"/"+pw);
+					
+					
+//					dispose(); // MainView를 종료하고 
+//					new WatingRoom(); // WatingRoom을 실행한다. 
 				} else { // 
 					JOptionPane.showMessageDialog(null, 
 							"로그인 실패!\n아이디와 패스워드를 다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
@@ -303,7 +313,7 @@ public class MainView extends JFrame{
 			// 마우스로 버튼을 눌렀을 때 이벤트
 			@Override 
 			public void mousePressed(MouseEvent e) {
-				if(connetionCheck) {
+				if(connectionCheck) {
 					new JoinView();
 				} else {
 					JOptionPane.showMessageDialog(null, 
@@ -317,7 +327,7 @@ public class MainView extends JFrame{
 		loginView.setBounds(341, 460, 341, 256);
 		add(loginView);
 		
-		connetionChecked(connetionCheck);
+		connetionChecked(connectionCheck);
 	}
 	
 	// 연결설정이 완료되면 로그인 버튼으로 바뀐다.
@@ -344,22 +354,57 @@ public class MainView extends JFrame{
 	
 	private void Network() 
 	{	
-		connetionCheck = true; // 연결 시작전에 ture로 초기화
+		connectionCheck = true; // 연결 시작전에 ture로 초기화
 		try {
 			socket = new Socket(ip,port); 
 			
 			if(socket != null) // 정상적으로 소켓이 연결되었을 경우
 			{
-				Connection();
+				//일단 소켓 연결만 실시한 상태. 로그인을 통한 2차 연결이 필요함 
+				norConnetion();
+//				Connection();
 			}
 			
 		} catch (UnknownHostException e) { // 호스트를 찾을 수 없을 때
 			e.printStackTrace();
 		} catch (ConnectException e) {
-			connetionCheck = false; // ConnectException이 발생하면 false로 변경. 로그인 실패 알림창을 띄움.
+			connectionCheck = false; // ConnectException이 발생하면 false로 변경. 로그인 실패 알림창을 띄움.
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
+	}
+	
+	
+	
+	private void norConnetion() {
+		
+		Thread th = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				while (true) {
+					try {
+						if(!loginCk) break;
+						String msg = dis.readUTF(); // 메세지 수신
+						System.out.println(msg);
+						if(msg.equals("LoginOK")) {//LoginOK 메시지를 수신하면 해당 쓰레드를 종료한다.
+							System.out.println("loginCk 실행");
+							loginCk = true;
+							Connection(); 
+						} else {
+							System.out.println("서버로부터 수신된 메세지 : " + msg);
+							inmessage(msg);
+						}
+						
+					} catch (IOException e) {
+					}
+				}
+
+			}
+		});
+		
+		th.start();
 	}
 	
 	private void Connection() // 실제적인 메소드 연결부분

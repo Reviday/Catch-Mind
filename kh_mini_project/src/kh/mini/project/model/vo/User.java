@@ -1,27 +1,27 @@
 package kh.mini.project.model.vo;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
-public class User {
+public class User implements Serializable{
 // 회원가입 입력정보
 	private String id;
 	private String pw;
 	private String name;
 	private String dateOfBirth; // 생년월일(990101)
 	private String eMail;
-	private int age; // dateOfBirth로 계산하여 저장
+	private int age; 			// dateOfBirth로 계산하여 저장
 	private char gender;
 
-//User 정보
+// User 정보
 	private int level; 		// 레벨
 	private int exp; 		// Experience 경험치
 	private int corAnswer;	// Cumulative number of correct answers (누적 정답 개수)
 	
 	public User() {	}
-
+	
 	//회원 가입용 매개변수 생성자
 	public User(String id, String pw, String name, String dateOfBirth, String eMail, char gender) {
-		super();
 		this.id = id;
 		this.pw = pw;
 		this.name = name;
@@ -38,7 +38,6 @@ public class User {
 	//유저 정보 관리용 매개변수 생성자
 	public User(String id, String pw, String name, String dateOfBirth, String eMail, int age, char gender, int level,
 			int exp, int corAnswer) {
-		super();
 		this.id = id;
 		this.pw = pw;
 		this.name = name;
@@ -138,6 +137,7 @@ public class User {
 				+ corAnswer + "]";
 	}
 	
+	// 입력받은 생년월일을 현재 시간을 기준으로 한국나이를 계산하는 메소드
 	public int calcAge(String dateOfBirth) {
 		Calendar todayCal = Calendar.getInstance();
 		Calendar userCal = Calendar.getInstance();
@@ -153,7 +153,8 @@ public class User {
 		
 		long tempCal = (todayCal.getTimeInMillis() - userCal.getTimeInMillis())/1000/24/60/60;
 		
-		
 		return (int)tempCal/365+1; // 한국나이계산
 	}
+	
+
 }
