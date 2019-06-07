@@ -17,11 +17,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -34,17 +36,27 @@ import javax.swing.text.PlainDocument;
 import kh.mini.project.main.view.Main;
 import kh.mini.project.main.view.MainView;
 
-public class WatingRoom extends JFrame{
+public class WaitingRoom extends JFrame{
 // Frame, Panel
-	private JFrame WatingRoomView = new JFrame("Wating Room"); // 메인 프레임
+	private JFrame WaitingRoomView = new JFrame("Waiting Room"); // 메인 프레임
 	private JScrollPane chattingView = new JScrollPane(); // 채팅을 보이게하는 스크롤 페인
-	private JTextArea chattingArea = new JTextArea();
+	private JPanel userListView = new JPanel(); // 유저 리스트 패널
+	private JPanel gameRoomView = new JPanel(); // 게임방 패널
+	private JTextArea chattingArea = new JTextArea(); // 채팅 스크롤 페인에 올려놓을 채팅 TextArea
+	private JPanel[] gameRoom = new JPanel[24]; // 1~24개의 방을 개설 
+	private JPanel[] userList = new JPanel[50]; // 50명의 유저 리스트를 띄우는 패널
 	
 // Label
 	private JLabel mainMenuBar = new JLabel();
+	private JLabel userList_Label = new JLabel("User List");
+	private JLabel gameRoom_Label = new JLabel();
 	
 // Textfield	
 	private JTextField chatting_tf; // 채팅 내용을 입력받기 위한 텍스트필드	
+	
+// list
+//	private JList user_List = new JList();
+//	private JList gameRoom_List = new JList();
 	
 // Network 자원 변수
 	private Socket socket;// 사용자 소켓
@@ -60,6 +72,7 @@ public class WatingRoom extends JFrame{
 	private Graphics viewGraphics; // 그래픽 저장용 변수	
 	private int mouseX, mouseY; // 마우스 좌표용 변수
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
+	private static Vector user_list = new Vector();
 
 	
 //Image	
@@ -72,14 +85,23 @@ public class WatingRoom extends JFrame{
 	// => 버튼 기본상태, 마우스를 올려놨을 때 상태, 눌렀을 때 상태 3가지 가능?
 	private ImageIcon exitBasicImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
 	private ImageIcon exitEnteredImage = new ImageIcon(Main.class.getResource("/images/exite.png")); 
+	private ImageIcon createRoomBasicImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
+	private ImageIcon createRoomEnteredImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
+	private ImageIcon rightRBasicImage = new ImageIcon(Main.class.getResource("/images/화살표1_R_basic.png"));
+	private ImageIcon rightREnteredImage = new ImageIcon(Main.class.getResource("/images/화살표1_R_entered.png")); 
+	private ImageIcon leftRBasicImage = new ImageIcon(Main.class.getResource("/images/화살표1_L_basic.png"));
+	private ImageIcon leftREnteredImage = new ImageIcon(Main.class.getResource("/images/화살표1_L_entered.png")); 
 	
 //Button
 	private JButton exitButton = new JButton(exitBasicImage); // 나가기 버튼
+	private JButton createRoomButton = new JButton(createRoomBasicImage); // 방만들기 버튼
+	private JButton rightRButton = new JButton(rightRBasicImage); // 방 오른쪽 넘기기 버튼
+	private JButton leftRButton = new JButton(leftRBasicImage); // 방 왼쪽 넘기기 버튼
 	
-	public WatingRoom() {
-		//실행과 동시에 socket,port,ID를 MainView로부터 이어받아온다.
-		socket = MainView.getSocket();
-		port = MainView.getPort();
+	public WaitingRoom() {
+		//실행과 동시에 네트워크 변수와 id를 MainView로부터 이어받아온다.
+//		socket = MainView.getSocket();
+//		port = MainView.getPort();
 		id = MainView.getId();
 		
 		Font font = new Font("Inconsolata",Font.BOLD,15); // 폰트 설정
@@ -119,9 +141,16 @@ public class WatingRoom extends JFrame{
 			}
 		});
 		add(mainMenuBar);
+		
+		// #유저 리스트 
+		userList_Label.setBounds(30, 20, 200, 30);
+		userList_Label.setBackground(new Color(40,40,40,40));
+		add(userList_Label);
+		
 				
 	// JScrollPane
-		chattingView.setBounds(212, 470, 600, 250);
+		// #채팅뷰
+		chattingView.setBounds(320, 520, 600, 200);
 		chattingView.setBackground(new Color(40,40,40,40));
 		chattingView.setViewportView(chattingArea);
 		chattingArea.setBackground(new Color(0,0,0,0)); 
@@ -130,11 +159,23 @@ public class WatingRoom extends JFrame{
 		chattingArea.setEditable(false); // 해당 필드를 수정할 수 없음
 		add(chattingView); 
 		
+		// #유저 리스트 뷰
+		userListView.setBounds(30, 400, 180, 350);
+		userListView.setBackground(new Color(40,40,40,40));
+//		userListView.setViewportView(user_List);
+//		user_List.setBackground(new Color(0,0,0,0)); 
+		add(userListView); 
 		
+		// #게임방 뷰
+		gameRoomView.setBounds(240, 110, 760, 370);
+		gameRoomView.setBackground(new Color(40,40,40,40));
+//		gameRoomView.setViewportView(gameRoom_List);
+//		gameRoom_List.setBackground(new Color(0,0,0,0)); 
+		add(gameRoomView); 
 		
 	// TextField
 		chatting_tf = new JTextField(); 
-		chatting_tf.setBounds(212, 720, 600, 30);
+		chatting_tf.setBounds(320, 720, 600, 30);
 		chatting_tf.setBackground(new Color(40,40,40,40));
 		add(chatting_tf);
 		chatting_tf.setDocument(new JTextFieldLimit(45)); // 채팅 45자 제한 	 
@@ -144,7 +185,7 @@ public class WatingRoom extends JFrame{
 			
 	// Button
 		// #나가기 버튼
-		exitButton.setBounds(870, 690, 100, 30);
+		exitButton.setBounds(820, 30, 180, 80);
 		add(exitButton);
 		exitButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -166,18 +207,143 @@ public class WatingRoom extends JFrame{
 				System.exit(0); // 프로세스 종료
 			}
 		});
+		
+		// #방만들기 버튼
+		createRoomButton.setBounds(240, 30, 180, 80);
+		add(createRoomButton);
+		createRoomButton.addMouseListener(new MouseAdapter() {
+			// 마우스를 버튼에 올려놨을 때 이벤트
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				createRoomButton.setIcon(createRoomEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
+				createRoomButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+			}
 
-	} // WatingRoom() 생성자 끝
+			// 마우스를 버튼에서 떼었을때 이벤트
+			@Override
+			public void mouseExited(MouseEvent e) {
+				createRoomButton.setIcon(createRoomBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
+				createRoomButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+			}
+
+			// 마우스로 버튼을 눌렀을 때 이벤트
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+		});
+		
+		// #방 오른쪽 넘기기 버튼
+		rightRButton.setBounds(660, 480, 60, 40);
+		add(rightRButton);
+		rightRButton.addMouseListener(new MouseAdapter() {
+			// 마우스를 버튼에 올려놨을 때 이벤트
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				rightRButton.setIcon(rightREnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
+				rightRButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+			}
+
+			// 마우스를 버튼에서 떼었을때 이벤트
+			@Override
+			public void mouseExited(MouseEvent e) {
+				rightRButton.setIcon(rightRBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
+				rightRButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+			}
+
+			// 마우스로 버튼을 눌렀을 때 이벤트
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+		});
+
+		// #방 왼쪽 넘기기 버튼
+		leftRButton.setBounds(540, 480, 60, 40);
+		add(leftRButton);
+		leftRButton.addMouseListener(new MouseAdapter() {
+			// 마우스를 버튼에 올려놨을 때 이벤트
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				leftRButton.setIcon(leftREnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
+				leftRButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+			}
+
+			// 마우스를 버튼에서 떼었을때 이벤트
+			@Override
+			public void mouseExited(MouseEvent e) {
+				leftRButton.setIcon(leftRBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
+				leftRButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+			}
+
+			// 마우스로 버튼을 눌렀을 때 이벤트
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+		});
+		
+		Connection();
+	} // WaitingRoom() 생성자 끝
 	
-	private void inmessage(String str) // 서버로부터 들어오는 모든 메세지
+	private void Connection() // 실제적인 메소드 연결부분
 	{
-		st = new StringTokenizer(str, "/");  // 어떤 문자열을 사용할 것인지, 어떤 문자열로 자를 것인지 =>  [ NewUser/사용자ID ] 형태로 들어옴
+		dis = MainView.getDis();
+		dos = MainView.getDos();
+	}
+	
+	
+	
+	private void Inmessage(String str) // 서버로부터 들어오는 모든 메세지
+	{
+		st = new StringTokenizer(str, "@");  // 어떤 문자열을 사용할 것인지, 어떤 문자열로 자를 것인지 =>  [ NewUser/사용자ID ] 형태로 들어옴
 		
 		String protocol = st.nextToken(); // 프로토콜을 저장한다.
 		String Message = st.nextToken(); // 메시지를 저장한다.
 		
 		System.out.println("프로토콜 : " + protocol);
 		System.out.println("내용 : " + Message);
+		
+		
+		if(protocol.equals("NewUser")) // 새로운 접속자
+		{
+			user_list.add(Message);
+		}
+		else if(protocol.equals("OldUser")) // 기존 접속자
+		{
+			user_list.add(Message);
+		}
+		else if(protocol.equals("Note")) // 쪽지
+		{
+			String note = st.nextToken(); // 받은 내용
+			
+			System.out.println(Message+" 사용자로부터 온 쪽지 "+note);
+			
+			JOptionPane.showMessageDialog(null, note, Message+"님으로 부터 쪽지", JOptionPane.CLOSED_OPTION);
+		}
+		else if(protocol.equals("user_list_update"))
+		{
+//			User_list.setListData(user_list);
+		}
+		else if(protocol.equals("CreateRoom")) // 방을 만들었을 때
+		{
+//			My_Room = Message;
+		}
+		else if(protocol.equals("CreateRoomFail")) // 방 만들기 실패했을 경우
+		{
+			JOptionPane.showMessageDialog(null, "방 만들기 실패","알림",JOptionPane.ERROR_MESSAGE);
+		}
+		else if(protocol.equals("New_Room")) // 새로운 방을 만들었을 때
+		{
+//			room_list.add(Message);
+//			Room_list.setListData(room_list);
+		}
+		else if(protocol.equals("ChattingWR"))
+		{
+			String msg = st.nextToken(); 
+			System.out.println("내용 : " + msg);
+			chattingArea.append("["+Message+"] : "+msg+"\n");
+		}
 	}
 	
 	private void send_message(String str) // 서버에게 메세지를 보내는 부분
@@ -191,7 +357,9 @@ public class WatingRoom extends JFrame{
 	}
 	
 	
-	
+	public void wr_Inmessage(String str) {
+		Inmessage(str);
+	}
 	
 	
 	
@@ -224,16 +392,22 @@ public class WatingRoom extends JFrame{
 					JOptionPane.showMessageDialog(null, 
 							"내용을 입력하시기 바랍니다.","알림",JOptionPane.NO_OPTION);
 				} else {
-					send_message("chatting/"+id+"/"+message);
+					send_message("ChattingWR/"+id+"/"+message);
 					//UserID는 나중에 추가예정
-					chattingArea.append("["+id+"] : "+message+"\n");
+//					chattingArea.append("["+id+"] : "+message+"\n");
 					chatting_tf.setText("");
 				}
 			}
 		}
 	} // keyAdapter class 끝
 	
+	public static Vector getUserList() {
+		return user_list;
+	}
 	
+	public static void addUserList(Vector v) {
+		user_list.add(v);
+	}
 	
 	/* 아래 paint() 메소드는 GUI Application이 실행되거나 
 	 * 활성/비활성으로 인한 변동 영역을 감지했을때, 실행되는 메소드이다. */
@@ -254,6 +428,6 @@ public class WatingRoom extends JFrame{
 	
 	
 	public static void main(String[] args) {
-		new WatingRoom();
+		new WaitingRoom();
 	}
 }

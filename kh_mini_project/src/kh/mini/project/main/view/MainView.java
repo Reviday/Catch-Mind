@@ -31,7 +31,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import kh.mini.project.waiting_room.view.WatingRoom;
+import kh.mini.project.waiting_room.view.WaitingRoom;
 
 public class MainView extends JFrame{
 // Frame, Panel
@@ -55,12 +55,12 @@ public class MainView extends JFrame{
 	private static Socket socket; // 사용자 소켓
 	private static int port; // 포트번호	
 	private String ip=""; // 127.0.0.1 은 자기 자신
-	private static String id=""; // 사용자 ID
+	private static String id=null; // 사용자 ID
 	private String pw=""; // 사용자 PW => 지금은 가입없이 로그인 가능하게 하여 테스트 진행
 	private InputStream is;
 	private OutputStream os;
-	private DataInputStream dis;
-	private DataOutputStream dos;
+	private static DataInputStream dis;
+	private static DataOutputStream dos;
 //	InetAddress local = InetAddress.getLocalHost();
 //	String localip = local.getHostAddress();
 
@@ -74,7 +74,10 @@ public class MainView extends JFrame{
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
 	private boolean connectionCheck = false; // Waiting room으로 넘어가기 위해 커넥션 체크.(ConnectException 이 발생하면 로그인 실패 알림을 발생시키기 위함)
 	private boolean loginCk = false;
-	static Vector user_list = new Vector();
+	private boolean changePoint = true; // MainView에서 WaitingRoom으로 넘어가는 창전환이 발생하면 false로 바꾸어 해당 run 메소드의 실행을 멈춘다.
+	private boolean flag = false;
+	private WaitingRoom wr;
+	
 	
 //Image	
 	// #MainView 배경
@@ -272,17 +275,14 @@ public class MainView extends JFrame{
 				
 				id = id_tf.getText().trim();
 				//JPasswordField는 getText()메소드를 권하지 않는다 하여 아래와 같은 방법으로 저장
+				pw = "";
 				char[] tempPw = pw_tf.getPassword();
 				for(char a : tempPw) {
 					pw += a;
 				}
 					
 				if(connectionCheck) {
-					send_message("LoginCheck/"+id+"/"+pw);
-					
-					
-//					dispose(); // MainView를 종료하고 
-//					new WatingRoom(); // WatingRoom을 실행한다. 
+					send_message("LoginCheck/" + id + "/" + pw);
 				} else { // 
 					JOptionPane.showMessageDialog(null, 
 							"로그인 실패!\n아이디와 패스워드를 다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
@@ -360,9 +360,7 @@ public class MainView extends JFrame{
 			
 			if(socket != null) // 정상적으로 소켓이 연결되었을 경우
 			{
-				//일단 소켓 연결만 실시한 상태. 로그인을 통한 2차 연결이 필요함 
-				norConnetion();
-//				Connection();
+				Connection();
 			}
 			
 		} catch (UnknownHostException e) { // 호스트를 찾을 수 없을 때
@@ -372,39 +370,6 @@ public class MainView extends JFrame{
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
-	}
-	
-	
-	
-	private void norConnetion() {
-		
-		Thread th = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-
-				while (true) {
-					try {
-						if(!loginCk) break;
-						String msg = dis.readUTF(); // 메세지 수신
-						System.out.println(msg);
-						if(msg.equals("LoginOK")) {//LoginOK 메시지를 수신하면 해당 쓰레드를 종료한다.
-							System.out.println("loginCk 실행");
-							loginCk = true;
-							Connection(); 
-						} else {
-							System.out.println("서버로부터 수신된 메세지 : " + msg);
-							inmessage(msg);
-						}
-						
-					} catch (IOException e) {
-					}
-				}
-
-			}
-		});
-		
-		th.start();
 	}
 	
 	private void Connection() // 실제적인 메소드 연결부분
@@ -422,9 +387,6 @@ public class MainView extends JFrame{
 			
 		} // Stream 설정 끝
 		
-		// 처음 접속시에 ID 전송
-		send_message(id);	
-		
 		Thread th = new Thread(new Runnable() {
 			
 			@Override
@@ -433,6 +395,10 @@ public class MainView extends JFrame{
 				while(true) 
 				{
 					try {
+						
+//						if(!changePoint) break; // while문 조건에 처리하면 dis.readUTF()가 실행되는 현상이 발견되서 이렇게 처리함.
+						System.out.println("MainView 수신 대기중");
+						System.out.println(port);
 						String msg = dis.readUTF(); // 메세지 수신
 						
 						System.out.println("서버로부터 수신된 메세지 : " + msg);
@@ -449,7 +415,7 @@ public class MainView extends JFrame{
 		th.start();
 	}
 	
-	private void send_message(String str) // 서버에게 메세지를 보내는 부분
+	private static void send_message(String str) // 서버에게 메세지를 보내는 부분
 	{
 		try {
 			dos.writeUTF(str);
@@ -476,13 +442,39 @@ public class MainView extends JFrame{
 		System.out.println("프로토콜 : " + protocol);
 		System.out.println("내용 : " + Message);
 		
-		if(protocol.equals("NewUser")) // 새로운 접속자
+		if(protocol.equals("LoginOK")) // 로그인 가능
 		{
-			user_list.add(Message); // 유저 리스트에 새로운 User ID 추가
+			
+//			Connection(); 
+			setVisible(false);
+//			dispose(); // MainView를 종료하고 
+			wr =new WaitingRoom(); // WaitingRoom을 실행한다. 
+//			changePoint = false;
+		}
+		else if(protocol.equals("LoginFail")) //로그인 실패
+		{
+			JOptionPane.showMessageDialog(null, 
+					"로그인 실패!\n 아이디/패스워드를 다시 확인하시기 바랍니다.","알림",JOptionPane.ERROR_MESSAGE);
+		}
+		else if(protocol.equals("NewUser")) // 새로운 접속자
+		{
+//			WaitingRoom.user_list.add(Message); // 유저 리스트에 새로운 User ID 추가
 		}
 		else if(protocol.equals("OldUser")) // 기존 접속자
 		{
-			user_list.add(Message); // 유저 리스트에 기존 User ID 추가
+//			WaitingRoom.user_list.add(Message); // 유저 리스트에 기존 User ID 추가
+		}
+		else if(protocol.equals("user_list_update"))
+		{
+			System.out.println("이게 실행되는거니?");
+			Vector user_list = WaitingRoom.getUserList();
+//			user_list.setListData(user_list);
+		}
+		else if(protocol.equals("WaitingRoom")) // WaitingRoom으로 보낼 용도
+		{	
+			String passMessage = st.nextToken();
+			System.out.println(passMessage);
+			wr.wr_Inmessage(passMessage);
 		}
 	}
 	
@@ -519,6 +511,21 @@ public class MainView extends JFrame{
 	public static String getId() {
 		return id;
 	}
+	
+	// dis를 다른 클래스에서 이어받기 위한 메소드
+	public static DataInputStream getDis() {
+		return dis;
+	}
+	
+	// dos를 다른 클래스에서 이어받기 위한 메소드
+	public static DataOutputStream getDos() {
+		return dos;
+	}
+	
+	//다른 클래스에서 메시지를 서버에 던져주기 위한 메소드
+//	public static void throw_send_message(String str) {
+//		send_message(str);
+//	}
 	
 	/* 아래 paint() 메소드는 GUI Application이 실행되거나 
 	 * 활성/비활성으로 인한 변동 영역을 감지했을때, 실행되는 메소드이다. */

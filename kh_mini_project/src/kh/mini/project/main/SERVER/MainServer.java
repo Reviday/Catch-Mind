@@ -31,6 +31,7 @@ import javax.swing.table.DefaultTableModel;
 import kh.mini.project.db.UserController;
 import kh.mini.project.main.view.Main;
 import kh.mini.project.model.vo.User;
+import kh.mini.project.waiting_room.view.WaitingRoom;
 
 public class MainServer extends JFrame {
 	private static final long serialVersionUID = 1216070372320522836L;
@@ -44,7 +45,7 @@ public class MainServer extends JFrame {
 // Label
 	private JLabel mainMenuBar = new JLabel();
 	
-// Textfield	
+// Textfield
 	private JTextField port_tf; // 포트번호를 입력받기 위한 텍스트필드
 
 // Table
@@ -63,11 +64,13 @@ public class MainServer extends JFrame {
 	private Image viewImage; // 이미지 저장용 변수
 	private Graphics viewGraphics; // 그래픽 저장용 변수
 	private boolean portConection = false; //포트 정상 연결 후 MainView 연결에 사용될 변수
+	private boolean connectCk = false; // 로그인에 사용될 변수
 	private int mouseX,  mouseY; // 마우스 좌표용 변수
 	/* Multi Thread 환경에서는 Vector가 더 나은거같아서 Vector를 써야겠다. */
 	private Vector allUser_vc = new Vector(); // 모든 회원의 정보를 담아두는 Vector
 	private Vector user_vc = new Vector(); // 사용자 Vector 
-	private Vector room_vc = new Vector(); // 채팅방 Vector
+	private Vector wRoom_vc = new Vector(); // 대기실 사용자 Vector
+	private Vector room_vc = new Vector(); // 게임방 사용자 Vector
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
 		
 
@@ -207,6 +210,7 @@ public class MainServer extends JFrame {
 						statusArea.append("사용자 접속 대기중(설정 포트번호 : "+port+")\n");
 						socket = server_Socket.accept(); // 사용자 접속 무한 대기 => 때문에 다른 기능들이 동작하지 않고 죽어버린다. => 멀티 스레드로 해결!
 						statusArea.append("사용자 연결 설정 완료!\n");
+						connectCk = true; // 로그인을 위해 사용될 변수
 						
 						//사용자가 accept로 접속을 하게되면 UserInfo 객체를 생성하게 된다.
 						//UserInfo 생성자는  매개변수로 넘어온 socket을 받아주고 UserNetwork()를 실행하여 연결설정을 하게된다.
@@ -486,80 +490,6 @@ public class MainServer extends JFrame {
 		}
 	}
 	
-//	// 연결과 로그인 사이의 과정(회원 가입 포함)을 위한 클래스
-//	class UserConnect extends Thread
-//	{
-//		private OutputStream os;
-//		private InputStream is;
-//		private DataOutputStream dos;
-//		private DataInputStream dis;
-//		
-//		private Socket user_socket; // 사용자의 ID를 받는다.
-//		private String userID = null; // 사용자의 ID 저장
-//		private boolean loginCk = false; // 로그인 가능 체크
-//		
-//		UserConnect(Socket socket) // 생성자 메소드
-//		{
-//			this.user_socket = socket;
-//		}
-//		
-//		@Override
-//		public void run() //Thread에서 처리할 내용
-//		{
-//			while(true) {
-//				try {
-//					if(!loginCk) break;
-//					String msg = dis.readUTF();
-//					statusArea.append( msg + "\n");
-//					Ininfo(msg);
-//				} catch (IOException e) {
-//				}
-//			}
-//		} // run 메소드 끝
-//		
-//		
-//		// 클라이언트로부터 들어오는 메세지 처리
-//		private void Ininfo(String str) {
-//			System.out.println(str);
-//			st = new StringTokenizer(str, "/");
-//
-//			String protocol = st.nextToken();
-//			String message = st.nextToken();
-//
-//			System.out.println("프로토콜 : " + protocol);
-//			System.out.println("메세지 : " + message);
-//
-//			if (protocol.equals("LoginCheck")) { // 로그인을 위한 프로토콜
-//				String pw = st.nextToken();
-//				// 아이디와 패스워드가 맞는지 확인한다.
-//				for (int i = 0; i < allUser_vc.size(); i++) {
-//					User user = (User) allUser_vc.elementAt(i);
-//
-//					if (user.getId().equals(message) && user.getPw().equals(pw)) // ID와 PW가 일치하는지 확인한다.
-//					{
-//						sendInfo("LoginOK");
-//						loginCk = true;
-//						
-//						
-//						
-//					}
-//				}
-//			} else if (protocol.equals("DuplCheck")) { // 회원가입 시 중복을 체크하기 위한 부분
-//				sendInfo("JoinOK/");
-//			}
-//		}
-//		
-//		private void sendInfo(String str) {
-//			try {
-//				dos.writeUTF(str);
-//				
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		
-//	}
-	
 	// 접속자 별로 쓰레드를 진행하기 위한 클래스
 	class UserInfo extends Thread
 	{
@@ -576,7 +506,7 @@ public class MainServer extends JFrame {
 		UserInfo(Socket socket) // 생성자 메소드
 		{
 			this.user_socket = socket;
-//			UserNetwork();
+			UserNetwork();
 		}
 		
 		
@@ -597,36 +527,35 @@ public class MainServer extends JFrame {
 				os = user_socket.getOutputStream();
 				dos = new DataOutputStream(os);
 				
-				//연결 설정 후에 사용자의 닉네임을 받아들인다.
-				userID = dis.readUTF();
-				statusArea.append(userID+" : 사용자 접속!");
-				
-				//기존 사용자들에게 새로운 사용자 알림(broadcast)
-				System.out.println("현재 접속된 사용자 수 : " + user_vc.size());
-				
-				BroadCast("NewUser/" + userID); // 기존 사용자에게 자신을 알린다. 프로토콜 사용 [ NewUser/사용자ID ]
-				
-				/* 이 상태로 2번쨰 접속자가 접속을 할 경우, 리스트에는 2번째 접속자만 뜨게 된다. 
-				 * 자신의 ID를 리스트에 추가하기전에 자신에게 기존 사용자의 리스트를 알린다.
-				 */
-				//현재 접속중인 사용자의 리스트를 자신에게 알림
-				for(int i=0; i<user_vc.size(); i++) 
-				{
-					UserInfo u = (UserInfo)user_vc.elementAt(i);
-					// 서버가 연결된 사용자에게 보내는 부분
-					send_Message("OldUser/"+u.userID);
-				}
-				
-				
-				user_vc.add(this); // 사용자에게 알린 후 Verctor에 자신을 추가
-				//Vector는 동적으로 늘어나는 배열로 이해하면 되는데, 객체에 저장한 사용자 정보를 Vector에 저장한다.
-				
-				BroadCast("user_list_update/ ");
-				
 			} catch (IOException e) {
 			}
 		}
 		
+		private void userAdd(String str) {
+			//연결 설정 후에 사용자의 닉네임을 받아들인다.
+			userID = str;
+			statusArea.append(userID+" : 사용자 접속!");
+			
+			//기존 사용자들에게 새로운 사용자 알림(broadcast)
+			BroadCast("NewUser/" + userID); // 기존 사용자에게 자신을 알린다. 프로토콜 사용 [ NewUser/사용자ID ]
+			
+			/* 이 상태로 2번쨰 접속자가 접속을 할 경우, 리스트에는 2번째 접속자만 뜨게 된다. 
+			 * 자신의 ID를 리스트에 추가하기전에 자신에게 기존 사용자의 리스트를 알린다.
+			 */
+			//현재 접속중인 사용자의 리스트를 자신에게 알림
+			for(int i=0; i<user_vc.size(); i++) 
+			{
+				UserInfo u = (UserInfo)user_vc.elementAt(i);
+				// 서버가 연결된 사용자에게 보내는 부분
+				send_Message("OldUser/"+u.userID);
+			}
+			
+			
+			user_vc.add(this); // 사용자에게 알린 후 Verctor에 자신을 추가
+			//Vector는 동적으로 늘어나는 배열로 이해하면 되는데, 객체에 저장한 사용자 정보를 Vector에 저장한다.
+			statusArea.append("현재 접속된 사용자 수 : " + user_vc.size()+"\n");
+			BroadCast("user_list_update/ok");
+		}
 		
 		@Override
 		public void run() //Thread에서 처리할 내용
@@ -634,53 +563,17 @@ public class MainServer extends JFrame {
 			while(true) {
 				try {
 					//스트림설정을 안했기 때문에 해당 스트림 설정을 생성자에서 실시
-					
-					
 					String msg = dis.readUTF();
-					
-					
-					
-					if(userID==null) {
+					if(connectCk) { // 이것이 true이면 연결하고 로그인/회원가입을 하기위한 상태
 						statusArea.append("사용자로부터 들어온 메시지 : \n" + msg +"\n");
-						Ininfo(msg);
-						continue; //userID가 null이면 아래 코드는 실행하지 않음.
+					} else {
+						statusArea.append("["+userID+ "]님 으로부터 들어온 메세지 : \n" + msg + "\n");
 					}
-					
-					statusArea.append("["+userID+ "]님 으로부터 들어온 메세지 : " + msg + "\n");
 					Inmessage(msg);
 				} catch (IOException e) {
 				}
 			}
 		} // run 메소드 끝
-		
-		// 클라이언트로부터 들어오는 메세지 처리
-		private void Ininfo(String str) {
-			System.out.println(str);
-			st = new StringTokenizer(str, "/");
-
-			String protocol = st.nextToken();
-			String message = st.nextToken();
-
-			System.out.println("프로토콜 : " + protocol);
-			System.out.println("메세지 : " + message);
-
-			if (protocol.equals("LoginCheck")) { // 로그인을 위한 프로토콜
-				String pw = st.nextToken();
-				// 아이디와 패스워드가 맞는지 확인한다.
-				for (int i = 0; i < allUser_vc.size(); i++) {
-					User user = (User) allUser_vc.elementAt(i);
-
-					if (user.getId().equals(message) && user.getPw().equals(pw)) // ID와 PW가 일치하는지 확인한다.
-					{
-						send_Message("LoginOK/");
-					}
-				}
-			} else if (protocol.equals("DuplCheck")) { // 회원가입 시 중복을 체크하기 위한 부분
-				send_Message("JoinOK/");
-			}
-		}
-		
-		
 		
 		// 클라이언트로부터 들어오는 메세지 처리
 		private void Inmessage(String str) 
@@ -697,15 +590,25 @@ public class MainServer extends JFrame {
 			if(protocol.equals("LoginCheck")) {
 				String pw = st.nextToken();
 				//아이디와 패스워드가 맞는지 확인한다. 
+				boolean findID = false; // 일치하는 계정이 있는지 체크하는 변수
 				for(int i=0; i<allUser_vc.size(); i++) 
 				{
 					User user = (User)allUser_vc.elementAt(i);
-					
 					if(user.getId().equals(message) && user.getPw().equals(pw)) // ID와 PW가 일치하는지 확인한다.
 					{
+						userID = message;
+						connectCk=false;
+						findID = true;
+						send_Message("LoginOK/ok");
+						userAdd(userID);
 						UserNetwork();
 					}
 				}
+				if(!findID) send_Message("LoginFail/fail"); // 찾지 못하였으면 해당 메시지를 보낸다.
+			}
+			else if(protocol.equals("Connect")) 
+			{
+				System.out.println("Connect 토큰 수집");
 			}
 			else if(protocol.equals("Note")) 
 			{
@@ -756,18 +659,11 @@ public class MainServer extends JFrame {
 				
 				RoomCh = true; // 다시 초기값으로 돌림.
 			}// else if 문
-			else if(protocol.equals("Chatting")) // 채팅
+			else if(protocol.equals("ChattingWR")) // 채팅
 			{
 				String msg = st.nextToken(); // 메세지 부분을 잘라서 저장
-				for(int i=0; i<room_vc.size(); i++)  // 전체 방에 대해서 for문을 돌려 방 이름이 같은 곳을 찾는다.
-				{
-					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
-					
-					if(r.Room_name.equals(message)) // 해당 방을 찾았으면
-					{
-						r.BroadCast_Room("Chatting/"+userID+"/"+msg);
-					}
-				}
+				System.out.println(message);
+				BroadCast("WaitingRoom/pass/ChattingWR@"+message+"@"+msg); 
 			}
 			
 		}
@@ -777,7 +673,7 @@ public class MainServer extends JFrame {
 			for(int i=0; i<user_vc.size(); i++)  //현재 접속된 사용자에게 새로운 사용자 알림
 			{	
 				UserInfo u = (UserInfo)user_vc.elementAt(i); //i번쨰에 있는 사용자에게 메세지를 전송
-				
+				System.out.println(u+"에게 : " + str);
 				u.send_Message(str);
 			}
 		}
@@ -796,6 +692,31 @@ public class MainServer extends JFrame {
 		}
 	} // UserInfo class 끝
 	
+	
+	//대기실
+	class WRoomInfo
+	{
+		private String Room_name; // 채팅방 이름
+		private Vector Room_user_vc = new Vector(); // 채팅방 유저 Vector
+		
+		WRoomInfo(String str, UserInfo u)
+		{
+			this.Room_name = str;
+			this.Room_user_vc.add(u); // 채팅방에 입장한 사용자 정보를 Room_user_vc에 추가
+		}
+		
+		public void BroadCast_Room(String str) // 현재 방의 모든 사람에게 알린다.
+		{
+			for(int i=0; i<Room_user_vc.size(); i++) 
+			{
+				UserInfo u = (UserInfo)Room_user_vc.elementAt(i);
+				
+				u.send_Message(str); //넘어온 문자열을 보내준다.
+			}
+		}
+	}
+	
+	//게임방 
 	class RoomInfo
 	{
 		private String Room_name; // 채팅방 이름
