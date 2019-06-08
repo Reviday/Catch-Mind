@@ -2,9 +2,13 @@ package kh.mini.project.waiting_room.view;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -21,9 +25,9 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -42,17 +46,20 @@ public class WaitingRoom extends JFrame{
 	private JScrollPane chattingView = new JScrollPane(); // Ã¤ÆÃÀ» º¸ÀÌ°ÔÇÏ´Â ½ºÅ©·Ñ ÆäÀÎ
 	private JPanel userListView = new JPanel(); // À¯Àú ¸®½ºÆ® ÆÐ³Î
 	private JPanel gameRoomView = new JPanel(); // °ÔÀÓ¹æ ÆÐ³Î
-	private JTextArea chattingArea = new JTextArea(); // Ã¤ÆÃ ½ºÅ©·Ñ ÆäÀÎ¿¡ ¿Ã·Á³õÀ» Ã¤ÆÃ TextArea
-	private JPanel[] gameRoom = new JPanel[24]; // 1~24°³ÀÇ ¹æÀ» °³¼³ 
+	private JPanel[] gameRoom = new JPanel[6]; // 24°³ÀÇ ¹æÀ» °³¼³ => ¹öÆ°À¸·Î ÇØº¼±î??
 	private JPanel[] userList = new JPanel[50]; // 50¸íÀÇ À¯Àú ¸®½ºÆ®¸¦ ¶ç¿ì´Â ÆÐ³Î
 	
 // Label
 	private JLabel mainMenuBar = new JLabel();
 	private JLabel userList_Label = new JLabel("User List");
 	private JLabel gameRoom_Label = new JLabel();
+	private JLabel[] gameRoomNumber_lb = new JLabel[gameRoom.length]; 		// °ÔÀÓ¹æ ³Ñ¹ö ¶óº§ ¹è¿­, gameRoom ¹è¿­ÀÇ Å©±â¸¸Å­ »ý¼º
+	private JLabel[] gameRoomTitle_lb = new JLabel[gameRoom.length]; 		// °ÔÀÓ¹æ Á¦¸ñ ¶óº§ ¹è¿­, gameRoom ¹è¿­ÀÇ Å©±â¸¸Å­ »ý¼º
+	private JLabel[] gameRoomPlayerCount_lb = new JLabel[gameRoom.length];  // °ÔÀÓ¹æ ÀÎ¿ø¼ö ¶óº§ ¹è¿­, gameRoom ¹è¿­ÀÇ Å©±â¸¸Å­ »ý¼º
 	
 // Textfield	
 	private JTextField chatting_tf; // Ã¤ÆÃ ³»¿ëÀ» ÀÔ·Â¹Þ±â À§ÇÑ ÅØ½ºÆ®ÇÊµå	
+	private JTextArea chattingArea = new JTextArea(); // Ã¤ÆÃ ½ºÅ©·Ñ ÆäÀÎ¿¡ ¿Ã·Á³õÀ» Ã¤ÆÃ TextArea
 	
 // list
 //	private JList user_List = new JList();
@@ -72,16 +79,18 @@ public class WaitingRoom extends JFrame{
 	private Graphics viewGraphics; // ±×·¡ÇÈ ÀúÀå¿ë º¯¼ö	
 	private int mouseX, mouseY; // ¸¶¿ì½º ÁÂÇ¥¿ë º¯¼ö
 	private StringTokenizer st; // ÇÁ·ÎÅäÄÝ ±¸ÇöÀ» À§ÇØ ÇÊ¿äÇÔ. ¼ÒÄÏÀ¸·Î ÀÔ·Â¹ÞÀº ¸Þ½ÃÁö¸¦ ºÐ¸®ÇÏ´Âµ¥ ¾²ÀÓ.
-	private static Vector user_list = new Vector();
+	private Vector user_list = new Vector(); // À¯Àú ¸®½ºÆ® Vector
+	private Vector room_list = new Vector(); // ¹æ ¸®½ºÆ® Vector
+	private Vector gUser_list = new Vector(); // °ÔÀÓ¹æ À¯Àú ¸®½ºÆ® Vector
 
 	
 //Image	
-	//MainView ¹è°æ
+	// #MainView ¹è°æ
 	private Image backgroundImage = 
 			new ImageIcon(Main.class.getResource("/images/ÀÓ½Ã5.jpg")).getImage();
 			//Main Å¬·¡½ºÀÇ À§Ä¡¸¦ ±âÁØÀ¸·Î ÀÌ¹ÌÁö ÆÄÀÏÀÇ À§Ä¡¸¦ Ã£Àº ´ÙÀ½¿¡ ÀÌ¹ÌÁö ÀÎ½ºÅÏ½º¸¦ ÇØ´ç º¯¼ö¿¡ ÃÊ±âÈ­ ÇØÁÜ(»ó´ë°æ·Î °°Àº Àý´ë°æ·Î)	
 	
-	//Button Icon (basic : ¹öÆ°ÀÇ ±âº» »óÅÂ, Entered : ¹öÆ°¿¡ ¸¶¿ì½º¸¦ °¡Á®°£ »óÅÂ) 
+	// Button Icon (basic : ¹öÆ°ÀÇ ±âº» »óÅÂ, Entered : ¹öÆ°¿¡ ¸¶¿ì½º¸¦ °¡Á®°£ »óÅÂ) 
 	// => ¹öÆ° ±âº»»óÅÂ, ¸¶¿ì½º¸¦ ¿Ã·Á³ùÀ» ¶§ »óÅÂ, ´­·¶À» ¶§ »óÅÂ 3°¡Áö °¡´É?
 	private ImageIcon exitBasicImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
 	private ImageIcon exitEnteredImage = new ImageIcon(Main.class.getResource("/images/exite.png")); 
@@ -91,6 +100,8 @@ public class WaitingRoom extends JFrame{
 	private ImageIcon rightREnteredImage = new ImageIcon(Main.class.getResource("/images/È­»ìÇ¥1_R_entered.png")); 
 	private ImageIcon leftRBasicImage = new ImageIcon(Main.class.getResource("/images/È­»ìÇ¥1_L_basic.png"));
 	private ImageIcon leftREnteredImage = new ImageIcon(Main.class.getResource("/images/È­»ìÇ¥1_L_entered.png")); 
+	private ImageIcon gamgeRoomImage = new ImageIcon(Main.class.getResource("/images/gameroom.png")); 
+	
 	
 //Button
 	private JButton exitButton = new JButton(exitBasicImage); // ³ª°¡±â ¹öÆ°
@@ -99,9 +110,7 @@ public class WaitingRoom extends JFrame{
 	private JButton leftRButton = new JButton(leftRBasicImage); // ¹æ ¿ÞÂÊ ³Ñ±â±â ¹öÆ°
 	
 	public WaitingRoom() {
-		//½ÇÇà°ú µ¿½Ã¿¡ ³×Æ®¿öÅ© º¯¼ö¿Í id¸¦ MainView·ÎºÎÅÍ ÀÌ¾î¹Þ¾Æ¿Â´Ù.
-//		socket = MainView.getSocket();
-//		port = MainView.getPort();
+		//½ÇÇà°ú µ¿½Ã¿¡ id¸¦ MainView·ÎºÎÅÍ ÀÌ¾î¹Þ¾Æ¿Â´Ù.
 		id = MainView.getId();
 		
 		Font font = new Font("Inconsolata",Font.BOLD,15); // ÆùÆ® ¼³Á¤
@@ -168,6 +177,11 @@ public class WaitingRoom extends JFrame{
 		
 		// #°ÔÀÓ¹æ ºä
 		gameRoomView.setBounds(240, 110, 760, 370);
+		gameRoomView.setLayout(new FlowLayout(FlowLayout.CENTER));
+		allocationRoom(); // ´ë±â½Ç¿¡ °ÔÀÓ¹æÀÌ º¸ÀÌµµ·Ï ÇÏ´Â ¸Þ¼Òµå
+		
+		
+		
 		gameRoomView.setBackground(new Color(40,40,40,40));
 //		gameRoomView.setViewportView(gameRoom_List);
 //		gameRoom_List.setBackground(new Color(0,0,0,0)); 
@@ -229,7 +243,7 @@ public class WaitingRoom extends JFrame{
 			// ¸¶¿ì½º·Î ¹öÆ°À» ´­·¶À» ¶§ ÀÌº¥Æ®
 			@Override
 			public void mousePressed(MouseEvent e) {
-				
+				new CreateRoom();
 			}
 		});
 		
@@ -356,12 +370,78 @@ public class WaitingRoom extends JFrame{
 		}
 	}
 	
-	
+	// MainView Å¬·¡½º¿¡¼­ WaitingRoom Å¬·¡½º·Î ¸Þ½ÃÁö¸¦ Àü´ÞÇÏ±â À§ÇØ »ç¿ëÇÏ´Â ¸Þ¼Òµå
 	public void wr_Inmessage(String str) {
 		Inmessage(str);
 	}
 	
+	// ´ë±â½Ç 24°³ÀÇ ¹æÀ» »ý¼ºÇÏ±â À§ÇÑ ¸Þ¼Òµå 
+	private void allocationRoom() {
+		Font roomFont = new Font("Inconsolata",Font.BOLD,17); // ÆùÆ® ¼³Á¤
+		for(int i=0; i<gameRoom.length; i++) {
+			// ³»ºÎ Å¬·¡½º GameRoomPanel Å¬·¡½º¸¦ ÀÌ¿ëÇØ¼­ gameRoom PanelÀ» »ý¼º
+			gameRoom[i] = new GameRoomPanel(gamgeRoomImage.getImage());
+			
+			gameRoomView.add(gameRoom[i]);
+		}
+	}
 	
+	private void createRoom(String title) {
+		Font roomFont = new Font("Inconsolata",Font.BOLD,17); // ÆùÆ® ¼³Á¤
+		int roomNo = 0;
+		// 1ºÎÅÍ »ý¼º°¡´ÉÇÑ ¹æÀÇ ÃÖ´ë °³¼ö¸¸Å­ÀÇ ¹üÀ§¿¡¼­ ·£´ýÇÏ°Ô ¹øÈ£¸¦ ÇÑ °³ ÇÒ´çÇÑ´Ù.(Áßº¹À» Çã¿ëÇÏÁö ¾Ê´Â´Ù.)
+//		int roomNo = (int)(Math.random()*gameRoom.length) + 1;  // ÀÌ ±â´ÉÀ» Ãß°¡ÇÏ´Â°Ç ³ªÁß¿¡.. ÀÏ´Ü ¼øÂ÷ÀûÀ¸·Î ¹øÈ£ ÇÒ´çÇÏ´Â ¼öÁØ ºÎÅÍ ½ÃÀÛ.
+		Pointer:
+		while(true) {
+			//VectorÀÇ ±¸¼ºÀº (ÀÎµ¦½º, °ª);
+			for(int i=0; i<=room_list.size(); i++) {
+				if(room_list.get(i).equals(null));
+			}
+			
+			break;
+		}
+		
+		
+		// °ÔÀÓ¹æ ¹øÈ£¸¦ ¼³Á¤ÇÒ JLabelÀ» ÇÒ´ç
+		gameRoomNumber_lb[roomNo-1] = new JLabel();
+		String number = "";
+		// ¹æ¹øÈ£ ¼³Á¤. roomNo°ª¿¡ µû¶ó ÇØ´ç ¹æ¹øÈ£¸¦ ÁöÁ¤. 000 ÀÇ ÇüÅÂ·Î ¼³Á¤. 
+		int temp = roomNo, tempI;
+		for (int j = 1; j <= 3; j++) {
+			if ((tempI=temp % 10)==0) {
+				number = "" + 0 + number;
+			} else {
+				number = "" + tempI + number;
+			}
+			temp /= 10;
+		}
+		gameRoomNumber_lb[roomNo-1].setText(number);
+		gameRoomNumber_lb[roomNo-1].setFont(roomFont);
+		gameRoomNumber_lb[roomNo-1].setBounds(32, 23, 40, 20);
+		gameRoomNumber_lb[roomNo-1].setForeground(Color.DARK_GRAY);
+		gameRoomNumber_lb[roomNo-1].setLayout(null);
+		gameRoom[roomNo-1].add(gameRoomNumber_lb[roomNo-1]);
+		
+		// °ÔÀÓ¹æ Á¦¸ñÀ» ¼³Á¤ÇÒ JLabelÀ» ÇÒ´ç
+		gameRoomTitle_lb[roomNo-1] = new JLabel();
+		gameRoomTitle_lb[roomNo-1].setText("No Title");
+		gameRoomTitle_lb[roomNo-1].setFont(roomFont);
+		gameRoomTitle_lb[roomNo-1].setBounds(90, 23, 200, 20);
+		gameRoomTitle_lb[roomNo-1].setForeground(Color.DARK_GRAY);
+		gameRoom[roomNo-1].add(gameRoomTitle_lb[roomNo-1]);
+		
+		// °ÔÀÓ¹æ ÀÎ¿ø¼ö¸¦ ¼³Á¤ÇÒ JLabelÀ» ÇÒ´ç
+		gameRoomPlayerCount_lb[roomNo-1] = new JLabel();
+		gameRoomPlayerCount_lb[roomNo-1].setText("0 / 6");
+		gameRoomPlayerCount_lb[roomNo-1].setFont(roomFont);
+		gameRoomPlayerCount_lb[roomNo-1].setBounds(275, 68, 50, 20);
+		gameRoomPlayerCount_lb[roomNo-1].setForeground(Color.DARK_GRAY);
+		gameRoom[roomNo-1].add(gameRoomPlayerCount_lb[roomNo-1]);
+		
+		// ÀÌ·¸°Ô »ý¼ºÇÑ ÆÐ³ÎÀ» ºä¿¡ Ãß°¡ÇÑ´Ù.
+		gameRoomView.add(gameRoom[roomNo-1]);
+		
+	}
 	
 	
 	// ÅØ½ºÆ® ÇÊµå ±ÛÀÚ ¼ö Á¦ÇÑÀ» À§ÇÑ Å¬·¡½º ¹× ¸Þ¼Òµå
@@ -401,14 +481,14 @@ public class WaitingRoom extends JFrame{
 		}
 	} // keyAdapter class ³¡
 	
-	public static Vector getUserList() {
-		return user_list;
-	}
-	
-	public static void addUserList(Vector v) {
-		user_list.add(v);
-	}
-	
+//	public static Vector getUserList() {
+//		return user_list;
+//	}
+//	
+//	public static void addUserList(Vector v) {
+//		user_list.add(v);
+//	}
+//	
 	/* ¾Æ·¡ paint() ¸Þ¼Òµå´Â GUI ApplicationÀÌ ½ÇÇàµÇ°Å³ª 
 	 * È°¼º/ºñÈ°¼ºÀ¸·Î ÀÎÇÑ º¯µ¿ ¿µ¿ªÀ» °¨ÁöÇßÀ»¶§, ½ÇÇàµÇ´Â ¸Þ¼ÒµåÀÌ´Ù. */
 	
@@ -429,5 +509,191 @@ public class WaitingRoom extends JFrame{
 	
 	public static void main(String[] args) {
 		new WaitingRoom();
+	}
+	
+	
+	// ¹æ¸¸µé±â ÇÁ·¹ÀÓ
+	class CreateRoom extends JFrame{
+	// TextField
+		private JTextField roomTitel_tf = new JTextField(); // ¹æ Á¦¸ñ
+		private JTextField roomPw_tf = new JTextField();  // ¹æ ºñ¹Ð¹øÈ£
+	
+	// ComboBox
+		private String[] state = {"°ø°³","ºñ°ø°³"};
+		private Integer[] player = {2,3,4,5,6}; // ÃÖ´ëÀÎ¿ø 6¸íÀ¸·Î ¼³Á¤
+		private JComboBox<String> roomState_tf = new JComboBox<String>(state); // °ø°³/ºñ°ø°³ ¼³Á¤À» À§ÇÑ ÄÞº¸¹Ú½º
+		private JComboBox<Integer> rPlayer_tf = new JComboBox<Integer>(player); // ÀÎ¿ø¼ö ¼³Á¤À» À§ÇÑ ÄÞº¸¹Ú½º
+		
+	// °¢Á¾ º¯¼ö º¯¼ö
+		private Image viewImage; // ÀÌ¹ÌÁö ÀúÀå¿ë º¯¼ö
+		private Graphics viewGraphics; // ±×·¡ÇÈ ÀúÀå¿ë º¯¼ö	
+		private int mouseX; // ¸¶¿ì½º ÁÂÇ¥ º¯¼ö
+		private int mouseY; // ¸¶¿ì½º ÁÂÇ¥ º¯¼ö
+		
+	// Image
+		// # CreateRoom ¹è°æ
+		private Image crbackgroundImage = 
+				new ImageIcon(Main.class.getResource("/images/CreateRoom.png")).getImage();
+		// #¹æ¸¸µé±â ÇÁ·¹ÀÓ ³»ºÎ ¹öÆ°¿ë ÀÌ¹ÌÁö
+		private ImageIcon crCancelBasicImage = new ImageIcon(Main.class.getResource("/images/cancelButtonBasic.png"));
+		private ImageIcon crCancelEnteredImage = new ImageIcon(Main.class.getResource("/images/cancelButtonEntered.png")); 
+		private ImageIcon createBasicImage = new ImageIcon(Main.class.getResource("/images/createRoomButtonBasic.png"));
+		private ImageIcon createEnteredImage = new ImageIcon(Main.class.getResource("/images/createRoomButtonEntered.png"));
+		// Button
+		private JButton cancelButton = new JButton(crCancelBasicImage); // Ãë¼Ò ¹öÆ°
+		private JButton createButton = new JButton(createBasicImage); // ¹æ¸¸µé±â ¹öÆ°
+		
+		
+		
+		public CreateRoom() {
+			Font font = new Font("Inconsolata",Font.PLAIN,11); 
+			setUndecorated(true); // ÇÁ·¹ÀÓ Å¸ÀÌÆ² ¹Ù Á¦°Å(À©µµ¿ì¸¦ Á¦°ÅÇÔ) - ±â´É ¿Ï¼º ÈÄ Ãß°¡ ¿¹Á¤
+			setSize(360,213); // nullÀº ÃÖ´ñ°ª
+			setPreferredSize(new Dimension(crbackgroundImage.getWidth(null), crbackgroundImage.getHeight(null)));
+			setResizable(false); // ÇÁ·¹ÀÓ Å©±â °íÁ¤
+			setLocationRelativeTo(null); // À©µµ¿ì¸¦ È­¸é Á¤Áß¾Ó¿¡ ¶ç¿ì±â À§ÇÔ
+			setBackground(new Color(0,0,0,0));
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // À©µµ¿ì Á¾·á½Ã ³²¾ÆÀÖ´Â ÇÁ·Î¼¼½ºµµ ±ú²ýÇÏ°Ô Á¾·áÇÏ±â À§ÇÔ
+			setVisible(true); // À©µµ¿ì¸¦ º¼ ¼ö ÀÖÀ½.
+			setLayout(null);	
+			
+			// ¸¶¿ì½º·Î Ã¢À» ¿òÁ÷ÀÏ ¼ö ÀÖ´Ù.
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					mouseX = e.getX();
+					mouseY = e.getY();
+				}
+			});
+			addMouseMotionListener(new MouseMotionAdapter() {
+				// #¸Å´º¹Ù µå·¡±× ½Ã, ¿òÁ÷ÀÏ ¼ö ÀÖ°Ô ÇÑ´Ù.
+				@Override
+				public void mouseDragged(MouseEvent e) {
+					int x = e.getXOnScreen();
+					int y = e.getYOnScreen();
+					setLocation(x - mouseX, y - mouseY);
+				}
+			});
+		
+		// TextField / ComboBox
+			// # Á¦¸ñ ÀÔ·Â
+			roomTitel_tf.setBounds(88,47,244,20);
+			roomTitel_tf.setFont(font);
+			roomTitel_tf.setDocument(new JTextFieldLimit(20)); // Á¦¸ñ 20ÀÚ Á¦ÇÑ 	 
+			add(roomTitel_tf);
+			
+			// # °ø°³/ºñ°ø°³ »óÅÂ ÄÞº¸¹Ú½º
+			roomState_tf.setBounds(88,78,78,20);
+			roomState_tf.setFont(font);
+			add(roomState_tf);
+			roomState_tf.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String state = roomState_tf.getSelectedItem().toString();
+					if(state.equals("°ø°³")) {
+						roomPw_tf.setEnabled(false);
+					} else if (state.equals("ºñ°ø°³")) {
+						roomPw_tf.setEnabled(true);
+					}
+				}
+			});
+			
+			// # ¹æ ºñ¹Ð¹øÈ£ ÀÔ·Â(ÄÞº¸¹Ú½º ÀÌº¥Æ®¿¡ µû¶ó È°¼³/ºñÈ°¼º)
+			roomPw_tf.setBounds(88,103,78,20);
+			roomPw_tf.setFont(font);
+			roomPw_tf.setDocument(new JTextFieldLimit(10)); // ºñ¹Ð¹øÈ£ 10ÀÚ Á¦ÇÑ 	
+			roomPw_tf.setEnabled(false); // ÃÊ±â¿¡ "°ø°³"¼³Á¤ÀÌ±â¶§¹®¿¡ ºñÈ°¼º »óÅÂ·Î µÐ´Ù.
+			add(roomPw_tf);
+			
+			// # ÀÎ¿ø¼ö ¼³Á¤ ÄÞº¸¹Ú½º
+			rPlayer_tf.setBounds(88,128,78,20);
+			roomPw_tf.setFont(font);
+			add(rPlayer_tf);
+			
+			
+		// Button
+			// #¯M¼Ò ¹öÆ°
+			cancelButton.setBounds(187, 180, 72, 24);
+			add(cancelButton);
+			cancelButton.addMouseListener(new MouseAdapter() {
+				// ¸¶¿ì½º¸¦ ¹öÆ°¿¡ ¿Ã·Á³ùÀ» ¶§ ÀÌº¥Æ®
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					cancelButton.setIcon(crCancelEnteredImage); // ¸¶¿ì½º¸¦ ¿Ã·Á³ùÀ»¶§ ÀÌ¹ÌÁö º¯°æ(Entered Image)
+					cancelButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // ¸¶¿ì½º Ä¿¼­¸¦ ¼Õ¸ð¾ç Ä¿¼­·Î º¯°æ
+				}
+				
+				// ¸¶¿ì½º¸¦ ¹öÆ°¿¡¼­ ¶¼¾úÀ»¶§ ÀÌº¥Æ®
+				@Override  
+				public void mouseExited(MouseEvent e) {
+					cancelButton.setIcon(crCancelBasicImage); // ¸¶¿ì½º¸¦ ¶¼¾úÀ»¶§ ÀÌ¹ÌÁö º¯°æ(Basic Image)
+					cancelButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // ¸¶¿ì½º Ä¿¼­¸¦ ±âº» Ä¿¼­·Î º¯°æ
+				}
+				// ¸¶¿ì½º·Î ¹öÆ°À» ´­·¶À» ¶§ ÀÌº¥Æ®
+				@Override 
+				public void mousePressed(MouseEvent e) {
+					dispose(); 
+				}
+			});
+			
+			// #¸¸µé±â ¹öÆ°
+			createButton.setBounds(101, 180, 72, 24);
+			add(createButton);
+			createButton.addMouseListener(new MouseAdapter() {
+				// ¸¶¿ì½º¸¦ ¹öÆ°¿¡ ¿Ã·Á³ùÀ» ¶§ ÀÌº¥Æ®
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					createButton.setIcon(createEnteredImage); // ¸¶¿ì½º¸¦ ¿Ã·Á³ùÀ»¶§ ÀÌ¹ÌÁö º¯°æ(Entered Image)
+					createButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // ¸¶¿ì½º Ä¿¼­¸¦ ¼Õ¸ð¾ç Ä¿¼­·Î º¯°æ
+				}
+				
+				// ¸¶¿ì½º¸¦ ¹öÆ°¿¡¼­ ¶¼¾úÀ»¶§ ÀÌº¥Æ®
+				@Override  
+				public void mouseExited(MouseEvent e) {
+					createButton.setIcon(createBasicImage); // ¸¶¿ì½º¸¦ ¶¼¾úÀ»¶§ ÀÌ¹ÌÁö º¯°æ(Basic Image)
+					createButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // ¸¶¿ì½º Ä¿¼­¸¦ ±âº» Ä¿¼­·Î º¯°æ
+				}
+				// ¸¶¿ì½º·Î ¹öÆ°À» ´­·¶À» ¶§ ÀÌº¥Æ®
+				@Override 
+				public void mousePressed(MouseEvent e) {
+					
+				}
+			});
+			
+			
+			
+		}
+		@Override
+		public void paint(Graphics g) {
+			viewImage = createImage(360,213);
+			viewGraphics = viewImage.getGraphics();
+			screenDraw(viewGraphics);
+			g.drawImage(viewImage,0,0, null);
+		}
+		
+		public void screenDraw(Graphics g) {
+			g.drawImage(crbackgroundImage, 0, 0, null);
+			paintComponents(g);
+			this.repaint();
+		}	
+	}
+	
+	
+	
+	// °ÔÀÓ¹æ ÇÏ³ªÇÏ³ª¸¦ JPanelÀ» »ó¼Ó¹ÞÀº GameRoomPanel Å¬·¡½º·Î »ý¼ºÇÑ´Ù.
+	class GameRoomPanel extends JPanel{
+		private Image img;
+		
+		public GameRoomPanel(Image img) {
+			this.img = img;
+			setSize(new Dimension(img.getWidth(null), img.getHeight(null))); // nullÀº ÃÖ´ñ°ª
+			setPreferredSize(new Dimension(img.getWidth(null), img.getHeight(null)));
+			setLayout(null); // ÆÐ³Î¿¡ Ãß°¡ÇÏ´Â ¿ä¼ÒµéÀÇ À§Ä¡¸¦ ÀÚÀ¯·Ó°Ô ¼³Á¤ÇÏ±â À§ÇØ LayoutÀ» null·Î ÇØÁØ´Ù.
+		}
+		
+		// ÆÐ³ÎÀ» ¿­¾úÀ» ¶§ ÀÚµ¿À¸·Î ÀÌ¹ÌÁö¸¦ ±×·ÁÁÖ´Â ¸Þ¼Òµå
+		public void paintComponent(Graphics g)  {
+			g.drawImage(img, 0, 0, null);
+		}
 	}
 }

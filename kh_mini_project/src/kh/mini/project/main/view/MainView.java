@@ -61,11 +61,6 @@ public class MainView extends JFrame{
 	private OutputStream os;
 	private static DataInputStream dis;
 	private static DataOutputStream dos;
-//	InetAddress local = InetAddress.getLocalHost();
-//	String localip = local.getHostAddress();
-
-
-
 	
 // 각종 변수
 	private Image viewImage; // 이미지 저장용 변수
@@ -77,7 +72,6 @@ public class MainView extends JFrame{
 	private boolean changePoint = true; // MainView에서 WaitingRoom으로 넘어가는 창전환이 발생하면 false로 바꾸어 해당 run 메소드의 실행을 멈춘다.
 	private boolean flag = false;
 	private WaitingRoom wr;
-	
 	
 //Image	
 	// #MainView 배경
@@ -95,14 +89,11 @@ public class MainView extends JFrame{
 	private ImageIcon joinBasicImage = new ImageIcon(Main.class.getResource("/images/조인.png"));
 	private ImageIcon joinEnteredImage = new ImageIcon(Main.class.getResource("/images/조인.png")); 
 	
-	
-	
 //Button
 	private JButton exitButton = new JButton(exitBasicImage); // 나가기 버튼
 	private JButton connetButton = new JButton(conncetBasicImage); // 연결 버튼
 	private JButton loginButton = new JButton(loginBasicImage); // 로그인 버튼
 	private JButton joinButton = new JButton(joinBasicImage); // 회원가입 버튼
-	
 	
 	MainView() {
 	// JFrame mainView
@@ -467,7 +458,7 @@ public class MainView extends JFrame{
 		else if(protocol.equals("user_list_update"))
 		{
 			System.out.println("이게 실행되는거니?");
-			Vector user_list = WaitingRoom.getUserList();
+//			Vector user_list = WaitingRoom.getUserList();
 //			user_list.setListData(user_list);
 		}
 		else if(protocol.equals("WaitingRoom")) // WaitingRoom으로 보낼 용도
