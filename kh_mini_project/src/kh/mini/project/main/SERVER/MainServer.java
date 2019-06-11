@@ -589,7 +589,7 @@ public class MainServer extends JFrame {
 							+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer+"@"+"last";
 				} else {
 					msg="WaitingRoom/pass/OldUser@"
-							+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer+"@";
+							+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer+"@ ";
 				}
 				send_Message(msg);
 			}

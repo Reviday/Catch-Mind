@@ -696,12 +696,12 @@ public class WaitingRoom extends JFrame{
 		private JButton cancelButton = new JButton(crCancelBasicImage); // 취소 버튼
 		private JButton createButton = new JButton(createBasicImage); // 방만들기 버튼
 		
-		
 		public CreateRoom() {
 			Font font = new Font("Inconsolata",Font.PLAIN,11); 
 			setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
 			setSize(360,213); // null은 최댓값
 			setBackground(new Color(0,0,0,0));
+			setAlwaysOnTop(true); // 항상 모든 윈도우 위에 위치하도록 함
 			setPreferredSize(new Dimension(crbackgroundImage.getWidth(null), crbackgroundImage.getHeight(null)));
 			setResizable(false); // 프레임 크기 고정
 			setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
