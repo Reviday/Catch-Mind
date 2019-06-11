@@ -14,6 +14,10 @@ public class RoomInfo {
 		this.room_name = room_name;
 		this.room_PW = room_PW;
 		this.room_UCount = room_UCount;
+		
+		if(room_PW.equals(null)) {
+			
+		}
 	}
 
 	public int getRoom_No() {

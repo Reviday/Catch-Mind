@@ -11,11 +11,15 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -33,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -42,7 +47,7 @@ import javax.swing.text.PlainDocument;
 
 import kh.mini.project.main.view.Main;
 import kh.mini.project.main.view.MainView;
-import kh.mini.project.model.vo.User;
+import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
 
 public class WaitingRoom extends JFrame{
@@ -93,6 +98,7 @@ public class WaitingRoom extends JFrame{
 	private Vector gUser_list = new Vector(); // 게임방 유저 리스트 Vector
 	private Vector<UserInfo> user_list = new Vector<UserInfo>();
 	private Toolkit tk = Toolkit.getDefaultToolkit();
+	// 커서 테스트
 	Image img = tk.getImage(Main.class.getResource("/images/커서테스트.png"));
 	Cursor myCursor = tk.createCustomCursor(img, new Point(10,10), "dynamite stick");
 	// 방 만들기에 필요한 변수
@@ -100,6 +106,8 @@ public class WaitingRoom extends JFrame{
 	private String roomPW; // 방 비밀번호
 	private int uCount; // 방 인원수
 	private int roomNo; // 방 번호
+	private boolean scrollpanemove = false;  // 스크롤 패인에 사용되는 변수(스크롤 허용 관련)
+	private RoomInfo roomInfo; // 사용자가 생성한 방의 객체
 	
 	
 //Image	
@@ -189,7 +197,25 @@ public class WaitingRoom extends JFrame{
 		chattingArea.setFont(font);
 		chattingArea.setForeground(Color.BLACK);
 		chattingArea.setEditable(false); // 해당 필드를 수정할 수 없음
-		add(chattingView); 
+		chattingView.setViewportView(chattingArea);
+		/* 이하 코드는 쓰레드 환경에서도 자동 스크롤이 되게하려는 메소드이다. */
+		chattingView.addMouseWheelListener(new MouseWheelListener() {
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				scrollpanemove = true;
+			}
+		});
+		chattingView.getVerticalScrollBar().addAdjustmentListener(new	AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) { // 수정리스너에서 변수(휠의 길이,위치)가 변경될시 메소드 작성
+				if (scrollpanemove) { // 만약 스크롤 무브가 허용되있을시
+					scrollpanemove = false; // 밑으로 내리는 것을 하지않고, 비허용으로 바꾼다.
+				} else {
+					JScrollBar src = (JScrollBar) e.getSource();
+					src.setValue(src.getMaximum());
+				}
+			}
+		});
+		add(chattingView);
 		
 		// #유저 정보(자신) 뷰
 		userInfoView.setBounds(30, 250, 190, 68);
@@ -396,13 +422,11 @@ public class WaitingRoom extends JFrame{
 			
 			JOptionPane.showMessageDialog(null, note, Message+"님으로 부터 쪽지", JOptionPane.CLOSED_OPTION);
 		}
-		else if(protocol.equals("user_list_update"))
-		{
-//			User_list.setListData(user_list);
-		}
 		else if(protocol.equals("CreateRoom")) // 방을 만들었을 때
 		{
-			/* 방을 생성함과 동시에, 게임창으로 넘어가도록 한다. */ 
+			String room_No = st.nextToken();
+//			roomInfo.setRoom_No(room_No);
+			
 		}
 		else if(protocol.equals("New_Room")) // 새로운 방을 만들었을 때
 		{
@@ -552,31 +576,22 @@ public class WaitingRoom extends JFrame{
 		for(int i=0; i<userList.length; i++) {
 			// 내부 클래스 GameRoomPanel 클래스를 이용해서 User List Panel을 생성
 			GameRoomPanel grp = new GameRoomPanel(userInfoPanelImage.getImage());
+			// 마우스 리스너 추가 예정
 //			grp.addMouseListener( new MouseAdapter() {
 //			});
 			userList[i] = grp;
 			
-			// JPanel,JLabel을 선언 및 할당
-//			userList[i] = new JPanel();
-//			userList[i].setSize(180,32);
+			// JLabel을 선언 및 할당
 			userID_lb[i] = new JLabel();
 			// 현재 접속된 유저의 리스트 만큼 텍스트를 지정해준다. (저장값은 유저id)
-//			if(i<user_list.size()) {
-//				UserInfo u = (UserInfo)user_list.get(i);
-//				userID_lb[i].setText(u.getUserID());
-//			} else {
-//				userID_lb[i].setText("no userID");
-//			}
 			// userID_lb 셋팅
 			userID_lb[i].setFont(infoFont);
-//			System.out.println(userID_lb[i].getText());
 			userID_lb[i].setBounds(40, 1, 160, 30);
 			userID_lb[i].setForeground(Color.black);
 			userID_lb[i].setLayout(null);
 			userList[i].add(userID_lb[i]);
 			userListView.add(userList[i]);
 		}
-//		add(userListView);
 		revalidate();
 		repaint();
 	}
@@ -589,8 +604,6 @@ public class WaitingRoom extends JFrame{
 			if(i<user_list.size()) {
 				UserInfo u = (UserInfo)user_list.get(i);
 				userID_lb[i].setText(u.getUserID());
-			} else {
-//				userID_lb[i].setText("no userID");
 			}
 			// userID_lb 셋팅
 			userID_lb[i].setFont(infoFont);
@@ -598,11 +611,8 @@ public class WaitingRoom extends JFrame{
 			userList[i].add(userID_lb[i]);
 			userListView.add(userList[i]);
 		}
-//		add(userListView);
 		userListView.revalidate();
 		userListView.repaint();
-//		gameRoomView.revalidate();
-//		gameRoomView.repaint();
 	}
 	
 	
@@ -821,10 +831,12 @@ public class WaitingRoom extends JFrame{
 						
 						// 입력받은 값을 서버에 전송한다.
 						send_message("CreateRoom/"+id+"/"+title+"/"+state+"/"+roomPW+"/"+uCount);
+						
+						//해당 값을 가지고 RoomInfo 객체를 생성한다. 이때, 방번호는 0번으로 초기화하여 생성
+						roomInfo = new RoomInfo(0,title, roomPW, uCount );
 					}
 				}
 			});
-			
 			
 		}
 		

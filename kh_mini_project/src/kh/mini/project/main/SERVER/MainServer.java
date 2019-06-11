@@ -5,9 +5,13 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,7 +29,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -35,7 +39,6 @@ import javax.swing.table.DefaultTableModel;
 import kh.mini.project.db.UserController;
 import kh.mini.project.main.view.Main;
 import kh.mini.project.model.vo.User;
-import kh.mini.project.waiting_room.view.WaitingRoom;
 
 public class MainServer extends JFrame {
 	private static final long serialVersionUID = 1216070372320522836L;
@@ -81,7 +84,7 @@ public class MainServer extends JFrame {
 //	private Vector wRoom_vc = new Vector(); // 대기실 사용자 Vector  => 대기실유저/인게임 유저 나눠야하니까 구상해야함.
 	private Vector<RoomInfo> room_vc = new Vector<RoomInfo>(); // 게임방 사용자 Vector
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
-		
+	private boolean scrollpanemove = false; // 스크롤 패인에 사용되는 변수(스크롤 허용 관련)
 
 	
 //Image	
@@ -319,11 +322,31 @@ public class MainServer extends JFrame {
 		// ScrollPane
 			statusView.setBounds(10, 20, 260,330);
 			statusView.setBackground(new Color(0,0,0,0));
+			statusView.getVerticalScrollBar().setValue(statusView.getVerticalScrollBar().getMaximum());
 			statusArea.setBackground(new Color(80,80,80,0));  
 			statusArea.setFont(font);
 			statusArea.setForeground(Color.white);
 			statusView.setViewportView(statusArea);
+			/* 이하 코드는 쓰레드 환경에서도 자동 스크롤이 되게하려는 메소드이다. */
+			statusView.addMouseWheelListener(new MouseWheelListener() {
+				public void mouseWheelMoved(MouseWheelEvent e) {
+					scrollpanemove = true;
+				}
+			});
+			statusView.getVerticalScrollBar().addAdjustmentListener(new	AdjustmentListener() {
+				@Override
+				public void adjustmentValueChanged(AdjustmentEvent e) { // 수정리스너에서 변수(휠의 길이,위치)가 변경될시 메소드 작성
+					if (scrollpanemove) { // 만약 스크롤 무브가 허용되있을시
+						scrollpanemove = false; // 밑으로 내리는 것을 하지않고, 비허용으로 바꾼다.
+					} else {
+						JScrollBar src = (JScrollBar) e.getSource();
+						src.setValue(src.getMaximum());
+					}
+				}
+			});
 			add(statusView);
+			
+			
 			
 		// label
 			// #포트번호
@@ -605,7 +628,6 @@ public class MainServer extends JFrame {
 			user_vc.add(this); // 사용자에게 알린 후 Verctor에 자신을 추가
 			//Vector는 동적으로 늘어나는 배열로 이해하면 되는데, 객체에 저장한 사용자 정보를 Vector에 저장한다.
 			statusArea.append("현재 접속된 사용자 수 : " + user_vc.size()+"\n");
-//			BroadCast("WaitingRoom/pass/user_list_update@ok");
 		}
 		
 		private void userSub(String str) {
@@ -716,7 +738,7 @@ public class MainServer extends JFrame {
 				String state = st.nextToken();
 				String roomPW = st.nextToken();
 				int uCount = Integer.parseInt(st.nextToken());
-				int roomNo = 0;
+				int roomNo = 0; // 방번호는 1~999이므로 0을 초기값으로 설정했음.
 				//방번호를 생성한다.(랜덤) 기존에 생성된 방들과 비교하여 같은 번호가 있을 경우 재생성한다.
 				Pointer:
 				while(true) {
