@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
@@ -54,6 +55,8 @@ public class JoinView extends JFrame{
 // 각종 변수
 	private Image viewImage; // 이미지 저장용 변수
 	private Graphics viewGraphics; // 그래픽 저장용 변수	
+	private int mouseX; // 마우스 좌표 변수
+	private int mouseY; // 마우스 좌표 변수
 	
 // 회원가입 입력정보
 	private String id="";
@@ -86,14 +89,32 @@ public class JoinView extends JFrame{
 	// JFrame mainView
 		setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
 		setTitle("Catch Mind"); // 프레임 타이틀 바 이름(타이틀 바를 없앨 예정이기 때문에 없어도 되는 코드)
-		setSize(341, 384); // Main에서 고정시킨 화면 해상도를 사용
+		setSize(341, 384);
 		setResizable(false); // 프레임 크기 고정
 		setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
 		setBackground(new Color(0,0,0,0)); // 배경색을 투명하게 한다.(paint()메소드로 그리는 배경을 보이게 하기 위함)
 		setVisible(true); // 윈도우를 볼 수 있음.
-		setLayout(null);		
+		setLayout(null);	
 		
+		// 마우스로 창을 움직일 수 있다.
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				mouseX = e.getX();
+				mouseY = e.getY();
+			}
+		});
+		addMouseMotionListener(new MouseMotionAdapter() {
+			// #매뉴바 드래그 시, 움직일 수 있게 한다.
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				int x = e.getXOnScreen();
+				int y = e.getYOnScreen();
+				setLocation(x - mouseX, y - mouseY);
+			}
+		});
+
 	// Label	
 		// ID (임시-나중에 지울 예정)
 		id_lb.setBounds(40, 30, 100, 30);

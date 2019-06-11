@@ -193,7 +193,9 @@ public class MainView extends JFrame{
 			// 마우스로 버튼을 눌렀을 때 이벤트
 			@Override 
 			public void mousePressed(MouseEvent e) {
-				System.exit(0); // 프로세스 종료.
+				if(e.getButton() == 1) {
+					System.exit(0); // 프로세스 종료.
+				}
 			}
 		});
 		// #연결 버튼
@@ -237,7 +239,6 @@ public class MainView extends JFrame{
 							+"\n서버가 실행중이지 않습니다.\n다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
 				}
 			}
-					
 		});
 		
 		// #로그인 버튼
@@ -435,31 +436,13 @@ public class MainView extends JFrame{
 		
 		if(protocol.equals("LoginOK")) // 로그인 가능
 		{
-			
-//			Connection(); 
 			setVisible(false);
-//			dispose(); // MainView를 종료하고 
 			wr =new WaitingRoom(); // WaitingRoom을 실행한다. 
-//			changePoint = false;
 		}
 		else if(protocol.equals("LoginFail")) //로그인 실패
 		{
 			JOptionPane.showMessageDialog(null, 
 					"로그인 실패!\n 아이디/패스워드를 다시 확인하시기 바랍니다.","알림",JOptionPane.ERROR_MESSAGE);
-		}
-		else if(protocol.equals("NewUser")) // 새로운 접속자
-		{
-//			WaitingRoom.user_list.add(Message); // 유저 리스트에 새로운 User ID 추가
-		}
-		else if(protocol.equals("OldUser")) // 기존 접속자
-		{
-//			WaitingRoom.user_list.add(Message); // 유저 리스트에 기존 User ID 추가
-		}
-		else if(protocol.equals("user_list_update"))
-		{
-			System.out.println("이게 실행되는거니?");
-//			Vector user_list = WaitingRoom.getUserList();
-//			user_list.setListData(user_list);
 		}
 		else if(protocol.equals("WaitingRoom")) // WaitingRoom으로 보낼 용도
 		{	

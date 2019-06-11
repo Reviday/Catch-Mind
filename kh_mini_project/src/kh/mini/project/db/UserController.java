@@ -18,7 +18,7 @@ public class UserController {
 		
 		
 	//userDB에 모든 유저 데이터를 저장하는 메소드
-	public void dataSaveAll(Vector allUser_vc) {
+	public int dataSaveAll(Vector allUser_vc) {
 		try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("userDB.dat"))) {
 			User [] users = new User[allUser_vc.size()]; //allUser_vc의 크기만큼 User 객체 배열을 생성
 			// user_vc에 있는 User 객체 정보를 users에 저장한다.
@@ -29,10 +29,12 @@ public class UserController {
 			for(User u : users) {
 				oos.writeObject(u);
 			}
+			return 1; // 정상 로드 되었을 경우 1을 리턴
 		} catch (FileNotFoundException e) {
-			e.printStackTrace(); return;
+			e.printStackTrace(); return -1; 
+			// 예외가 발생할 경우 -1을 리턴한다.
 		} catch (IOException e) {
-			e.printStackTrace(); return;
+			e.printStackTrace(); return -1;
 		}
 	}
 	

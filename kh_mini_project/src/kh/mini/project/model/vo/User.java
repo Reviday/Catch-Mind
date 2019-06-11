@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.Calendar;
 
 public class User implements Serializable{
+	/* 유저들의 정보를 관리하기 위한 클래스로,
+	 * 서버에서만 접근한다.
+	 */
+	
 // 회원가입 입력정보
 	private String id;
 	private String pw;
