@@ -83,19 +83,19 @@ public class PaintEx extends JFrame implements ActionListener{
 		canvas.setBackground(Color.WHITE);
 		canvas.setVisible(true);
 		
-		color_black = new JButton(new ImageIcon(PaintEx.class.getResource("/image/black1.png")));
+		color_black = new JButton(new ImageIcon(PaintEx.class.getResource("/images/black1.png")));
 		color_black.setBackground(Color.lightGray);
 		color_black.setBounds(223, 586, 48, 49);
-		color_black.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/image/black2.png")));
+		color_black.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/black2.png")));
 		color_black.setFocusPainted(false);
 		color_black.setBorderPainted(false);
 		getContentPane().add(color_black);
 		color_black.addActionListener(this);
 		color_black.setVisible(true);
 		
-		color_red = new JButton(new ImageIcon(PaintEx.class.getResource("/image/red1.png")));
+		color_red = new JButton(new ImageIcon(PaintEx.class.getResource("/images/red1.png")));
 		color_red.setBackground(Color.lightGray);
-		color_red.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/image/red2.png")));
+		color_red.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/red2.png")));
 		color_red.setFocusPainted(false);
 		color_red.setBorderPainted(false);
 		color_red.setBounds(276, 586, 48, 49);
@@ -103,9 +103,9 @@ public class PaintEx extends JFrame implements ActionListener{
 		color_red.addActionListener(this);
 		color_red.setVisible(true);
 		
-		color_blue = new JButton(new ImageIcon(PaintEx.class.getResource("/image/blue1.png")));
+		color_blue = new JButton(new ImageIcon(PaintEx.class.getResource("/images/blue1.png")));
 		color_blue.setBackground(Color.lightGray);
-		color_blue.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/image/blue2.png")));
+		color_blue.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/blue2.png")));
 		color_blue.setFocusPainted(false);
 		color_blue.setBorderPainted(false);
 		color_blue.setBounds(329, 586, 48, 49);
@@ -113,9 +113,9 @@ public class PaintEx extends JFrame implements ActionListener{
 		color_blue.addActionListener(this);
 		color_blue.setVisible(true);
 		
-		color_green = new JButton(new ImageIcon(PaintEx.class.getResource("/image/green1.png")));
+		color_green = new JButton(new ImageIcon(PaintEx.class.getResource("/images/green1.png")));
 		color_green.setBackground(Color.lightGray);
-		color_green.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/image/green2.png")));
+		color_green.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/green2.png")));
 		color_green.setFocusPainted(false);
 		color_green.setBorderPainted(false);
 		color_green.setBounds(382, 586, 48, 49);
@@ -123,9 +123,9 @@ public class PaintEx extends JFrame implements ActionListener{
 		color_green.addActionListener(this);
 		color_green.setVisible(true);
 		
-		color_yellow = new JButton(new ImageIcon(PaintEx.class.getResource("/image/yellow1.png")));
+		color_yellow = new JButton(new ImageIcon(PaintEx.class.getResource("/images/yellow1.png")));
 		color_yellow.setBackground(Color.lightGray);
-		color_yellow.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/image/yellow2.png")));
+		color_yellow.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/yellow2.png")));
 		color_yellow.setFocusPainted(false);
 		color_yellow.setBorderPainted(false);
 		color_yellow.setVisible(true);
@@ -194,12 +194,12 @@ public class PaintEx extends JFrame implements ActionListener{
 		getContentPane().add(panel_5);
 		
 		lblNewLabel_1 = new JLabel("New label");
-		lblNewLabel_1.setIcon(new ImageIcon(PaintEx.class.getResource("/image/character1.png")));
+		lblNewLabel_1.setIcon(new ImageIcon(PaintEx.class.getResource("/images/character1.png")));
 		lblNewLabel_1.setBounds(22, 87, 89, 112);
 		getContentPane().add(lblNewLabel_1);
 		
 		lblNewLabel = new JLabel("                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ");
-		lblNewLabel.setIcon(new ImageIcon(PaintEx.class.getResource("/image/userbackground.png")));
+		lblNewLabel.setIcon(new ImageIcon(PaintEx.class.getResource("/images/userbackground.png")));
 		lblNewLabel.setBounds(12, 70, 198, 147);
 		getContentPane().add(lblNewLabel);;
 		
