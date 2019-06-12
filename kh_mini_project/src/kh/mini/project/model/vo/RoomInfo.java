@@ -1,4 +1,7 @@
 package kh.mini.project.model.vo;
+
+import java.util.Vector;
+
 // Server와는 다르게 서버로부터 받은 유저들의 정보를 임시적으로 저장하기 위한 클래스(정보 저장용 클래스)
 public class RoomInfo {
 	/* 개설된 게임 방의 정보를 저장하는 용도의 클래스  */
@@ -6,20 +9,31 @@ public class RoomInfo {
 	private int room_No; // 게임방 번호
 	private String room_name; // 게임방 이름
 	private String room_PW; // 게임방 비밀번호(공개일 경우 null)
+	private int fixed_User; // 유저 정원
+	// 유저수를 Room_user_vc의 사이즈로 가져오는 방법을 고안중
+	private Vector<UserInfo> Room_user_vc = new Vector<UserInfo>(); // 게임방 유저 Vector
 	private int room_UCount; // 유저 수(User Count)
 	
-	public RoomInfo(int room_No, String room_name, String room_PW, int room_UCount) {
-		super();
+	/* 유저의 초기 세팅 작업에서는 기존 게임방에 들어가있는 모든 유저의 정보까지는 필요없으므로
+	 * 인원수만 전달받아서 방을 표시하는 작업을 위해 아래 생성자가 필요하다 판단.*/
+	public RoomInfo(int room_No, String room_name, String room_PW, int room_UCount, int fixed_User) {
 		this.room_No = room_No;
 		this.room_name = room_name;
 		this.room_PW = room_PW;
 		this.room_UCount = room_UCount;
-		
-		if(room_PW.equals(null)) {
-			
-		}
+		this.fixed_User = fixed_User;
 	}
 
+	public RoomInfo(int room_No, String room_name, String room_PW,int fixed_User, UserInfo u) {
+		this.room_No = room_No;
+		this.room_name = room_name;
+		this.room_PW = room_PW;
+		this.fixed_User = fixed_User;
+		
+		Room_user_vc.add(u);
+	}
+	
+	
 	public int getRoom_No() {
 		return room_No;
 	}
@@ -46,12 +60,26 @@ public class RoomInfo {
 
 	public int getRoom_UCount() {
 		return room_UCount;
+//		return Room_user_vc.size();
 	}
 
 	public void setRoom_UCount(int room_UCount) {
 		this.room_UCount = room_UCount;
 	}
+
+	public int getFixed_User() {
+		return fixed_User;
+	}
+
+	public void setFixed_User(int fixed_User) {
+		this.fixed_User = fixed_User;
+	}
+
+	@Override
+	public String toString() {
+		return "RoomInfo [room_No=" + room_No + ", room_name=" + room_name + ", room_PW=" + room_PW + ", fixed_User="
+				+ fixed_User + ", Room_user_vc=" + Room_user_vc + ", room_UCount=" + room_UCount + "]";
+	}
 	
-	
-	
+
 }

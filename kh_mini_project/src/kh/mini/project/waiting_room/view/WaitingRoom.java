@@ -25,7 +25,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -34,7 +35,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -49,6 +49,7 @@ import kh.mini.project.main.view.Main;
 import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
+import kh.mini.project.paint.PaintEx;
 
 public class WaitingRoom extends JFrame{
 // Frame, Panel
@@ -65,22 +66,12 @@ public class WaitingRoom extends JFrame{
 //	private JLabel userList_Label = new JLabel("User List");
 	private JLabel gameRoom_Label = new JLabel();
 	private JLabel[] userID_lb = new JLabel[userList.length]; 		// 유저 ID 라벨 배열
-	private JLabel[] gameRoomNumber_lb = new JLabel[gameRoom.length]; 		// 게임방 넘버 라벨 배열, gameRoom 배열의 크기만큼 생성
-	private JLabel[] gameRoomTitle_lb = new JLabel[gameRoom.length]; 		// 게임방 제목 라벨 배열, gameRoom 배열의 크기만큼 생성
-	private JLabel[] gameRoomPlayerCount_lb = new JLabel[gameRoom.length];  // 게임방 인원수 라벨 배열, gameRoom 배열의 크기만큼 생성
-	
 	
 // Textfield	
 	private JTextField chatting_tf; // 채팅 내용을 입력받기 위한 텍스트필드	
 	private JTextArea chattingArea = new JTextArea(); // 채팅 스크롤 페인에 올려놓을 채팅 TextArea
 	
-// list
-	private JList user_Li = new JList();
-//	private JList gameRoom_List = new JList();
-	
 // Network 자원 변수
-	private Socket socket;// 사용자 소켓
-	private int port; // 포트번호		
 	private String id =""; 
 	private InputStream is;
 	private OutputStream os;
@@ -94,7 +85,7 @@ public class WaitingRoom extends JFrame{
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
 	private UserInfo userInfo; // 접속자의 정보를 저장하는 객체(이 이름으로 접근하면 사용자 본인의 정보에 접근할 수 있다.)
 //	private Vector user_list = new Vector(); // 유저 리스트 Vector
-	private Vector room_list = new Vector(); // 방 리스트 Vector
+	private Vector<RoomInfo> room_list = new Vector<RoomInfo>(); // 방 리스트 Vector
 	private Vector gUser_list = new Vector(); // 게임방 유저 리스트 Vector
 	private Vector<UserInfo> user_list = new Vector<UserInfo>();
 	private Toolkit tk = Toolkit.getDefaultToolkit();
@@ -102,10 +93,10 @@ public class WaitingRoom extends JFrame{
 	Image img = tk.getImage(Main.class.getResource("/images/커서테스트.png"));
 	Cursor myCursor = tk.createCustomCursor(img, new Point(10,10), "dynamite stick");
 	// 방 만들기에 필요한 변수
-	private String title; // 방제목
+	private String room_name; // 방제목
 	private String roomPW; // 방 비밀번호
-	private int uCount; // 방 인원수
-	private int roomNo; // 방 번호
+	private int fixed_User; // 방 인원수
+	private int room_No; // 방 번호
 	private boolean scrollpanemove = false;  // 스크롤 패인에 사용되는 변수(스크롤 허용 관련)
 	private RoomInfo roomInfo; // 사용자가 생성한 방의 객체
 	
@@ -368,87 +359,126 @@ public class WaitingRoom extends JFrame{
 		System.out.println("프로토콜 : " + protocol);
 		System.out.println("내용 : " + Message);
 		
+		// protocol 수신 처리
+		switch(protocol) {
 		
-		if(protocol.equals("NewUser")) // 새로운 접속자
-		{
+		// #새로운 접속자 알림
+		case "NewUser": 
 			// 새로운 접속자의 정보를 가져와 저장한다.
-			int level = Integer.parseInt(st.nextToken());
-			int exp = Integer.parseInt(st.nextToken());
-			int corAnswer = Integer.parseInt(st.nextToken());
+			int level = Integer.parseInt(st.nextToken()); //레벨
+			int exp = Integer.parseInt(st.nextToken()); //경험치
+			int corAnswer = Integer.parseInt(st.nextToken()); //누적 정답수
+			
 			// 가져온 정보로 객체를 생성
 			UserInfo u = new UserInfo(Message, level, exp, corAnswer);
+			
 			// 해당 객체를 Vector에 추가
 			user_list.add(u);
-			testMethod();
-//			allocationUserInfo(); // 유저리스트 갱신
-			updateUserInfo();
-		}
-		else if(protocol.equals("UserInfo")) // 접속자의 정보를 가져와 저장
-		{
+			updateUserInfo();  	// 유저리스트 갱신
+			break;
+		
+		// #접속자 정보 받아오기
+		case "UserInfo":
 			// 사용자의 정보를 가져와 저장한다.
-			int level = Integer.parseInt(st.nextToken());
-			int exp = Integer.parseInt(st.nextToken());
-			int corAnswer = Integer.parseInt(st.nextToken());
+			level = Integer.parseInt(st.nextToken()); //레벨
+			exp = Integer.parseInt(st.nextToken()); //경험치
+			corAnswer = Integer.parseInt(st.nextToken()); //누적 정답수
+			
 			// 가져온 정보로 객체를 생성
 			userInfo = new UserInfo(Message, level, exp, corAnswer);
+			
 			// 해당 객체를 Vector에 추가
 			user_list.add(userInfo);
-//			allocationUserInfo(); // 유저리스트 갱신
-			updateUserInfo();
-		}
-		else if(protocol.equals("OldUser")) // 접속자의 정보를 받아온다.(초기 세팅 작업)
-		{ 
+			updateUserInfo(); 	// 유저리스트 갱신
+			break;
+		
+		// #기존 접속자의 정보를 받아온다.(초기 세팅 작업)
+		case "OldUser":
 			// 해당 프로토콜로 받는 사용자 정보는 첫 로그인 한 번만 적용된다.
 			// 이전에 접속중이던 모든 유저의 정보를 가져온다.
-			int level = Integer.parseInt(st.nextToken());
-			int exp = Integer.parseInt(st.nextToken());
-			int corAnswer = Integer.parseInt(st.nextToken());
+			level = Integer.parseInt(st.nextToken()); //레벨
+			exp = Integer.parseInt(st.nextToken()); //경험치
+			corAnswer = Integer.parseInt(st.nextToken()); //누적 정답수
+			
 			// 가져온 정보로 객체를 생성
-			UserInfo u = new UserInfo(Message, level, exp, corAnswer);
+			u = new UserInfo(Message, level, exp, corAnswer);
+			
 			// 해당 객체를 Vector에 추가
 			user_list.add(u);
-			
+
 			// 마지막 토큰이 last일 경우 리스트를 갱신한다.
 			String lastCheck = st.nextToken();
-			if(lastCheck.equals("last")) 
-//				allocationUserInfo();
+			if (lastCheck.equals("last"))
 				updateUserInfo();
-		}
-		else if(protocol.equals("Note")) // 쪽지
-		{
+			break;
+		
+		// #쪽지 보내기
+		case "Note":
 			String note = st.nextToken(); // 받은 내용
-			
 			System.out.println(Message+" 사용자로부터 온 쪽지 "+note);
-			
 			JOptionPane.showMessageDialog(null, note, Message+"님으로 부터 쪽지", JOptionPane.CLOSED_OPTION);
-		}
-		else if(protocol.equals("CreateRoom")) // 방을 만들었을 때
-		{
-			String room_No = st.nextToken();
-//			roomInfo.setRoom_No(room_No);
+			break;
 			
-		}
-		else if(protocol.equals("New_Room")) // 새로운 방을 만들었을 때
-		{
+		// #방 생성
+		case "CreateRoom":
+			int room_No = Integer.parseInt(st.nextToken()); // 방 번호
+			String roomName = st.nextToken();
+			new PaintEx(roomName,room_No);
+				/* 기존 창을 닫고 게임창으로 넘어가는 코드 */
+				/* 방 번호, 방제목, 인원을 받아서 넘기는건?*/
+			break;
+		
+		// #기존에 생성된 방의 정보를 넘겨받음(초기 세팅 작업)
+		case "OldRoom":
+			// 해당 프로토콜로 받는 방 정보는 첫 로그인 한 번만 적용된다.
+			// 이전에 개설된 모든 방의 정보를 가져온다.
+			room_No = Integer.parseInt(st.nextToken()); // 방 번호
+			String room_name = st.nextToken(); // 방 이름
+			String room_PW = st.nextToken(); // 방 비밀번호
+			int fixed_User = Integer.parseInt(st.nextToken()); // 유저 정원
+			// 게임방에 들어가있는 유저 객체의 정보까진 필요없으므로 인원 수만 받는다.
+			int room_UCount = Integer.parseInt(st.nextToken()); // 현재 유저수
+			
+			//넘겨 받은 정보로 객체를 생성
+			RoomInfo oldRoom = new RoomInfo(room_No, room_name, room_PW, room_UCount, fixed_User);
+			//해당 객체를 room_list에 추가
+			room_list.add(oldRoom);
+			
+			System.out.println(oldRoom);
+			
+			// 마지막 토큰이 last일 경우 방 패널을 갱신한다.
+			String lastroomCheck = st.nextToken();
+			if (lastroomCheck.equals("last")) 
+				relocationRoom(); //방 업데이트
+			break;
+			
+		// #새로운 방 생성 알림
+		case "NewRoom":
 			/* 모든 방 정보를 받아서 생성하고, 다시 패널에 띄우는 작업이 필요. */
-			roomNo = Integer.parseInt(st.nextToken()); // 방번호
-			room_list.add(Message);
-//			room_list.add(Message);
-//			Room_list.setListData(room_list);
-		}
-		else if(protocol.equals("ChattingWR"))
-		{
+			room_No = Integer.parseInt(st.nextToken()); // 방 번호
+			room_name = st.nextToken(); // 방 이름
+			room_PW = st.nextToken(); // 방 비밀번호
+			fixed_User = Integer.parseInt(st.nextToken()); // 유저 정원
+			// 게임방에 들어가있는 유저 객체의 정보까진 필요없으므로 인원 수만 받는다.
+			room_UCount = Integer.parseInt(st.nextToken()); // 현재 유저수
+			
+			//넘겨 받은 정보로 객체를 생성
+			RoomInfo NewRoom = new RoomInfo(room_No, room_name, room_PW, room_UCount, fixed_User);
+			//해당 객체를 room_list에 추가
+			room_list.add(NewRoom);
+			
+			System.out.println(NewRoom);
+			
+			//방 업데이트
+			relocationRoom();
+			break;
+		
+		// #채팅
+		case "ChattingWR":
 			String msg = st.nextToken(); 
 			System.out.println("내용 : " + msg);
 			chattingArea.append("["+Message+"] : "+msg+"\n");
-		}
-	}
-	
-	void testMethod() {
-		for(int i=0; i<user_list.size(); i++) 
-		{
-			UserInfo u = (UserInfo)user_list.elementAt(i);
-			System.out.println("test 유저 정보 ["+u.getUserID()+ "] : "+ u);
+			break;
 		}
 	}
 	
@@ -473,110 +503,131 @@ public class WaitingRoom extends JFrame{
 		for(int i=0; i<gameRoom.length; i++) {
 			// 내부 클래스 GameRoomPanel 클래스를 이용해서 gameRoom Panel을 생성
 			GameRoomPanel grp = new GameRoomPanel(gamgeRoomBasicImage.getImage());
-			// 현재 생성된 방의 개수만큼 리스너를 적용시킨다
-			if(i<gameRoom.length) {
-				grp.addMouseListener( new MouseAdapter() {
-					// 마우스를 버튼에 올려놨을 때 이벤트
-					@Override
-					public void mouseEntered(MouseEvent e) {
-						grp.setGRImage(gamgeRoomEnteredImage.getImage()); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-						grp.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
-					}
-					// 마우스를 버튼에서 떼었을때 이벤트
-					@Override  
-					public void mouseExited(MouseEvent e) {
-						grp.setGRImage(gamgeRoomBasicImage.getImage()); // 마우스를 떼었을때 이미지 변경(Basic Image)
-						grp.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
-					}
-					// 마우스로 버튼을 눌렀을 때 이벤트
-					@Override 
-					public void mousePressed(MouseEvent e) {
-						if(e.getButton()==1) {
-							grp.setGRImage(gamgeRoomPressedImage.getImage()); // 마우스를 눌렀을 때 이미지 변경(Pressed Image)
-							
-						}
-					}
-					// 마우스로 버튼을 누른 후 떼었을 때 이벤트
-					@Override
-					public void mouseReleased(MouseEvent e) {
-						if(e.getButton()==1) {
-							grp.setGRImage(gamgeRoomEnteredImage.getImage()); // 누른 버튼이 떼어졌을 때 이미지 변경(Entered Image) - 마우스는 이미 패널에 올려놓여진 상태이기 때문에
-							
-						}
-					}
-				});
-			}
 			gameRoom[i] = grp;
 			gameRoomView.add(gameRoom[i]);
 		}
 	}
 	
 	
-	// 방을 생성하는 메소드
-	private void createRoom(String title) {
+	// 패널에 방을 생성하는 메소드(방 번호와 해당 패널의 인덱스 값을 받아서 생성한다.)
+	// 메소드 수정, 해당 메소드로 전체 방을 개설하는 쪽으로 해보자. 
+	private void createRoom() {
 		Font roomFont = new Font("Inconsolata",Font.BOLD,17); // 폰트 설정
-//		int roomNo = 0;
-		// 1부터 생성가능한 방의 최대 개수만큼의 범위에서 랜덤하게 번호를 한 개 할당한다.(중복을 허용하지 않는다.)
-//		int roomNo = (int)(Math.random()*gameRoom.length) + 1;  // 이 기능을 추가하는건 나중에.. 일단 순차적으로 번호 할당하는 수준 부터 시작.
 		
-		// 게임방 번호를 설정할 JLabel을 할당
-		gameRoomNumber_lb[roomNo-1] = new JLabel();
-		String number = "";
-		// 방번호 설정. roomNo값에 따라 해당 방번호를 지정. 000 의 형태로 설정. 
-		int temp = roomNo, tempI;
-		for (int j = 1; j <= 3; j++) {
-			if ((tempI=temp % 10)==0) {
-				number = "" + 0 + number;
-			} else {
-				number = "" + tempI + number;
-			}
-			temp /= 10;
-		}
-		gameRoomNumber_lb[roomNo-1].setText(number);
-		gameRoomNumber_lb[roomNo-1].setFont(roomFont);
-		gameRoomNumber_lb[roomNo-1].setBounds(32, 23, 40, 20);
-		gameRoomNumber_lb[roomNo-1].setForeground(Color.DARK_GRAY);
-		gameRoomNumber_lb[roomNo-1].setLayout(null);
-		gameRoom[roomNo-1].add(gameRoomNumber_lb[roomNo-1]);
+		// 기존에 띄워둔 패널을 지운다.
+		gameRoomView.removeAll();
 		
-		// 게임방 제목을 설정할 JLabel을 할당
-		gameRoomTitle_lb[roomNo-1] = new JLabel();
-		gameRoomTitle_lb[roomNo-1].setText("No Title");
-		gameRoomTitle_lb[roomNo-1].setFont(roomFont);
-		gameRoomTitle_lb[roomNo-1].setBounds(90, 23, 200, 20);
-		gameRoomTitle_lb[roomNo-1].setForeground(Color.DARK_GRAY);
-		gameRoom[roomNo-1].add(gameRoomTitle_lb[roomNo-1]);
-		
-		// 게임방 인원수를 설정할 JLabel을 할당
-		gameRoomPlayerCount_lb[roomNo-1] = new JLabel();
-		gameRoomPlayerCount_lb[roomNo-1].setText("0 / 6");
-		gameRoomPlayerCount_lb[roomNo-1].setFont(roomFont);
-		gameRoomPlayerCount_lb[roomNo-1].setBounds(275, 68, 50, 20);
-		gameRoomPlayerCount_lb[roomNo-1].setForeground(Color.DARK_GRAY);
-		gameRoom[roomNo-1].add(gameRoomPlayerCount_lb[roomNo-1]);
-		
-		// 이렇게 생성한 패널을 뷰에 추가한다.
-		gameRoomView.add(gameRoom[roomNo-1]);
-	}
-	
-	// 방이 생성될 때마다 방번호에 따라 순서를 재배치하는 메소드
-	public void relocationRoom() {
-		
-		
-		
-		// 재배치된 방을 다시 뷰에 적용
+		// 모든 gameRoom에 적용할 코드. 리스트에 등록된 객체 수 만큼 패널에 이벤트 적용
 		for(int i=0; i<gameRoom.length; i++) {
+			// 방에 적용할 패널을 만들어 리스너를 적용시킨다(기존에 띄워둔 패널들을 삭제하고 다시 그리는 형식으로 그리기때문에 다시 설정한다.)
+			GameRoomPanel grp = new GameRoomPanel(gamgeRoomBasicImage.getImage());
+			gameRoom[i] = grp; // 패널 상태 적용
+			
+			// room_list의 크기보다 작을 때, room_list의 정보를 방에 추가한다.
+			if(i<room_list.size()) {
+				RoomInfo r = (RoomInfo)room_list.get(i);
+				
+				grp.addMouseListener(new MouseAdapter() {
+					// 마우스를 버튼에 올려놨을 때 이벤트
+					@Override
+					public void mouseEntered(MouseEvent e) {
+						grp.setGRImage(gamgeRoomEnteredImage.getImage()); // 마우스를 올려놨을때 이미지 변경(Entered Image)
+						grp.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+					}
+					
+					// 마우스를 버튼에서 떼었을때 이벤트
+					@Override
+					public void mouseExited(MouseEvent e) {
+						grp.setGRImage(gamgeRoomBasicImage.getImage()); // 마우스를 떼었을때 이미지 변경(Basic Image)
+						grp.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+					}
+					
+					// 마우스로 버튼을 눌렀을 때 이벤트
+					@Override
+					public void mousePressed(MouseEvent e) {
+						if (e.getButton() == 1) {
+							grp.setGRImage(gamgeRoomPressedImage.getImage()); // 마우스를 눌렀을 때 이미지 변경(Pressed Image)
+							
+						}
+					}
+					
+					// 마우스로 버튼을 누른 후 떼었을 때 이벤트
+					@Override
+					public void mouseReleased(MouseEvent e) {
+						if (e.getButton() == 1) {
+							grp.setGRImage(gamgeRoomEnteredImage.getImage()); // 누른 버튼이 떼어졌을 때 이미지 변경(Entered Image) - 마우스는 이미 패널에 올려놓여진 상태이기 때문에
+							
+						}
+					}
+				});
+				gameRoom[i] = grp; // 갱신된 패널로 다시 적용
+				
+				// 게임방 번호를 설정할 JLabel을 할당
+				JLabel gameRoomNumber_lb = new JLabel();
+				// 방번호 설정. room_No값에 따라 해당 방번호를 지정. 000 의 형태로 설정. 
+				String number = "";
+				int temp = r.getRoom_No(), tempI;
+				for (int j = 1; j <= 3; j++) {
+					if ((tempI=temp % 10)==0) {
+						number = "" + 0 + number;
+					} else {
+						number = "" + tempI + number;
+					}
+					temp /= 10;
+				}
+				// gameRoomNumber_lb를 세팅한다.
+				gameRoomNumber_lb.setText(number);
+				gameRoomNumber_lb.setFont(roomFont);
+				gameRoomNumber_lb.setBounds(32, 23, 40, 20);
+				gameRoomNumber_lb.setForeground(Color.DARK_GRAY);
+				gameRoomNumber_lb.setLayout(null);
+				gameRoom[i].add(gameRoomNumber_lb);
+				
+				// 게임방 제목을 설정할 JLabel을 할당
+				JLabel gameRoomTitle_lb = new JLabel();
+				gameRoomTitle_lb.setText(r.getRoom_name());
+				gameRoomTitle_lb.setFont(roomFont);
+				gameRoomTitle_lb.setBounds(90, 23, 200, 20);
+				gameRoomTitle_lb.setForeground(Color.DARK_GRAY);
+				gameRoom[i].add(gameRoomTitle_lb);
+				
+				// 게임방 인원수를 설정할 JLabel을 할당
+				JLabel gameRoomPlayerCount_lb = new JLabel();
+				String userCount = "" + r.getRoom_UCount() + " / " + r.getFixed_User();
+				gameRoomPlayerCount_lb.setText(userCount);
+				gameRoomPlayerCount_lb.setFont(roomFont);
+				gameRoomPlayerCount_lb.setBounds(275, 68, 50, 20);
+				gameRoomPlayerCount_lb.setForeground(Color.DARK_GRAY);
+				gameRoom[i].add(gameRoomPlayerCount_lb);
+			}
+			// 이렇게 생성한 패널을 뷰에 추가한다.
 			gameRoomView.add(gameRoom[i]);
 		}
 	}
 	
-	// 50명의 유저 리스트를 생성하기 위한 메소드
+	// #방이 생성/제거될 때마다 방번호에 따라 순서를 재배치하는 메소드(업데이트 메소드)
+	public void relocationRoom() {
+				
+		// room_list를 AscendingRoomInfo 정렬 조건에 따라 재정렬한다.
+		Collections.sort(room_list, new AscendingRoomInfo());
+		
+		// 기본적인 배경 패널만 생성된 방에 list에 등록된 방만 큼 정보를 적용시킨다.
+		createRoom();
+		
+		System.out.println("방 개수 : " +room_list.size());
+		
+		// 패널의 변경사항을 적용하기위한 메소드
+		gameRoomView.revalidate(); // 레이아웃 변화를 재확인 시킨다.
+		gameRoomView.repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
+	}
+	
+	// #50명의 유저 리스트를 생성하기 위한 메소드
 	private void allocationUserInfo() {
 		Font infoFont = new Font("Inconsolata",Font.BOLD,17); // 폰트 설정
 		for(int i=0; i<userList.length; i++) {
 			// 내부 클래스 GameRoomPanel 클래스를 이용해서 User List Panel을 생성
 			GameRoomPanel grp = new GameRoomPanel(userInfoPanelImage.getImage());
-			// 마우스 리스너 추가 예정
+			// 마우스 리스너 추가 예정 => 업데이트 메소드에서 해야할듯?
 //			grp.addMouseListener( new MouseAdapter() {
 //			});
 			userList[i] = grp;
@@ -592,12 +643,14 @@ public class WaitingRoom extends JFrame{
 			userList[i].add(userID_lb[i]);
 			userListView.add(userList[i]);
 		}
-		revalidate();
-		repaint();
 	}
 	
+	// #유저 리스트 업데이트 메소드 - 유저 리스트에 변동이 생기게되면 실행한다.
 	private void updateUserInfo() {
-		Font infoFont = new Font("Inconsolata",Font.BOLD,17); // 폰트 설정
+		// 기존에 띄워둔 패널을 지운다.
+		userListView.removeAll();
+		
+		// 유저 리스트의 정보를 읽어와 라벨에 적용시킨다.
 		for(int i=0; i<userList.length; i++) {
 			// JPanel,JLabel을 선언 및 할당
 			// 현재 접속된 유저의 리스트 만큼 텍스트를 지정해준다. (저장값은 유저id)
@@ -606,13 +659,13 @@ public class WaitingRoom extends JFrame{
 				userID_lb[i].setText(u.getUserID());
 			}
 			// userID_lb 셋팅
-			userID_lb[i].setFont(infoFont);
-			System.out.println(userID_lb[i].getText());
 			userList[i].add(userID_lb[i]);
 			userListView.add(userList[i]);
 		}
-		userListView.revalidate();
-		userListView.repaint();
+		
+		// 패널의 변경사항을 적용하기위한 메소드
+		userListView.revalidate(); // 레이아웃 변화를 재확인 시킨다.
+		userListView.repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
 	}
 	
 	
@@ -821,19 +874,21 @@ public class WaitingRoom extends JFrame{
 				public void mouseClicked(MouseEvent e) {
 					if(e.getButton()==1) {
 						// 만들기 버튼을 누르면 설정사항을 그대로 서버에 전송한다.
-						title = roomTitel_tf.getText().trim(); // 방 제목
+						room_name = roomTitel_tf.getText().trim(); // 방 제목
 						String state = roomState_tf.getSelectedItem().toString(); // 공개/비공개
 						roomPW = null; // 방 비밀번호 (공개면 null로, 비공개면 입력받은 패스워드를 저장)
 						if(state.equals("비공개")) {
 							roomPW = roomPw_tf.getText().trim();
 						} 
-						uCount = Integer.parseInt(rPlayer_tf.getSelectedItem().toString()); // rPlayer_tf의 제네릭을 Integer로 해놓음
+						fixed_User = Integer.parseInt(rPlayer_tf.getSelectedItem().toString()); // rPlayer_tf의 제네릭을 Integer로 해놓음
 						
 						// 입력받은 값을 서버에 전송한다.
-						send_message("CreateRoom/"+id+"/"+title+"/"+state+"/"+roomPW+"/"+uCount);
+						send_message("CreateRoom/"+id+"/"+room_name+"/"+state+"/"+roomPW+"/"+fixed_User);
 						
-						//해당 값을 가지고 RoomInfo 객체를 생성한다. 이때, 방번호는 0번으로 초기화하여 생성
-						roomInfo = new RoomInfo(0,title, roomPW, uCount );
+						/* 해당 값을 가지고 RoomInfo 객체를 생성한다. 이때, 방번호는 0번으로 초기화하여 생성
+						 * 이때, room_list에는 등록하지 않는다.(방 번호를 할당 받고 등록)	 */
+						roomInfo = new RoomInfo(0,room_name, roomPW, fixed_User, userInfo); 
+						dispose();
 					}
 				}
 			});
@@ -877,4 +932,16 @@ public class WaitingRoom extends JFrame{
 			this.img = img;
 		}
 	}
+	
+	// RoomInfo의 Vector를 재정렬하기 위한 클래스(방번호를 기준으로 재정렬)
+	class AscendingRoomInfo implements Comparator<RoomInfo> {
+
+		@Override
+		public int compare(RoomInfo o1, RoomInfo o2) {
+			//방번호 생성 로직에서는 중복을 허용하지 않기 때문에 두 가지만 생각한다.
+			if(o1.getRoom_No() > o2.getRoom_No()) return 1;
+			else return -1;
+		} 
+	}
+
 }

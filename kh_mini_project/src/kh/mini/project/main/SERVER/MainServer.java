@@ -572,7 +572,7 @@ public class MainServer extends JFrame {
 			}
 		}
 		
-		// 유저가 접속했을 때, 기존 사용자들에게 알리고 리스를 추가하기 위한 메소드
+		// 유저가 접속했을 때, 기존 사용자들에게 알리고 리스트를 추가하기 위한 메소드
 		private void userAdd(String str) {
 			//연결 설정 후에 사용자의 닉네임을 받아들인다.
 			userID = str;
@@ -604,8 +604,7 @@ public class MainServer extends JFrame {
 				UserInfo u = (UserInfo)user_vc.elementAt(i);
 				
 				/* 기존 사용자의 정보를 읽어온다.
-				 * 서버가 연결된 사용자에게 보내는 부분
-				 */
+				 * 서버가 연결된 사용자에게 보내는 부분 */
 				String msg="";
 				if(i==user_vc.size()-1) {
 					msg="WaitingRoom/pass/OldUser@"
@@ -617,19 +616,36 @@ public class MainServer extends JFrame {
 				send_Message(msg);
 			}
 			
+			//현재 개설된 방의 리스트를 자신에게 알림
+			for(int i=0; i<room_vc.size(); i++) 
+			{
+				// 기존 개설된 방 객체를 하나 가져와서
+				RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+				
+				/* 기존에 개설된 방의 정보를 읽어온다.
+				 * 서버가 연결된 사용자에게 보내는 부분 */
+				String msg="";
+				if(i==room_vc.size()-1) {
+					msg="WaitingRoom/pass/OldRoom@" + userID +"@"
+							+r.room_No+"@"+r.room_name+"@"+r.room_PW+"@"+r.fixed_User+"@"+r.Room_user_vc.size()+"@last";
+				} else {
+					msg="WaitingRoom/pass/OldRoom@" + userID +"@"
+							+r.room_No+"@"+r.room_name+"@"+r.room_PW+"@"+r.fixed_User+"@"+r.Room_user_vc.size()+"@";
+				}
+				send_Message(msg);
+			}
+			
+			
 			//기존 사용자들에게 새로운 사용자 알림(broadcast)
 			BroadCast("WaitingRoom/pass/NewUser@" 
 								+userID+"@"+level+"@"+exp+"@"+corAnswer); // 기존 사용자에게 자신을 알린다. 프로토콜 사용 [ NewUser/사용자ID ]
-			
-			/* 이 상태로 2번쨰 접속자가 접속을 할 경우, 리스트에는 2번째 접속자만 뜨게 된다. 
-			 * 자신의 ID를 리스트에 추가하기전에 자신에게 기존 사용자의 리스트를 알린다.
-			 */
 			
 			user_vc.add(this); // 사용자에게 알린 후 Verctor에 자신을 추가
 			//Vector는 동적으로 늘어나는 배열로 이해하면 되는데, 객체에 저장한 사용자 정보를 Vector에 저장한다.
 			statusArea.append("현재 접속된 사용자 수 : " + user_vc.size()+"\n");
 		}
 		
+		// 유저가 로그아웃할 경우, 실행될 메소드로 아직 미적용
 		private void userSub(String str) {
 			//유저가 나가게 될 경우  사용자의 닉네임을 받아들인다.
 			userID = str;
@@ -647,12 +663,6 @@ public class MainServer extends JFrame {
 				send_Message("WaitingRoom/pass/OldUser@"+u.userID);
 			}
 		}
-		
-		//갱신된 유저 정보를 클라이언트들에게 종합적으로 보낸다.
-		private void userUpdate() {
-			
-		}
-		
 		
 		@Override
 		public void run() //Thread에서 처리할 내용
@@ -676,7 +686,14 @@ public class MainServer extends JFrame {
 			return userID;
 		}
 		
-		
+		/* [가독성을 위해 if문을 사용했으나, switch문으로 변경]
+		 * if문은 모든 조건문에 대해서 cmp(Compare;비교) 과정을 거치므로
+		 * 조건을 확인하기 위한 인스트럭션이 계속해서 필요해진다.
+		 * switch문은 일정 조건 수가 넘어가면 Jump Table을 만들어 그 안에서 값을 확인하고 
+		 * 바로 해당 코드로 넘어가는 방식으로 작동한다. 때문에 입력받은 값을 확인하는 인스트럭션만 있으면 된다.
+		 * Jump Table을 생성하는데 오버헤드가 있으므로 제한이 있지만 
+		 * Protocol에서는 오버헤드를 발생시킬 양을 사용하지 않으므로 switch문으로 작성한다.
+		 */
 		// 클라이언트로부터 들어오는 메세지 처리
 		private void Inmessage(String str) 
 		{
@@ -689,7 +706,11 @@ public class MainServer extends JFrame {
 			System.out.println("프로토콜 : " +protocol);
 			System.out.println("메세지 : " + message);
 			
-			if(protocol.equals("LoginCheck")) {
+			// protocol 요청 처리
+			switch(protocol) {
+			
+			// #로그인 요청이 들어왔을 때
+			case "LoginCheck" : 
 				String pw = st.nextToken();
 				//아이디와 패스워드가 맞는지 확인한다. 
 				boolean findID = false; // 일치하는 계정이 있는지 체크하는 변수
@@ -707,13 +728,13 @@ public class MainServer extends JFrame {
 					}
 				}
 				if(!findID) send_Message("LoginFail/fail"); // 찾지 못하였으면 해당 메시지를 보낸다.
-			}
-			else if(protocol.equals("Note")) 
-			{
+				break;
+				
+			// #쪽지 보내기 요청이 들어왔을 떄
+			case "Note":
 				//protocol = Note
 				//message = user
 				//note = 받는 내용
-				
 				String note = st.nextToken();
 				
 				System.out.println("받는 사람 : "+message);
@@ -730,15 +751,17 @@ public class MainServer extends JFrame {
 						// Note/User1/~~~
 					}
 				}
-			}
-			else if(protocol.equals("CreateRoom"))
-			{
+				break;
+				
+			// #방 생성 요청이 들어왔을 때
+			case "CreateRoom":
 				//전달받은 메시지를 토크나이징을 하여 각각의 값을 저장
 				String title = st.nextToken();
 				String state = st.nextToken();
 				String roomPW = st.nextToken();
-				int uCount = Integer.parseInt(st.nextToken());
+				int fixed_User = Integer.parseInt(st.nextToken());
 				int roomNo = 0; // 방번호는 1~999이므로 0을 초기값으로 설정했음.
+				
 				//방번호를 생성한다.(랜덤) 기존에 생성된 방들과 비교하여 같은 번호가 있을 경우 재생성한다.
 				Pointer:
 				while(true) {
@@ -754,20 +777,24 @@ public class MainServer extends JFrame {
 					break; // continue에 도달하지 않는다는건 같은 방번호가 존재하지 않는다는 것.
 				}
 				
-				RoomInfo new_room = new RoomInfo(roomNo,title,roomPW,uCount, this);
+				// 전달받은 정보로 RoomInfo객체를 생성하고 room_vc에 추가
+				RoomInfo new_room = new RoomInfo(roomNo,title,roomPW,fixed_User, this);
 				room_vc.add(new_room); // 전체 채팅 방 Vector에 방을 추가
 				
-				send_Message("WaitingRoom/pass/CreateRoom@"+message+"@"+roomNo);
 				//방이 만들어졌을때 BroadCast로 알린다.
-				BroadCast("WaitingRoom/pass/New_Room@"+message);
-			}
-			else if(protocol.equals("ChattingWR")) // 채팅
-			{
+				BroadCast("WaitingRoom/pass/NewRoom@"+message+"@"
+						+roomNo+"@"+title+"@"+roomPW+"@"+fixed_User+"@"+new_room.Room_user_vc.size()+"@");
+				//방을 생성한 유저에게 방 개설이 가능함을 알리고 할당한 방 번호를 넘겨준다.
+				send_Message("WaitingRoom/pass/CreateRoom@"+message+"@"+roomNo+"@"+title);
+				break;
+			
+			// #채팅 요청이 들어왔을 때
+			case "ChattingWR" :
 				String msg = st.nextToken(); // 메세지 부분을 잘라서 저장
 				System.out.println(message);
 				BroadCast("WaitingRoom/pass/ChattingWR@"+message+"@"+msg); 
+				break;
 			}
-			
 		}
 		
 	// 문자열 전송 메소드	
@@ -794,45 +821,24 @@ public class MainServer extends JFrame {
 		}
 	} // UserInfo class 끝
 	
-	
-	//대기실
-	class WRoomInfo
-	{
-		private String Room_name; // 채팅방 이름
-		private Vector Room_user_vc = new Vector(); // 채팅방 유저 Vector
-		
-		WRoomInfo(String str, UserInfo u)
-		{
-			this.Room_name = str;
-			this.Room_user_vc.add(u); // 채팅방에 입장한 사용자 정보를 Room_user_vc에 추가
-		}
-		
-		public void BroadCast_Room(String str) // 현재 방의 모든 사람에게 알린다.
-		{
-			for(int i=0; i<Room_user_vc.size(); i++) 
-			{
-				UserInfo u = (UserInfo)Room_user_vc.elementAt(i);
-				
-				u.send_Message(str); //넘어온 문자열을 보내준다.
-			}
-		}
-	}
-	
 	//게임방 
 	class RoomInfo
 	{
 		private int room_No; // 게임방 번호
 		private String room_name; // 게임방 이름
 		private String room_PW; // 게임방 비밀번호(공개일 경우 null)
-		private int room_UCount; // 유저 수(User Count)
+		private int fixed_User; // 유저 정원
+		/* 생성할 때 생성한 유저의 객체를 전달받아 리스트에 저장하고 
+		 * 입장하는 유저들의 유저 객체를 user_vc에서 제거하고 room_vc로 옮기는 작업을 한다.
+		 * 그리고 해당 방의 유저 수를 리턴해야할 때, Room_user_vc의 사이즈를 리턴한다. */
 		private Vector Room_user_vc = new Vector(); // 게임방 유저 Vector
 		
-		RoomInfo(int room_No, String room_name, String room_PW, int room_UCount, UserInfo u) // 방번호를 기준으로!
+		RoomInfo(int room_No, String room_name, String room_PW, int fixed_User, UserInfo u) // 방번호를 기준으로!
 		{
 			this.room_No = room_No;
 			this.room_name = room_name;
 			this.room_PW = room_PW;
-			this.room_UCount = room_UCount;
+			this.fixed_User = fixed_User;
 			this.Room_user_vc.add(u); // 게임방에 입장한 사용자 정보를 Room_user_vc에 추가
 		}
 		

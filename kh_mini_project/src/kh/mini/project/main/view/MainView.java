@@ -388,7 +388,6 @@ public class MainView extends JFrame{
 				{
 					try {
 						
-//						if(!changePoint) break; // while문 조건에 처리하면 dis.readUTF()가 실행되는 현상이 발견되서 이렇게 처리함.
 						System.out.println("MainView 수신 대기중");
 						System.out.println(port);
 						String msg = dis.readUTF(); // 메세지 수신
@@ -434,21 +433,27 @@ public class MainView extends JFrame{
 		System.out.println("프로토콜 : " + protocol);
 		System.out.println("내용 : " + Message);
 		
-		if(protocol.equals("LoginOK")) // 로그인 가능
-		{
+		// protocol 수신 처리
+		switch(protocol) {
+		
+		// #로그인 가능 알림
+		case "LoginOK":
 			setVisible(false);
 			wr =new WaitingRoom(); // WaitingRoom을 실행한다. 
-		}
-		else if(protocol.equals("LoginFail")) //로그인 실패
-		{
+			break;
+			
+		// #로그인 실패 알림
+		case "LoginFail":
 			JOptionPane.showMessageDialog(null, 
 					"로그인 실패!\n 아이디/패스워드를 다시 확인하시기 바랍니다.","알림",JOptionPane.ERROR_MESSAGE);
-		}
-		else if(protocol.equals("WaitingRoom")) // WaitingRoom으로 보낼 용도
-		{	
+			break;
+			
+		// #WaitingRoom으로 넘김
+		case "WaitingRoom":
 			String passMessage = st.nextToken();
 			System.out.println(passMessage);
 			wr.wr_Inmessage(passMessage);
+			break;
 		}
 	}
 	
