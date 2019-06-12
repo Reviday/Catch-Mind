@@ -34,16 +34,9 @@ import javax.swing.text.PlainDocument;
 import kh.mini.project.waiting_room.view.WaitingRoom;
 
 public class MainView extends JFrame{
-// Frame, Panel
-	private JFrame mainView = new JFrame("CatchMind"); // 메인 프레임
-	private JPanel loginView = new JPanel(); // 보조 프레임(패널) - 로그인 패널
 	
 //Label
 	private JLabel mainMenuBar = new JLabel();
-	private JLabel serverIp_lb = new JLabel("Server IP : "); // 임시  ip 레이블
-	private JLabel port_lb = new JLabel("Port Number : "); // 임시 포트 번호 레이블
-	private JLabel id_lb = new JLabel("ID : "); // 임시 id 레이블
-	private JLabel pw_lb = new JLabel("PW : "); // 임시  pw 레이블
 
 // Textfield	
 	private JTextField serverIp_tf; // Server IP를 입력받기 위한 텍스트필드
@@ -76,7 +69,7 @@ public class MainView extends JFrame{
 //Image	
 	// #MainView 배경
 	private Image backgroundImage = 
-			new ImageIcon(Main.class.getResource("/images/test.png")).getImage();
+			new ImageIcon(Main.class.getResource("/images/MainViewBackground.png")).getImage();
 			//Main 클래스의 위치를 기준으로 이미지 파일의 위치를 찾은 다음에 이미지 인스턴스를 해당 변수에 초기화 해줌(상대경로 같은 절대경로)
 	
 	//Button Icon (basic : 버튼의 기본 상태, Entered : 버튼에 마우스를 가져간 상태) 
@@ -128,46 +121,38 @@ public class MainView extends JFrame{
 		});
 		add(mainMenuBar);
 	
-		// IP (임시-나중에 지울 예정)
-		serverIp_lb.setBounds(400, 470, 100, 30);
-		add(serverIp_lb);
-		
-		// 포트번호(임시-나중에 지울 예정)
-		port_lb.setBounds(400, 515, 100, 30);
-		add(port_lb);
-		
-		// ID (임시-나중에 지울 예정)
-		id_lb.setBounds(400, 560, 100, 30);
-		add(id_lb);
-				
-		// PW (임시-나중에 지울 예정)
-		pw_lb.setBounds(400, 605, 100, 30);
-		add(pw_lb);
-		
 	// TextField
 		//IP 입력
 		serverIp_tf = new JTextField(); 
-		serverIp_tf.setBounds(520, 470, 150, 30);
+		serverIp_tf.setBounds(520, 550, 150, 30);
+		serverIp_tf.setBorder(null); // 테두리 제거
+		serverIp_tf.setBackground(new Color(0,0,0,0)); // 배경 투명색
 		add(serverIp_tf); 
 		serverIp_tf.setDocument(new JTextFieldLimit(15)); //15자 제한(ip 최대 입력가능 크기 000.000.000.000)
 		serverIp_tf.setText("127.0.0.1"); //IP 기본값 127.0.0.1(자기 자신)
 		
 		//포트번호 입력
 		port_tf = new JTextField(); 
-		port_tf.setBounds(520, 515, 150, 30);
+		port_tf.setBounds(520, 590, 150, 30);
+		port_tf.setBorder(null);
+		port_tf.setBackground(new Color(0,0,0,0));
 		add(port_tf);
 		port_tf.setDocument(new JTextFieldLimit(5)); // 5자 제한 (포트번호 범위 0~65535)	 
 		port_tf.setText("12345");//포트번호 기본값 12345
 		
 		//ID 입력
 		id_tf = new JTextField();
-		id_tf.setBounds(520, 560, 150, 30);
+		id_tf.setBounds(520, 630, 150, 30);
+		id_tf.setBorder(null);
+		id_tf.setBackground(new Color(0,0,0,0));
 		add(id_tf);
 		id_tf.setDocument(new JTextFieldLimit(12)); //아이디 최대 12자 제한
 				
 		//PW 입력
 		pw_tf = new JPasswordField();
-		pw_tf.setBounds(520, 605, 150, 30);
+		pw_tf.setBounds(520, 670, 150, 30);
+		pw_tf.setBorder(null);
+		pw_tf.setBackground(new Color(0,0,0,0));
 		add(pw_tf);
 		pw_tf.setDocument(new JTextFieldLimit(12)); // 비밀번호 최대 12자 제한
 		
@@ -199,7 +184,7 @@ public class MainView extends JFrame{
 			}
 		});
 		// #연결 버튼
-		connetButton.setBounds(511, 652, 170, 64);
+		connetButton.setBounds(511, 700, 170, 64);
 		add(connetButton);
 		connetButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -242,7 +227,7 @@ public class MainView extends JFrame{
 		});
 		
 		// #로그인 버튼
-		loginButton.setBounds(511, 652, 170, 64);
+		loginButton.setBounds(511, 700, 170, 64);
 		add(loginButton);
 		loginButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -285,7 +270,7 @@ public class MainView extends JFrame{
 		
 		
 		// #회원가입 버튼
-		joinButton.setBounds(341, 652, 170, 64);
+		joinButton.setBounds(341, 700, 170, 64);
 		add(joinButton);
 		joinButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -314,10 +299,6 @@ public class MainView extends JFrame{
 			}
 			
 		});
-		
-	// JPanel loginView
-		loginView.setBounds(341, 460, 341, 256);
-		add(loginView);
 		
 		connetionChecked(connectionCheck);
 	}
@@ -450,9 +431,18 @@ public class MainView extends JFrame{
 			
 		// #WaitingRoom으로 넘김
 		case "WaitingRoom":
-			String passMessage = st.nextToken();
-			System.out.println(passMessage);
-			wr.wr_Inmessage(passMessage);
+			/* 채팅을 전달할 때, 메시지에 딜리미터가 포함되어 있을 경우
+			 * 메시지도 잘려서 전송되므로 해당 내용이 채팅일 경우 
+			 * 토크나이저로 잘려진 메시지를 다시 결합해서 
+			 * WaitingRoom으로 재전송한다. */
+			String msg = st.nextToken();
+			// 다음 토큰이 있을 경우,
+			while(st.hasMoreElements()) {
+				// 해당 토큰을 누적한다.
+				msg += "/"+ st.nextToken();
+			}
+			System.out.println("내용 : " + msg);
+			wr.wr_Inmessage(msg);
 			break;
 		}
 	}

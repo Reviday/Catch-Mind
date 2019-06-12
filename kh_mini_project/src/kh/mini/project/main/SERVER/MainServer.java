@@ -788,10 +788,56 @@ public class MainServer extends JFrame {
 				send_Message("WaitingRoom/pass/CreateRoom@"+message+"@"+roomNo+"@"+title);
 				break;
 			
+			// #방 입장 요청
+			case "EnterRoom":
+				int room_No = Integer.parseInt(st.nextToken()); // 방번호
+				
+				// room_vc에서 해당 방 번호와 일치하는 객체를 찾는다.
+				for(int i=0; i<room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo)room_vc.get(i);
+					// 방번호가 같은 객체를 찾았다면 pw가 존재하는지 확인한다.
+					if(r.room_No == room_No && r.room_PW != null) {
+						// 비밀번호가 null이 아니라면 pw를 입력하라는 메시지를 보낸다.(비밀번호도 같이 보내서 해당 창에서 빠르게 체크하도록한다.)
+						send_Message("WaitingRoom/pass/InputPW@"+message+"@"+r.room_PW);
+						break; // 작업을 완료했으므로 for문을 탈출한다.
+					} else if(r.room_No == room_No && r.room_PW == null) {
+						// 비밀번호가 null이라면 바로 입장하도록 한다.
+						
+						/*  비밀번호 없이 바로 입장하는 코드  */
+						
+						break; // 작업을 완료했으므로 for문을 탈출한다.
+					}
+				}
+				break;
+				
+			// #방 입장 알림 , #유저 로그아웃
+			case "EntryRoom": case "UserLogout" :
+				// 게임방에 입장(또는 로그아웃)하여 현재 대기실 유저에서 제거되어야 된다.
+				for(int i=0; i<user_vc.size(); i++) {
+					UserInfo u = (UserInfo)user_vc.get(i);
+					// 해당 유저아이디를 찾는다.
+					if(u.getUserID().equals(message)) {
+						// 해당 아이디를 대기실 유저에서 지운다.
+						user_vc.remove(i); 
+						// 해당 유저를 리스트에서 제거하라는 브로드캐스트를 보낸다.
+						BroadCast("WaitingRoom/pass/RemoveUser@"+message);
+						break; // 작업을 완료했으므로 for문을 탈출한다.
+					}
+				}
+				break;
+				
 			// #채팅 요청이 들어왔을 때
 			case "ChattingWR" :
-				String msg = st.nextToken(); // 메세지 부분을 잘라서 저장
-				System.out.println(message);
+				/* 채팅을 전달할 때, 메시지에 딜리미터가 포함되어 있을 경우
+				 * 메시지도 잘려서 전송되므로 해당 내용이 채팅일 경우 
+				 * 토크나이저로 잘려진 메시지를 다시 결합해서 전송한다. */
+				String msg = st.nextToken();
+				// 다음 토큰이 있을 경우,
+				while(st.hasMoreElements()) {
+					// 해당 토큰을 누적한다.
+					msg += "/"+ st.nextToken();
+				}
+				System.out.println(message +", 내용 : " + msg);
 				BroadCast("WaitingRoom/pass/ChattingWR@"+message+"@"+msg); 
 				break;
 			}

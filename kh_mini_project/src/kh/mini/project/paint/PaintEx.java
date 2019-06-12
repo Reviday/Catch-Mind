@@ -25,12 +25,6 @@ import javax.swing.border.EmptyBorder;
 
 public class PaintEx extends JFrame implements ActionListener{
 	
-//	public static void main(String[] args) {
-//		new PaintEx();
-//	}
-	
-	
-	
 	//프레임 안에 있는 요소들
 	Canvas canvas = new Canvas();
 	
