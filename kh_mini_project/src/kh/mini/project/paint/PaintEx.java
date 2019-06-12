@@ -11,25 +11,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.ImageIcon;
-import javax.swing.SwingConstants;
-import java.awt.SystemColor;
-import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+import javax.swing.border.EmptyBorder;
 
 
 
 public class PaintEx extends JFrame implements ActionListener{
 	
-	public static void main(String[] args) {
-		new PaintEx();
-	}
+//	public static void main(String[] args) {
+//		new PaintEx();
+//	}
 	
 	
 	
@@ -65,19 +63,16 @@ public class PaintEx extends JFrame implements ActionListener{
 	private JPanel panel_3;
 	private JPanel panel_4;
 	private JPanel panel_5;
-	private JLabel lblNewLabel;
-	private JLabel lblNewLabel_1;
 	
 	
 	
-	public PaintEx() {
+	public PaintEx(String room_Name, int room_No) {
 		
 		//프레임 설정
 		setSize(1024,768);
 		getContentPane().setLayout(null);
 		getContentPane().setBackground(Color.lightGray);
 		
-		//Canvas sketchBook = new Canvas();
 		getContentPane().add(canvas);
 		canvas.setBounds(219, 70, 570, 500);
 		canvas.setBackground(Color.WHITE);
@@ -171,8 +166,6 @@ public class PaintEx extends JFrame implements ActionListener{
 		getContentPane().add(exit);
 		exit.setVisible(true);
 		
-	
-		
 		panel_1 = new JPanel();
 		panel_1.setBounds(12, 246, 198, 147);
 		getContentPane().add(panel_1);
@@ -193,20 +186,21 @@ public class PaintEx extends JFrame implements ActionListener{
 		panel_5.setBounds(798, 423, 198, 147);
 		getContentPane().add(panel_5);
 		
-		lblNewLabel_1 = new JLabel("New label");
-		lblNewLabel_1.setIcon(new ImageIcon(PaintEx.class.getResource("/images/character1.png")));
-		lblNewLabel_1.setBounds(22, 87, 89, 112);
-		getContentPane().add(lblNewLabel_1);
+		JPanel panel = new JPanel();
+		panel.setBounds(14, 70, 198, 147);
+		getContentPane().add(panel);
 		
-		lblNewLabel = new JLabel("                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ");
-		lblNewLabel.setIcon(new ImageIcon(PaintEx.class.getResource("/images/userbackground.png")));
-		lblNewLabel.setBounds(12, 70, 198, 147);
-		getContentPane().add(lblNewLabel);;
+		//경험치 표시
+		JProgressBar progressBar = new JProgressBar();
+		progressBar.setBounds(284, 695, 495, 14);
+		getContentPane().add(progressBar);
+		progressBar.setValue(50);
+		progressBar.setForeground(Color.gray);
+		//progressBar.setBorder(new EmptyBorder(null));
+		//progressBar.setBorder(new LineBorder(Color.black));
 		
+		//progressBar.paintBorder(Color.lightGray);
 		
-		
-		
-	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
@@ -238,7 +232,6 @@ public class PaintEx extends JFrame implements ActionListener{
 				for(int j=1;j<shape.get(i).sketchSP.size();j++)
 				g2.drawLine(shape.get(i).sketchSP.get(j-1).x,  shape.get(i).sketchSP.get(j-1).y, shape.get(i).sketchSP.get(j).x, shape.get(i).sketchSP.get(j).y);
 				}
-				
 			}
 				
 			//잔상 그리기
