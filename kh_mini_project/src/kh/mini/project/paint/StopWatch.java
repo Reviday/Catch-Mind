@@ -81,10 +81,9 @@ public class StopWatch extends JFrame implements ActionListener{
 		setVisible(true);
 	}
 
-	class timeThread extends Thread{//start활성화 시 수행되도록 수정해야됨
+	class timeThread extends Thread{
 		@Override
 		public void run() {
-			//int i=0;
 			try{	
 				while(!Thread.currentThread().isInterrupted()) {
 					currentTime=System.currentTimeMillis() - preTime;	
