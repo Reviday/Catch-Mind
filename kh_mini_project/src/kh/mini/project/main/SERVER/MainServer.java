@@ -609,7 +609,7 @@ public class MainServer extends JFrame {
 							+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer+"@"+"last";
 				} else {
 					msg="WaitingRoom/pass/OldUser@"
-							+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer+"@ ";
+							+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer+"@_";
 				}
 				send_Message(msg);
 			}
@@ -628,7 +628,7 @@ public class MainServer extends JFrame {
 							+r.room_No+"@"+r.room_name+"@"+r.room_PW+"@"+r.fixed_User+"@"+r.Room_user_vc.size()+"@last";
 				} else {
 					msg="WaitingRoom/pass/OldRoom@" + userID +"@"
-							+r.room_No+"@"+r.room_name+"@"+r.room_PW+"@"+r.fixed_User+"@"+r.Room_user_vc.size()+"@";
+							+r.room_No+"@"+r.room_name+"@"+r.room_PW+"@"+r.fixed_User+"@"+r.Room_user_vc.size()+"@_";
 				}
 				send_Message(msg);
 			}
@@ -784,8 +784,10 @@ public class MainServer extends JFrame {
 						+roomNo+"@"+title+"@"+roomPW+"@"+fixed_User+"@"+new_room.Room_user_vc.size()+"@");
 				//방을 생성한 유저에게 방 개설이 가능함을 알리고 할당한 방 번호를 넘겨준다.
 				send_Message("WaitingRoom/pass/CreateRoom@"+message+"@"+roomNo);
+				//MainView에 Paint창을 띄우라고 알린다.
+				
 				break;
-			
+				
 			// #방 입장 요청
 			case "EnterRoom":
 				int room_No = Integer.parseInt(st.nextToken()); // 방번호
@@ -824,8 +826,8 @@ public class MainServer extends JFrame {
 				
 				break;
 				
-			// #방 입장 알림 , #유저 로그아웃
-			case "EntryRoom": case "UserLogout" :
+			// #방 입장 알림 
+			case "EntryRoom": 
 				// 게임방에 입장(또는 로그아웃)하여 현재 대기실 유저에서 제거되어야 된다.
 				for(int i=0; i<user_vc.size(); i++) {
 					UserInfo u = (UserInfo)user_vc.get(i);
@@ -834,9 +836,10 @@ public class MainServer extends JFrame {
 						// 해당 아이디를 대기실 유저에서 지운다.
 						user_vc.remove(i); 
 						// 프로토콜이 EntryRoom이면
-						if(protocol.equals("EntryRoom")) {
-							
-						}
+						/*
+						 *  해당 유저를 게임룸 유저목록에 추가한다.
+						 */
+						
 						// 해당 유저를 리스트에서 제거하라는 브로드캐스트를 보낸다.
 						BroadCast("WaitingRoom/pass/RemoveUser@"+message);
 						break; // 작업을 완료했으므로 for문을 탈출한다.
@@ -844,6 +847,21 @@ public class MainServer extends JFrame {
 				}
 				break;
 				
+			// #유저 로그아웃	
+			case "UserLogout" :	
+				// 게임방에 입장(또는 로그아웃)하여 현재 대기실 유저에서 제거되어야 된다.
+				for(int i=0; i<user_vc.size(); i++) {
+					UserInfo u = (UserInfo)user_vc.get(i);
+					// 해당 유저아이디를 찾는다.
+					if(u.getUserID().equals(message)) {
+						// 해당 아이디를 대기실 유저에서 지운다.
+						user_vc.remove(i); 
+						// 해당 유저를 리스트에서 제거하라는 브로드캐스트를 보낸다.
+						BroadCast("WaitingRoom/pass/RemoveUser@"+message);
+						break; // 작업을 완료했으므로 for문을 탈출한다.
+					}
+				}
+				break;
 			// #채팅 요청이 들어왔을 때
 			case "ChattingWR" :
 				/* 채팅을 전달할 때, 메시지에 딜리미터가 포함되어 있을 경우
@@ -878,7 +896,7 @@ public class MainServer extends JFrame {
 					if(r.room_No==room_No) { // 같은 방 번호가 존재할 시 
 						// 해당 방에 있는 유저들의 정보를 보낸다.
 						for(int j=0; j<r.Room_user_vc.size(); i++) {
-							UserInfo u = (UserInfo)r.Room_user_vc.get(i);
+							UserInfo u = (UserInfo)r.Room_user_vc.get(j);
 							send_Message("Paint/pass/RoomInfo@"+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer);
 						}
 					}

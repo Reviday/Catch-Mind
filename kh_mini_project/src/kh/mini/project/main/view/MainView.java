@@ -32,6 +32,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import kh.mini.project.paint.PaintEx;
 import kh.mini.project.waiting_room.view.WaitingRoom;
 
 public class MainView extends JFrame{
@@ -66,7 +67,8 @@ public class MainView extends JFrame{
 	private boolean loginCk = false;
 	private boolean changePoint = true; // MainView에서 WaitingRoom으로 넘어가는 창전환이 발생하면 false로 바꾸어 해당 run 메소드의 실행을 멈춘다.
 	private boolean flag = false;
-	private WaitingRoom wr;
+	private WaitingRoom wr; // WaitingRoom 클래스 객체
+	private PaintEx paint; // Paint 클래스 객체
 	
 //Image	
 	// #MainView 배경
@@ -460,6 +462,15 @@ public class MainView extends JFrame{
 					"로그인 실패!\n 아이디/패스워드를 다시 확인하시기 바랍니다.","알림",JOptionPane.ERROR_MESSAGE);
 			break;
 			
+		// #게임방 입장
+		case " ":
+			int room_No = Integer.parseInt(st.nextToken()); // 방 번호
+			// 방에 입장함을 서버에게 알린다.
+			
+			paint = new PaintEx(room_No);
+			
+			break;
+			
 		// #WaitingRoom으로 넘김
 		case "WaitingRoom":
 			/* 채팅을 전달할 때, 메시지에 딜리미터가 포함되어 있을 경우
@@ -467,6 +478,22 @@ public class MainView extends JFrame{
 			 * 토크나이저로 잘려진 메시지를 다시 결합해서 
 			 * WaitingRoom으로 재전송한다. */
 			String msg = st.nextToken();
+			// 다음 토큰이 있을 경우,
+			while(st.hasMoreElements()) {
+				// 해당 토큰을 누적한다.
+				msg += "/"+ st.nextToken();
+			}
+			System.out.println("내용 : " + msg);
+			wr.wr_Inmessage(msg);
+			break;
+			
+		// #Paint로 넘김
+		case "Paint" :
+			/* 채팅을 전달할 때, 메시지에 딜리미터가 포함되어 있을 경우
+			 * 메시지도 잘려서 전송되므로 해당 내용이 채팅일 경우 
+			 * 토크나이저로 잘려진 메시지를 다시 결합해서 
+			 * WaitingRoom으로 재전송한다. */
+			msg = st.nextToken();
 			// 다음 토큰이 있을 경우,
 			while(st.hasMoreElements()) {
 				// 해당 토큰을 누적한다.

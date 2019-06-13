@@ -434,11 +434,10 @@ public class WaitingRoom extends JFrame{
 		case "CreateRoom":
 			int room_No = Integer.parseInt(st.nextToken()); // 방 번호
 			
-			// 방에 입장함을 서버에게 알린다.
 			send_message("EntryRoom/"+userInfo.getUserID());
 			// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
 			dispose();
-			new PaintEx(room_No);
+//			paint = new PaintEx(room_No);
 			
 			break;
 		
