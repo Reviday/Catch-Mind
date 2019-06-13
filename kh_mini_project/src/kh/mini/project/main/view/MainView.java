@@ -2,6 +2,7 @@ package kh.mini.project.main.view;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
@@ -60,7 +61,8 @@ public class MainView extends JFrame{
 	private Graphics viewGraphics; // 그래픽 저장용 변수
 	private int mouseX, mouseY; // 마우스 좌표용 변수
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
-	private boolean connectionCheck = false; // Waiting room으로 넘어가기 위해 커넥션 체크.(ConnectException 이 발생하면 로그인 실패 알림을 발생시키기 위함)
+	private boolean connectionIpCheck = false;
+	private boolean connectionPortCheck = false; // Waiting room으로 넘어가기 위해 커넥션 체크.(ConnectException 이 발생하면 로그인 실패 알림을 발생시키기 위함)
 	private boolean loginCk = false;
 	private boolean changePoint = true; // MainView에서 WaitingRoom으로 넘어가는 창전환이 발생하면 false로 바꾸어 해당 run 메소드의 실행을 멈춘다.
 	private boolean flag = false;
@@ -73,14 +75,14 @@ public class MainView extends JFrame{
 			//Main 클래스의 위치를 기준으로 이미지 파일의 위치를 찾은 다음에 이미지 인스턴스를 해당 변수에 초기화 해줌(상대경로 같은 절대경로)
 	
 	//Button Icon (basic : 버튼의 기본 상태, Entered : 버튼에 마우스를 가져간 상태) 
-	private ImageIcon exitBasicImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
-	private ImageIcon exitEnteredImage = new ImageIcon(Main.class.getResource("/images/exite.png")); 
-	private ImageIcon conncetBasicImage = new ImageIcon(Main.class.getResource("/images/connect.png"));
-	private ImageIcon connectEnteredImage = new ImageIcon(Main.class.getResource("/images/connect.png")); 
-	private ImageIcon loginBasicImage = new ImageIcon(Main.class.getResource("/images/login.png"));
-	private ImageIcon loginEnteredImage = new ImageIcon(Main.class.getResource("/images/login.png")); 
-	private ImageIcon joinBasicImage = new ImageIcon(Main.class.getResource("/images/조인.png"));
-	private ImageIcon joinEnteredImage = new ImageIcon(Main.class.getResource("/images/조인.png")); 
+	private ImageIcon exitBasicImage = new ImageIcon(Main.class.getResource("/images/exitButtonBasic.png"));
+	private ImageIcon exitEnteredImage = new ImageIcon(Main.class.getResource("/images/exitButtonEntered.png")); 
+	private ImageIcon conncetBasicImage = new ImageIcon(Main.class.getResource("/images/connectButtonBasic.png"));
+	private ImageIcon connectEnteredImage = new ImageIcon(Main.class.getResource("/images/connectButtonEntered.png")); 
+	private ImageIcon loginBasicImage = new ImageIcon(Main.class.getResource("/images/loginButtonBasic.png"));
+	private ImageIcon loginEnteredImage = new ImageIcon(Main.class.getResource("/images/loginButtonEntered.png")); 
+	private ImageIcon joinBasicImage = new ImageIcon(Main.class.getResource("/images/joinButtonBasic.png"));
+	private ImageIcon joinEnteredImage = new ImageIcon(Main.class.getResource("/images/joinButtonEntered.png")); 
 	
 //Button
 	private JButton exitButton = new JButton(exitBasicImage); // 나가기 버튼
@@ -122,43 +124,52 @@ public class MainView extends JFrame{
 		add(mainMenuBar);
 	
 	// TextField
+		Font mainViewFont = new Font("휴먼편지체", Font.PLAIN,18 ); //폰트설정
+		
 		//IP 입력
 		serverIp_tf = new JTextField(); 
-		serverIp_tf.setBounds(520, 550, 150, 30);
+		serverIp_tf.setBounds(525, 550, 150, 30);
 		serverIp_tf.setBorder(null); // 테두리 제거
 		serverIp_tf.setBackground(new Color(0,0,0,0)); // 배경 투명색
+		serverIp_tf.setFont(mainViewFont);
 		add(serverIp_tf); 
 		serverIp_tf.setDocument(new JTextFieldLimit(15)); //15자 제한(ip 최대 입력가능 크기 000.000.000.000)
 		serverIp_tf.setText("127.0.0.1"); //IP 기본값 127.0.0.1(자기 자신)
 		
 		//포트번호 입력
-		port_tf = new JTextField(); 
-		port_tf.setBounds(520, 590, 150, 30);
-		port_tf.setBorder(null);
-		port_tf.setBackground(new Color(0,0,0,0));
+		port_tf = new JTextField();  
+		port_tf.setBounds(525, 590, 150, 30); 
+		port_tf.setBorder(null); // 테두리 제거
+		port_tf.setBackground(new Color(0,0,0,0)); // 배경 투명색
+		port_tf.setFont(mainViewFont);
 		add(port_tf);
 		port_tf.setDocument(new JTextFieldLimit(5)); // 5자 제한 (포트번호 범위 0~65535)	 
 		port_tf.setText("12345");//포트번호 기본값 12345
 		
 		//ID 입력
 		id_tf = new JTextField();
-		id_tf.setBounds(520, 630, 150, 30);
-		id_tf.setBorder(null);
-		id_tf.setBackground(new Color(0,0,0,0));
+		id_tf.setBounds(525, 630, 150, 30); 
+		id_tf.setBorder(null); // 테두리 제거
+		id_tf.setBackground(new Color(0,0,0,0)); // 배경 투명색
+		id_tf.setFont(mainViewFont);
 		add(id_tf);
 		id_tf.setDocument(new JTextFieldLimit(12)); //아이디 최대 12자 제한
 				
 		//PW 입력
 		pw_tf = new JPasswordField();
-		pw_tf.setBounds(520, 670, 150, 30);
-		pw_tf.setBorder(null);
-		pw_tf.setBackground(new Color(0,0,0,0));
+		pw_tf.setBounds(525, 670, 150, 30);
+		pw_tf.setBorder(null); // 테두리 제거
+		pw_tf.setBackground(new Color(0,0,0,0)); // 배경 투명색
+		pw_tf.setFont(mainViewFont);
+		pw_tf.setEchoChar('*'); // 화면에 표기할 문자를 '*'로 지정
 		add(pw_tf);
 		pw_tf.setDocument(new JTextFieldLimit(12)); // 비밀번호 최대 12자 제한
 		
 	// Button
 		// #나가기 버튼
-		exitButton.setBounds(870, 690, 100, 30);
+		exitButton.setBounds(575, 710, 117, 47);
+		exitButton.setBorder(null); // 테두리 제거
+		exitButton.setBackground(new Color(0,0,0,0)); // 배경 투명색
 		add(exitButton);
 		exitButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -184,7 +195,9 @@ public class MainView extends JFrame{
 			}
 		});
 		// #연결 버튼
-		connetButton.setBounds(511, 700, 170, 64);
+		connetButton.setBounds(458, 710, 117, 47);
+		connetButton.setBorder(null); // 테두리 제거
+		connetButton.setBackground(new Color(0,0,0,0)); // 배경 투명색
 		add(connetButton);
 		connetButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -213,21 +226,27 @@ public class MainView extends JFrame{
 				Network();
 				
 				// connetionCheck 상태에 따른 프레임 및 알림창 상태전환
-				if(connectionCheck) {
-					connetionChecked(connectionCheck);
+				if(!connectionIpCheck) { // ip가 정상적이지 않을 때(UnknownHostException 예외 발생 시)
+					JOptionPane.showMessageDialog(null, 
+							"연결 실패!\nIP를 다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
+				} else if (!connectionPortCheck) { // port가 정상적이지 않거나 서버가 비가동중일 때(ConnectException 예외 발생 시)
+					JOptionPane.showMessageDialog(null, 
+							"연결 실패!\nServer Port Number가 일치하지 않거나"
+							+"\n서버가 실행중이지 않습니다.\n다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
+				} else { // 예외가 발생하지 않았다는 것은 정상적인 연결이 이루어졌다는 의미로 처리(정상 연결)
+					connetionChecked(connectionPortCheck);
 					connectToLogin();
 					JOptionPane.showMessageDialog(null,"연결이 정상적으로 이루어졌습니다."
 							+ "\n이제 로그인을 하시기 바랍니다.","알림",JOptionPane.INFORMATION_MESSAGE);
-				} else { // 
-					JOptionPane.showMessageDialog(null, 
-							"로그인 실패!\nServer Port Number가 일치하지 않거나"
-							+"\n서버가 실행중이지 않습니다.\n다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
 		
 		// #로그인 버튼
-		loginButton.setBounds(511, 700, 170, 64);
+		loginButton.setBounds(458, 710, 117, 47);
+		loginButton.setBorder(null); // 테두리 제거
+		loginButton.setBackground(new Color(0,0,0,0)); // 배경 투명색
+		loginButton.setEnabled(false); // 초기셋팅 보이지 않게!
 		add(loginButton);
 		loginButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -258,7 +277,7 @@ public class MainView extends JFrame{
 					pw += a;
 				}
 					
-				if(connectionCheck) {
+				if(connectionPortCheck) {
 					send_message("LoginCheck/" + id + "/" + pw);
 				} else { // 
 					JOptionPane.showMessageDialog(null, 
@@ -270,7 +289,9 @@ public class MainView extends JFrame{
 		
 		
 		// #회원가입 버튼
-		joinButton.setBounds(341, 700, 170, 64);
+		joinButton.setBounds(341, 710, 117, 47);
+		joinButton.setBorder(null); // 테두리 제거
+		joinButton.setBackground(new Color(0,0,0,0)); // 배경 투명색
 		add(joinButton);
 		joinButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -290,7 +311,7 @@ public class MainView extends JFrame{
 			// 마우스로 버튼을 눌렀을 때 이벤트
 			@Override 
 			public void mousePressed(MouseEvent e) {
-				if(connectionCheck) {
+				if(connectionPortCheck) {
 					new JoinView();
 				} else {
 					JOptionPane.showMessageDialog(null, 
@@ -300,17 +321,17 @@ public class MainView extends JFrame{
 			
 		});
 		
-		connetionChecked(connectionCheck);
+		connetionChecked(connectionPortCheck);
 	}
 	
-	// 연결설정이 완료되면 로그인 버튼으로 바뀐다.
+	// #연결설정이 완료되면 로그인 버튼으로 바뀐다.
 	private void connectToLogin() {
 		connetButton.setEnabled(false);
 		connetButton.setVisible(false);
 		loginButton.setEnabled(true);
 	}
 	
-	// connetionCheck 값에 따라 
+	// #connetionCheck 값에 따라 IP/Port 필드와 ID/PW 필드의 활성화를 바꿈
 	private void connetionChecked(boolean connetionCheck) {
 		if(connetionCheck) { // 연결 설정되어 있는 상태일 시
 			serverIp_tf.setEnabled(false);
@@ -325,9 +346,19 @@ public class MainView extends JFrame{
 		}
 	}
 	
+	// #입력된 IP가 정상적인 IP인지 체크한다.
+//	private void ipCheck(String ip) {
+//		StringTokenizer ipst = new StringTokenizer(ip,".");
+//		for(int i=1; i<=4; i++) {
+//			int temp = Integer.parseInt(ipst.nextToken());
+//			if(temp>)
+//		}
+//	}
+	
 	private void Network() 
 	{	
-		connectionCheck = true; // 연결 시작전에 ture로 초기화
+		connectionIpCheck = true; // 연결 시작전에 ture로 초기화
+		connectionPortCheck = true; // 연결 시작전에 ture로 초기화
 		try {
 			socket = new Socket(ip,port); 
 			
@@ -337,9 +368,9 @@ public class MainView extends JFrame{
 			}
 			
 		} catch (UnknownHostException e) { // 호스트를 찾을 수 없을 때
-			e.printStackTrace();
+			connectionIpCheck = false; // UnknownHostException이 발생하면 false로 변경. 연결 실패 알림창을 띄움.
 		} catch (ConnectException e) {
-			connectionCheck = false; // ConnectException이 발생하면 false로 변경. 로그인 실패 알림창을 띄움.
+			connectionPortCheck = false; // ConnectException이 발생하면 false로 변경. 연결 실패 알림창을 띄움.
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 

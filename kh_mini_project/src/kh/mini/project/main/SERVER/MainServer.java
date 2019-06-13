@@ -326,6 +326,7 @@ public class MainServer extends JFrame {
 			statusArea.setBackground(new Color(80,80,80,0));  
 			statusArea.setFont(font);
 			statusArea.setForeground(Color.white);
+			statusArea.setLineWrap(true); // 자동 줄바꿈
 			statusView.setViewportView(statusArea);
 			/* 이하 코드는 쓰레드 환경에서도 자동 스크롤이 되게하려는 메소드이다. */
 			statusView.addMouseWheelListener(new MouseWheelListener() {
@@ -483,10 +484,6 @@ public class MainServer extends JFrame {
 			add(introMenuBar);	
 			
 		}		
-		
-		
-
-		
 		
 		@Override
 		public void paint(Graphics g) {
@@ -785,7 +782,7 @@ public class MainServer extends JFrame {
 				BroadCast("WaitingRoom/pass/NewRoom@"+message+"@"
 						+roomNo+"@"+title+"@"+roomPW+"@"+fixed_User+"@"+new_room.Room_user_vc.size()+"@");
 				//방을 생성한 유저에게 방 개설이 가능함을 알리고 할당한 방 번호를 넘겨준다.
-				send_Message("WaitingRoom/pass/CreateRoom@"+message+"@"+roomNo+"@"+title);
+				send_Message("WaitingRoom/pass/CreateRoom@"+message+"@"+roomNo);
 				break;
 			
 			// #방 입장 요청

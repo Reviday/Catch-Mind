@@ -16,14 +16,21 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.border.EmptyBorder;
 
 
 
 public class PaintEx extends JFrame implements ActionListener{
+	
+	public static void main(String[] args) {
+		new PaintEx(1);
+	}
+	
+	
 	
 	//프레임 안에 있는 요소들
 	Canvas canvas = new Canvas();
@@ -57,10 +64,14 @@ public class PaintEx extends JFrame implements ActionListener{
 	private JPanel panel_3;
 	private JPanel panel_4;
 	private JPanel panel_5;
+	private JProgressBar expBar;
+	private JPanel panel_6;
+	private JPanel panel_7;
+	private JLabel lblNewLabel_1;
+
 	
 	
-	
-	public PaintEx(String room_Name, int room_No) {
+	public PaintEx(int room_No) {
 		
 		//프레임 설정
 		setSize(1024,768);
@@ -183,21 +194,41 @@ public class PaintEx extends JFrame implements ActionListener{
 		JPanel panel = new JPanel();
 		panel.setBounds(14, 70, 198, 147);
 		getContentPane().add(panel);
+		panel.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("New label");
+		lblNewLabel.setBounds(14, 12, 87, 123);
+		panel.add(lblNewLabel);
+		
+		panel_6 = new JPanel();
+		panel_6.setBounds(107, 12, 77, 34);
+		panel.add(panel_6);
+		
+		panel_7 = new JPanel();
+		panel_7.setBounds(107, 101, 77, 34);
+		panel.add(panel_7);
+		
+		lblNewLabel_1 = new JLabel("New label");
+		lblNewLabel_1.setBounds(107, 53, 77, 42);
+		panel.add(lblNewLabel_1);
 		
 		//경험치 표시
-		JProgressBar progressBar = new JProgressBar();
-		progressBar.setBounds(284, 695, 495, 14);
-		getContentPane().add(progressBar);
-		progressBar.setValue(50);
-		progressBar.setForeground(Color.gray);
-		//progressBar.setBorder(new EmptyBorder(null));
-		//progressBar.setBorder(new LineBorder(Color.black));
+		expBar = new JProgressBar();
+		expBar.setBounds(284, 695, 495, 14);
+		getContentPane().add(expBar);
+		expBar.setValue(50);
+		expBar.setBackground(Color.white);
+		expBar.setForeground(Color.gray);
 		
-		//progressBar.paintBorder(Color.lightGray);
+		
+		
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
+	
+	//class StartPnThread 
+	
 	
 	//그림판
 	class Canvas extends JPanel{
@@ -228,8 +259,8 @@ public class PaintEx extends JFrame implements ActionListener{
 				}
 			}
 				
-			//잔상 그리기
 			
+			//잔상 그리기
 			if(eraser_Sel) {
 				g2.setStroke(new BasicStroke(eraserThick, BasicStroke.CAP_ROUND,0));
 				for(int i=1;i<sketSP.size();i++)
@@ -253,6 +284,26 @@ public class PaintEx extends JFrame implements ActionListener{
 		}
 		 
 	}
+	
+	public void printExp(int exp, int level) {
+		switch(level) {
+		case 1: expBar.setValue((exp/10)*100); break;
+		case 2: expBar.setValue((exp/40)*100); break;
+		case 3: expBar.setValue((exp/80)*100); break;
+		case 4: expBar.setValue((exp/130)*100); break;
+		case 5: expBar.setValue((exp/200)*100); break;
+		case 6: expBar.setValue((exp/290)*100); break;
+		case 7: expBar.setValue((exp/400)*100); break;
+		case 8: expBar.setValue((exp/540)*100); break;
+		case 9: expBar.setValue((exp/710)*100); break;
+		case 10: expBar.setValue((exp/910)*100); break;
+		case 11: expBar.setValue((exp/1150)*100); break;
+		case 12: expBar.setValue((exp/1430)*100); break;
+		case 13: expBar.setValue((exp/1750)*100); break;
+		}
+	}
+	
+	
 	
 	class MyMouseListener extends MouseAdapter implements MouseMotionListener{
 

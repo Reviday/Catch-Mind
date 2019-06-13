@@ -30,7 +30,6 @@ import kh.mini.project.model.vo.User;
 
 public class JoinView extends JFrame{
 // Frame, Panel
-	private JFrame joinView = new JFrame("Join"); // 메인 프레임
 	private JPanel joinPanel = new JPanel(); // 보조 프레임(패널) - 회원가입 패널
 	
 // Label
