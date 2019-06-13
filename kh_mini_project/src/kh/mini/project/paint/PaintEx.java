@@ -70,6 +70,9 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JPanel panel_6;
 	private JPanel panel_7;
 	private JLabel lblNewLabel_1;
+	
+	private JLabel readyImg;
+	private JLabel startImg;
 
 // 각종 변수
 	private String id; // 사용자의 id를 저장
@@ -89,7 +92,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		dos = MainView.getDos();
 
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
-		send_message("GameRoomCheck/" + id + "/" + room_No);
+		//send_message("GameRoomCheck/" + id + "/" + room_No);
 
 		// 프레임 설정
 		setSize(1024, 768);
@@ -101,6 +104,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		canvas.setBackground(Color.WHITE);
 		canvas.setVisible(true);
 
+		//색깔 버튼
 		color_black = new JButton(new ImageIcon(PaintEx.class.getResource("/images/black1.png")));
 		color_black.setBackground(Color.lightGray);
 		color_black.setBounds(223, 586, 48, 49);
@@ -151,6 +155,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		getContentPane().add(color_yellow);
 		color_yellow.addActionListener(this);
 
+		//지우개 버튼
 		eraser = new JButton("eraser");
 		eraser.setBackground(Color.lightGray);
 		eraser.setFocusPainted(false);
@@ -159,6 +164,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		eraser.addActionListener(this);
 		eraser.setVisible(true);
 
+		//클리어 버튼
 		clear = new JButton("clear");
 		clear.setBackground(Color.lightGray);
 		clear.setFocusPainted(false);
@@ -166,6 +172,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		getContentPane().add(clear);
 		clear.addActionListener(this);
 
+		//펜 굵기 버튼
 		thick_Bold = new JButton("굵은 펜");
 		thick_Bold.setBackground(Color.lightGray);
 		thick_Bold.setBounds(682, 586, 97, 23);
@@ -189,6 +196,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		getContentPane().add(exit);
 		exit.setVisible(true);
 
+		//캐릭터창 임시로 넣어둔거
 		panel_1 = new JPanel();
 		panel_1.setBounds(12, 246, 198, 147);
 		getContentPane().add(panel_1);
@@ -237,20 +245,36 @@ public class PaintEx extends JFrame implements ActionListener {
 		expBar.setValue(50);
 		expBar.setBackground(Color.white);
 		expBar.setForeground(Color.gray);
+		
+		//ready이미지
+		readyImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/image/readyImg.png")));
+		getContentPane().add(readyImg);
+		readyImg.setBounds(356,169,300,300);
+		readyImg.setVisible(true);
+		
+		//start이미지
+		startImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/startImg.png")));
+		getContentPane().add(startImg);
+		startImg.setBounds(356,169,300,300);
+		startImg.setVisible(false);
+		
+		getContentPane().add(canvas);
+		canvas.setVisible(true);
+		
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
 
 	// 서버에게 메시지를 보내는 부분
-	private void send_message(String str) {
-		try {
-			dos.writeUTF(str);
-		} catch (IOException e) // 에러 처리 부분
-		{
-			e.printStackTrace();
-		}
-	}
+//	private void send_message(String str) {
+//		try {
+//			dos.writeUTF(str);
+//		} catch (IOException e) // 에러 처리 부분
+//		{
+//			e.printStackTrace();
+//		}
+//	}
 
 	// 서버로부터 들어오는 모든 메시지
 	private void Inmessage(String str) {
@@ -374,6 +398,8 @@ public class PaintEx extends JFrame implements ActionListener {
 
 	}
 
+	
+	//레벨별 비율 계산해서 경험치 바에 값 설정
 	public void printExp(int exp, int level) {
 		switch (level) {
 		case 1:
@@ -417,9 +443,56 @@ public class PaintEx extends JFrame implements ActionListener {
 			break;
 		}
 	}
+	
+	//목표 인원수에 도달하면 3초뒤에 게임 자동시작하는 스레드(인원수가 차면 스레드 시작되는거 아직 구현X)
+	class StartThread extends Thread{
+		@Override
+		public void run() {
+			try {
+				sleep(3000);
+				ReadyImgThread rit = new ReadyImgThread();
+				rit.start();
+			}catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	//게임 시작 후 Ready이미지 1.5초띄우고 사라지는 스레드
+	class ReadyImgThread extends Thread{
+		@Override
+		public void run() {
+			try {
+				readyImg.setVisible(true);
+				sleep(1500);
+				readyImg.setVisible(false);
+				StartImgThread sit = new StartImgThread();
+				sit.start();
+			}catch(InterruptedException e) {
+				e.printStackTrace();
+			}	
+		}
+	}
+	
+	class StartImgThread extends Thread{
+		@Override
+		public void run() {
+			try {
+				startImg.setVisible(true);
+				sleep(1500);
+				startImg.setVisible(false);
+			}catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
+	
 
 	class MyMouseListener extends MouseAdapter implements MouseMotionListener {
 
+		
 		public void mousePressed(MouseEvent e) {
 			newshape = new ShapeSave();
 			newshape.mypencolor = mypencolor;
@@ -439,7 +512,6 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-
 			newshape.sketchSP.add(e.getPoint());
 			sketSP.add(e.getPoint());
 			repaint();

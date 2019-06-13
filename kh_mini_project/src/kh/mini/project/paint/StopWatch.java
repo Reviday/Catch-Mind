@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.ImageIcon;
 
 public class StopWatch extends JFrame implements ActionListener{
 
@@ -22,6 +23,7 @@ public class StopWatch extends JFrame implements ActionListener{
 	private JLabel minuteLb;
 	private JLabel secLb;
 	private JLabel mSecLb;
+	
 	timeThread timeT;
 	
 	public StopWatch() {		
@@ -39,30 +41,32 @@ public class StopWatch extends JFrame implements ActionListener{
 		
 		minuteLb = new JLabel(String.valueOf(minute));
 		minuteLb.setBounds(30, 10, 71, 80);
-		minuteLb.setFont(new Font("Times", Font.BOLD, 30));
+		minuteLb.setFont(new Font("Times", Font.BOLD, 50));
 		panel.add(minuteLb);
 		minuteLb.setVisible(true);
 		
 		secLb = new JLabel(String.valueOf(sec));
 		secLb.setBounds(143, 10, 71, 80);
 		panel.add(secLb);
-		secLb.setFont(new Font("Times", Font.BOLD, 30));
+		secLb.setFont(new Font("Times", Font.BOLD, 50));
 		secLb.setVisible(true);
 		
 		mSecLb = new JLabel(String.valueOf(mSec));
-		mSecLb.setBounds(252, 23, 71, 65);
-		mSecLb.setFont(new Font("Times", Font.BOLD, 15));
+		mSecLb.setBounds(252, 33, 50, 44);
+		mSecLb.setFont(new Font("Times", Font.BOLD, 30));
 		panel.add(mSecLb);
 		
 		JLabel label = new JLabel(":");
-		label.setFont(new Font("Dialog", Font.BOLD, 30));
-		label.setBounds(87, 28, 33, 40);
+		label.setBounds(65, 10, 71, 80);
 		panel.add(label);
+		label.setIcon(new ImageIcon(StopWatch.class.getResource("/images/middle.png")));
+		//label.setFont(new Font("Dialog", Font.BOLD, 30));
 		
 		JLabel label_1 = new JLabel(".");
-		label_1.setFont(new Font("Dialog", Font.BOLD, 30));
-		label_1.setBounds(200, 28, 33, 40);
+		label_1.setBounds(185, 0, 71, 80);
 		panel.add(label_1);
+		label_1.setIcon(new ImageIcon(StopWatch.class.getResource("/images/end.png")));
+		//label_1.setFont(new Font("Dialog", Font.BOLD, 30));
 		mSecLb.setVisible(true);
 		
 		
@@ -105,7 +109,8 @@ public class StopWatch extends JFrame implements ActionListener{
 		mSec=(int)currentTime%1000/10;
 		sec=(int)currentTime /1000 %60;
 		minute=(int)currentTime /60000 %60;
-			
+		
+		
 		minuteLb.setText(String.valueOf(minute));
 		secLb.setText(String.valueOf(sec));
 		mSecLb.setText(String.valueOf(mSec));
