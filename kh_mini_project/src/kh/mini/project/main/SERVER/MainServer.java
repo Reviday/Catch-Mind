@@ -537,6 +537,7 @@ public class MainServer extends JFrame {
 		private int level; // 레벨
 		private int exp; // 경험치
 		private int corAnswer; // 누적 정답 개수
+		private int room_No; // 게임방 번호
 		
 		
 		private boolean RoomCh = true;
@@ -795,16 +796,32 @@ public class MainServer extends JFrame {
 					// 방번호가 같은 객체를 찾았다면 pw가 존재하는지 확인한다.
 					if(r.room_No == room_No && r.room_PW != null) {
 						// 비밀번호가 null이 아니라면 pw를 입력하라는 메시지를 보낸다.(비밀번호도 같이 보내서 해당 창에서 빠르게 체크하도록한다.)
-						send_Message("WaitingRoom/pass/InputPW@"+message+"@"+r.room_PW);
+						send_Message("WaitingRoom/pass/InputPW@"+message+"@"+room_No+"@"+r.room_PW);
 						break; // 작업을 완료했으므로 for문을 탈출한다.
 					} else if(r.room_No == room_No && r.room_PW == null) {
 						// 비밀번호가 null이라면 바로 입장하도록 한다.
+						// 해당 유저를 게임방 Room_user_vc에 추가한다.
+						for(int j=0; j<user_vc.size(); j++) {
+							UserInfo u = (UserInfo)user_vc.get(j);
+							// 해당 아이디를 찾으면
+							if(message.equals(u.getUserID())) {
+								// 해당 유저를 방 유저 리스트에 추가한다.
+								r.Room_user_vc.add(u);
+								break;
+							}
+						}
+						// 유저에게 해당 방의 번호를 보낸다. 
+						send_Message("WaitingRoom/pass/EntryRoom@"+message+"@"+r.room_No);
 						
+						// 모든 유저에게 해당 유저가 게임방에 들어갔으니 리스트에서 제거하라고 알린다.
+						BroadCast("WaitingRoom/pass/RemoveUser"+message);
 						/*  비밀번호 없이 바로 입장하는 코드  */
 						
 						break; // 작업을 완료했으므로 for문을 탈출한다.
 					}
 				}
+				//객체를 
+				
 				break;
 				
 			// #방 입장 알림 , #유저 로그아웃
@@ -816,6 +833,10 @@ public class MainServer extends JFrame {
 					if(u.getUserID().equals(message)) {
 						// 해당 아이디를 대기실 유저에서 지운다.
 						user_vc.remove(i); 
+						// 프로토콜이 EntryRoom이면
+						if(protocol.equals("EntryRoom")) {
+							
+						}
 						// 해당 유저를 리스트에서 제거하라는 브로드캐스트를 보낸다.
 						BroadCast("WaitingRoom/pass/RemoveUser@"+message);
 						break; // 작업을 완료했으므로 for문을 탈출한다.
@@ -836,6 +857,41 @@ public class MainServer extends JFrame {
 				}
 				System.out.println(message +", 내용 : " + msg);
 				BroadCast("WaitingRoom/pass/ChattingWR@"+message+"@"+msg); 
+				break;
+				
+			// #초기 게임방에 입장했을때 정보를 요구한다
+			case "GameRoomCheck": 
+				/* 사용자가 처음에 게임방에 입장했을 때 필요한 부분이다.
+				 * 기존 방에 입장하고 있는 다른 사용자의 정보와 게임방의 정보를 다시 보내준다. */
+				room_No = Integer.parseInt(st.nextToken());
+				//제일 처음, 방의 정보를 보내준다.
+				for(int i=0; i<room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.room_No==room_No) { // 같은 방 번호가 존재할 시 
+						send_Message("Paint/pass/RoomInfo@"+
+								r.room_name+"@"+r.room_PW+"@"+r.fixed_User+"@"+r.Room_user_vc.size());
+					}
+				}
+				// 이미 입장 중인 유저가 있으면 해당 유저들의 정보를 먼저 보낸다.
+				for(int i=0; i<room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.room_No==room_No) { // 같은 방 번호가 존재할 시 
+						// 해당 방에 있는 유저들의 정보를 보낸다.
+						for(int j=0; j<r.Room_user_vc.size(); i++) {
+							UserInfo u = (UserInfo)r.Room_user_vc.get(i);
+							send_Message("Paint/pass/RoomInfo@"+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer);
+						}
+					}
+				}
+				
+				// 끝으로 자신의 정보를 보내준다.
+				for(int i=0; i<user_vc.size(); i++) {
+					UserInfo u = (UserInfo)user_vc.elementAt(i);
+					if(u.userID==message) { // 같은 방 번호가 존재할 시 
+						send_Message("Paint/pass/UserInfo"+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer);
+					}
+				}
+				
 				break;
 			}
 		}

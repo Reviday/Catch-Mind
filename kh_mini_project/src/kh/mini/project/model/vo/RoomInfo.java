@@ -74,6 +74,10 @@ public class RoomInfo {
 	public void setFixed_User(int fixed_User) {
 		this.fixed_User = fixed_User;
 	}
+	
+	public void addRoom_user_vc(UserInfo u) {
+		Room_user_vc.add(u);
+	}
 
 	@Override
 	public String toString() {

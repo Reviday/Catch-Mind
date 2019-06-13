@@ -94,7 +94,7 @@ public class WaitingRoom extends JFrame{
 	private int fixed_User; // 방 인원수
 	private int room_No; // 방 번호
 	private boolean scrollpanemove = false;  // 스크롤 패인에 사용되는 변수(스크롤 허용 관련)
-	private RoomInfo roomInfo; // 사용자가 생성한 방의 객체
+	private RoomInfo roomInfo; // 사용자가 생성한 방이나 입장하려는 방의 객체
 	private Font wrFont = new Font("휴먼편지체", Font.PLAIN,18 ); //폰트설정
 	
 	
@@ -129,7 +129,6 @@ public class WaitingRoom extends JFrame{
 	public WaitingRoom() {
 		//실행과 동시에 네트워크 자원과 id를 MainView로부터 이어받아온다.
 		id = MainView.getId();
-		dis = MainView.getDis();
 		dos = MainView.getDos();
 		
 		Font font = new Font("Inconsolata",Font.BOLD,15); // 폰트 설정
@@ -439,7 +438,7 @@ public class WaitingRoom extends JFrame{
 			send_message("EntryRoom/"+userInfo.getUserID());
 			// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
 			dispose();
-//			new PaintEx(room_No);
+			new PaintEx(room_No);
 			
 			break;
 		
@@ -483,12 +482,24 @@ public class WaitingRoom extends JFrame{
 			relocationRoom();
 			break;
 		
+		// #방 입장 허가를 받음
+		case "EntryRoom":
+			room_No = Integer.parseInt(st.nextToken()); // 방 번호
+			
+			// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
+			dispose();
+			new PaintEx(room_No);
+			break;
+			
 		// #비밀번호 입력 요청
 		case "InputPW":
 			/*
 			 *  패스워드 입력 후 입장하는 구조!
 			 */
+			// 방번호와 패스워드를 받는다.
+			room_No = Integer.parseInt(st.nextToken());
 			room_PW = st.nextToken();
+			send_message("EntryRoom/"+Message+"/"+room_No);
 			new inputPw(room_PW);
 			
 			break;
