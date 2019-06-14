@@ -78,6 +78,10 @@ public class RoomInfo {
 	public void addRoom_user_vc(UserInfo u) {
 		Room_user_vc.add(u);
 	}
+	
+	public Vector getRoom_user_vc() {
+		return Room_user_vc;
+	}
 
 	@Override
 	public String toString() {

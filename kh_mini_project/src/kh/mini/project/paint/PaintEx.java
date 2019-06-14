@@ -2,9 +2,12 @@ package kh.mini.project.paint;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -18,12 +21,12 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import kh.mini.project.main.view.Main;
 import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
@@ -79,7 +82,12 @@ public class PaintEx extends JFrame implements ActionListener {
 	private int room_No; // 게임방 번호
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
 	private RoomInfo roomInfo; // 방정보를 객체로 저장한다.
-
+	private Toolkit tk = Toolkit.getDefaultToolkit();
+	Image img = tk.getImage(Main.class.getResource("/images/pencilCursorBasic.png"));
+	Cursor myCursor = tk.createCustomCursor(img, new Point(10,10), "WaterDrop");
+	
+	
+	
 // Network 자원 변수
 	private DataOutputStream dos;
 
@@ -92,13 +100,14 @@ public class PaintEx extends JFrame implements ActionListener {
 		dos = MainView.getDos();
 
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
-		//send_message("GameRoomCheck/" + id + "/" + room_No);
+		send_message("GameRoomCheck/" + id + "/" + room_No);
 
 		// 프레임 설정
 		setSize(1024, 768);
 		getContentPane().setLayout(null);
 		getContentPane().setBackground(Color.lightGray);
-
+		setCursor(myCursor);
+		
 		getContentPane().add(canvas);
 		canvas.setBounds(219, 70, 570, 500);
 		canvas.setBackground(Color.WHITE);
@@ -247,7 +256,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		expBar.setForeground(Color.gray);
 		
 		//ready이미지
-		readyImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/image/readyImg.png")));
+		readyImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/readyImg.png")));
 		getContentPane().add(readyImg);
 		readyImg.setBounds(356,169,300,300);
 		readyImg.setVisible(true);
@@ -267,24 +276,24 @@ public class PaintEx extends JFrame implements ActionListener {
 	}
 
 	// 서버에게 메시지를 보내는 부분
-//	private void send_message(String str) {
-//		try {
-//			dos.writeUTF(str);
-//		} catch (IOException e) // 에러 처리 부분
-//		{
-//			e.printStackTrace();
-//		}
-//	}
+	private void send_message(String str) {
+		try {
+			dos.writeUTF(str);
+		} catch (IOException e) // 에러 처리 부분
+		{
+			e.printStackTrace();
+		}
+	}
 
 	// 서버로부터 들어오는 모든 메시지
 	private void Inmessage(String str) {
 		st = new StringTokenizer(str, "@"); // 어떤 문자열을 사용할 것인지, 어떤 문자열로 자를 것인지 => [ NewUser/사용자ID ] 형태로 들어옴
 
 		String protocol = st.nextToken(); // 프로토콜을 저장한다.
-		String Message = st.nextToken(); // 메시지를 저장한다.
+		String mUserId = st.nextToken(); // 메시지를 저장한다.
 
 		System.out.println("프로토콜 : " + protocol);
-		System.out.println("내용 : " + Message);
+		System.out.println("내용 : " + mUserId);
 
 		// protocol 수신 처리
 		switch (protocol) {
@@ -297,42 +306,27 @@ public class PaintEx extends JFrame implements ActionListener {
 
 			// 받은 정보로 roomInfo 객체를 생성한다.
 			roomInfo = new RoomInfo(room_No, room_Name, room_Pw, uCount, fixed_User);
-
+			
 			break;
 
-		// #접속자 정보 받아오기(사용자 본인의 정보)
-		case "UserInfo":
-			// 사용자의 정보를 가져와 저장한다.
+		// #기존 접속자의 정보를 받아온다.(앞에서 자신의 정보를 넣기때문에 방금 입장한 사용자의 정보도 포함되어있음)
+		case "OldUser":
+			// 기존 사용자의 정보를 가져와 저장한다.
 			int level = Integer.parseInt(st.nextToken()); // 레벨
 			int exp = Integer.parseInt(st.nextToken()); // 경험치
 			int corAnswer = Integer.parseInt(st.nextToken()); // 누적 정답수
 
 			// 가져온 정보로 객체를 생성
-			UserInfo userInfo = new UserInfo(Message, level, exp, corAnswer);
-
-			// 해당 객체를 Vector에 추가(유저 객체를 RooInfo 객체의 벡터에 저장한다)
-			roomInfo.addRoom_user_vc(userInfo);
-
-			// 유저 패널을 갱신한다.
-			/*
-			 * 유저 패널 갱신 코드
-			 */
-
-			break;
-
-		// #기존 접속자의 정보를 받아온다.
-		case "OldUser":
-			// 기존 사용자의 정보를 가져와 저장한다.
-			level = Integer.parseInt(st.nextToken()); // 레벨
-			exp = Integer.parseInt(st.nextToken()); // 경험치
-			corAnswer = Integer.parseInt(st.nextToken()); // 누적 정답수
-
-			// 가져온 정보로 객체를 생성
-			UserInfo oldUser = new UserInfo(Message, level, exp, corAnswer);
+			UserInfo oldUser = new UserInfo(mUserId, level, exp, corAnswer);
 
 			// 해당 객체를 Vector에 추가(유저 객체를 RooInfo 객체의 벡터에 저장한다)
 			roomInfo.addRoom_user_vc(oldUser);
 			
+			Vector temp = roomInfo.getRoom_user_vc();
+			for (int i = 0; i < temp.size(); i++) {
+				UserInfo u = (UserInfo) temp.get(i);
+				System.out.println("유저 정보 [" +i +"] : " +u);
+			}
 			// 기존 접속자의 정보를 받고 이어서 본인의 정보를 이어받으므로, 모두 받은 후에 패널 업데이트를 진행한다.
 			break;
 		}

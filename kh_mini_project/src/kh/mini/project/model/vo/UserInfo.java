@@ -47,4 +47,11 @@ public class UserInfo {
 	public void levelUp() {
 		
 	}
+
+	@Override
+	public String toString() {
+		return "UserInfo [userID=" + userID + ", level=" + level + ", exp=" + exp + ", corAnswer=" + corAnswer + "]";
+	}
+	
+	
 }

@@ -86,7 +86,7 @@ public class WaitingRoom extends JFrame{
 	private Vector<UserInfo> user_list = new Vector<UserInfo>();
 	private Toolkit tk = Toolkit.getDefaultToolkit();
 	// 커서 테스트
-	Image img = tk.getImage(Main.class.getResource("/images/커서테스트.png"));
+	Image img = tk.getImage(Main.class.getResource("/images/cursorBasic.png"));
 	Cursor myCursor = tk.createCustomCursor(img, new Point(10,10), "dynamite stick");
 	// 방 만들기에 필요한 변수
 	private String room_name; // 방제목
@@ -349,10 +349,10 @@ public class WaitingRoom extends JFrame{
 		st = new StringTokenizer(str, "@");  // 어떤 문자열을 사용할 것인지, 어떤 문자열로 자를 것인지 =>  [ NewUser/사용자ID ] 형태로 들어옴
 		
 		String protocol = st.nextToken(); // 프로토콜을 저장한다.
-		String Message = st.nextToken(); // 메시지를 저장한다.
+		String mUserId = st.nextToken(); // 메시지를 저장한다.
 		
 		System.out.println("프로토콜 : " + protocol);
-		System.out.println("내용 : " + Message);
+		System.out.println("내용 : " + mUserId);
 		
 		// protocol 수신 처리
 		switch(protocol) {
@@ -365,7 +365,7 @@ public class WaitingRoom extends JFrame{
 			int corAnswer = Integer.parseInt(st.nextToken()); //누적 정답수
 			
 			// 가져온 정보로 객체를 생성
-			UserInfo u = new UserInfo(Message, level, exp, corAnswer);
+			UserInfo u = new UserInfo(mUserId, level, exp, corAnswer);
 			
 			// 해당 객체를 Vector에 추가
 			user_list.add(u);
@@ -380,7 +380,7 @@ public class WaitingRoom extends JFrame{
 			corAnswer = Integer.parseInt(st.nextToken()); //누적 정답수
 			
 			// 가져온 정보로 객체를 생성
-			userInfo = new UserInfo(Message, level, exp, corAnswer);
+			userInfo = new UserInfo(mUserId, level, exp, corAnswer);
 			
 			// 해당 객체를 Vector에 추가
 			user_list.add(userInfo);
@@ -396,7 +396,7 @@ public class WaitingRoom extends JFrame{
 			corAnswer = Integer.parseInt(st.nextToken()); //누적 정답수
 			
 			// 가져온 정보로 객체를 생성
-			u = new UserInfo(Message, level, exp, corAnswer);
+			u = new UserInfo(mUserId, level, exp, corAnswer);
 			
 			// 해당 객체를 Vector에 추가
 			user_list.add(u);
@@ -412,7 +412,7 @@ public class WaitingRoom extends JFrame{
 			for(int i=0; i<user_list.size(); i++) {
 				UserInfo rUser = (UserInfo)user_list.get(i);
 				// 해당 유저 아이디를 찾는다.
-				if(rUser.getUserID().equals(Message)) {
+				if(rUser.getUserID().equals(mUserId)) {
 					// 해당 아이디를 대기실 유저에서 지운다.
 					user_list.remove(i); 
 					// 유저 리스트를 업데이트하여 패널에 적용시킨다.
@@ -426,8 +426,8 @@ public class WaitingRoom extends JFrame{
 		// #쪽지 보내기
 		case "Note":
 			String note = st.nextToken(); // 받은 내용
-			System.out.println(Message+" 사용자로부터 온 쪽지 "+note);
-			JOptionPane.showMessageDialog(null, note, Message+"님으로 부터 쪽지", JOptionPane.CLOSED_OPTION);
+			System.out.println(mUserId+" 사용자로부터 온 쪽지 "+note);
+			JOptionPane.showMessageDialog(null, note, mUserId+"님으로 부터 쪽지", JOptionPane.CLOSED_OPTION);
 			break;
 			
 		// #방 생성
@@ -483,11 +483,8 @@ public class WaitingRoom extends JFrame{
 		
 		// #방 입장 허가를 받음
 		case "EntryRoom":
-			room_No = Integer.parseInt(st.nextToken()); // 방 번호
-			
-			// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
+			// 해당 창을 종료한다. 방에 대한 정보는 이어서 MainView로 받는다.
 			dispose();
-			new PaintEx(room_No);
 			break;
 			
 		// #비밀번호 입력 요청
@@ -498,24 +495,38 @@ public class WaitingRoom extends JFrame{
 			// 방번호와 패스워드를 받는다.
 			room_No = Integer.parseInt(st.nextToken());
 			room_PW = st.nextToken();
-			send_message("EntryRoom/"+Message+"/"+room_No);
-			new inputPw(room_PW);
+//			send_message("EntryRoom/"+Message+"/"+room_No);
+			new inputPw(room_No,room_PW);
+//			JFrame inputPW_fr = new JFrame();
+//			inputPW_fr.setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
+//			inputPW_fr.setSize(1024,768); // null은 최댓값
+//			inputPW_fr.setBackground(new Color(40,40,40,40));
+//			inputPW_fr.setAlwaysOnTop(true); // 항상 모든 윈도우 위에 위치하도록 함
+//			inputPW_fr.setPreferredSize(new Dimension(1024,768));
+//			inputPW_fr.setResizable(false); // 프레임 크기 고정
+//			inputPW_fr.setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
+//			inputPW_fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
+//			inputPW_fr.setVisible(true); // 윈도우를 볼 수 있음.
+//			inputPW_fr.setLayout(null);
+//			
+//			
+//			JLabel inputPW = new JLabel(inputPwPanelImage);
+//			inputPW.setBounds(100, 100, 500, 500);
+//			inputPW_fr.add(inputPW);
+			
+//			JPanel inputPW = new GameRoomPanel(inputPwPanelImage.getImage());
+//			inputPW.setLocation(0, 0);
+//			inputPW_fr.add(inputPW);
+			
+			
 			
 			break;
 			
 		// #채팅
 		case "ChattingWR":
-			/* 채팅을 전달할 때, 메시지에 딜리미터가 포함되어 있을 경우
-			 * 메시지도 잘려서 전송되므로 해당 내용이 채팅일 경우 
-			 * 토크나이저로 잘려진 메시지를 다시 결합해서 전송한다. */
-			String msg = st.nextToken();
-			// 다음 토큰이 있을 경우,
-			while(st.hasMoreElements()) {
-				// 해당 토큰을 누적한다.
-				msg += "@"+ st.nextToken();
-			}
-			System.out.println("내용 : " + msg);
-			chattingArea.append("["+Message+"] : "+msg+"\n");
+			String chattingMsg = st.nextToken(); 
+			System.out.println("WaingRoom 채팅 내용 : " + chattingMsg);
+			chattingArea.append("["+mUserId+"] : "+chattingMsg+"\n");
 			break;
 		}
 	}
@@ -563,8 +574,10 @@ public class WaitingRoom extends JFrame{
 			
 			// room_list의 크기보다 작을 때, room_list의 정보를 방에 추가한다.
 			if(i<room_list.size()) {
+				// room_list에서 객체 하나를
 				RoomInfo r = (RoomInfo)room_list.get(i);
-				grp.setRoomInfo(r); // 해당 grp에 RoomInfo 객체를 저장시킨다.
+				// 해당 grp에 RoomInfo 객체를 저장시킨다.(grp에 room_list의 객체를 저장시키는 과정)
+				grp.setRoomInfo(r);
 				grp.addMouseListener(new MouseAdapter() {
 					// 마우스를 버튼에 올려놨을 때 이벤트
 					@Override
@@ -828,7 +841,7 @@ public class WaitingRoom extends JFrame{
 				}
 			});
 			addMouseMotionListener(new MouseMotionAdapter() {
-				// #매뉴바 드래그 시, 움직일 수 있게 한다.
+				// #해당 창을 드래그 시, 움직일 수 있게 한다.
 				@Override
 				public void mouseDragged(MouseEvent e) {
 					int x = e.getXOnScreen();
@@ -960,99 +973,143 @@ public class WaitingRoom extends JFrame{
 	
 	
 	class inputPw extends JFrame {
-		JPanel inputPW = new GameRoomPanel(inputPwPanelImage.getImage());
+//		JPanel inputPW = new GameRoomPanel(inputPwPanelImage.getImage());
 		
+		// 각종 변수 변수
+		private Image viewImage; // 이미지 저장용 변수
+		private Graphics viewGraphics; // 그래픽 저장용 변수	
+		private int mouseX; // 마우스 좌표 변수
+		private int mouseY; // 마우스 좌표 변수
 		
-		public inputPw(String pw) {
+		public inputPw(int room_No, String room_Pw) {
 			setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
-			setSize(500,232); // null은 최댓값
-			setBackground(new Color(0,0,0,0));
+			setSize(1024,768); // null은 최댓값
+			setBackground(new Color(40,40,40,40));
 			setAlwaysOnTop(true); // 항상 모든 윈도우 위에 위치하도록 함
-			setPreferredSize(new Dimension(inputPwPanelImage.getImage().getWidth(null), inputPwPanelImage.getImage().getHeight(null)));
+			setPreferredSize(new Dimension(1024,768));
 			setResizable(false); // 프레임 크기 고정
 			setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
 			setVisible(true); // 윈도우를 볼 수 있음.
 			setLayout(null);	
+
+			JLabel inputPW = new JLabel(inputPwPanelImage);
+			inputPW.setBounds(262, 278, 500, 232);
+			inputPW.setBackground(new Color(0,0,0,0));
+			inputPW.setLayout(null);
+			inputPW.setVisible(true);
+			add(inputPW);
 			
-			JLabel inputPW_lb = new JLabel("비밀번호를 입력하세요.");
-			inputPW_lb.setBounds(150,50,200,40);
-			inputPW_lb.setFont(wrFont);
-			inputPW.add(inputPW_lb);
-			
-			JTextField inputPW_tf = new JPasswordField();
-			inputPW_tf.setBounds(150,110,200,40);
-			inputPW_tf.setBorder(null); // 테두리 제거
-			inputPW_tf.setBackground(new Color(0,0,0,0)); // 배경 투명색
-			inputPW_tf.setFont(wrFont);
-			inputPW.add(inputPW_tf);
-			
-			JButton inputPW_bt = new JButton("입력");
-			inputPW_bt.setBounds(175,170,50,30);
-			inputPW_bt.setFont(wrFont);
-			inputPW.add(inputPW_bt);
-			inputPW_bt.addMouseListener(new MouseAdapter() {
-				// 마우스를 버튼에 올려놨을 때 이벤트
-				@Override
-				public void mouseEntered(MouseEvent e) {
-//					inputPW_bt.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-					inputPW_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
-//					inputPW_bt.setCursor(myCursor);
-				}
-				
-				// 마우스를 버튼에서 떼었을때 이벤트
-				@Override  
-				public void mouseExited(MouseEvent e) {
-//					inputPW_bt.setIcon(exitBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-					inputPW_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
-				}
+//			// 마우스로 창을 움직일 수 있다.
+//			inputPW.addMouseListener(new MouseAdapter() {
+//				@Override
+//				public void mousePressed(MouseEvent e) {
+//					mouseX = e.getX();
+//					mouseY = e.getY();
+//				}
+//			});
+//			inputPW.addMouseMotionListener(new MouseMotionAdapter() {
+//				// #해당 창을 드래그 시, 움직일 수 있게 한다.
+//				@Override
+//				public void mouseDragged(MouseEvent e) {
+//					int x = e.getXOnScreen();
+//					int y = e.getYOnScreen();
+//					setLocation(x - mouseX, y - mouseY);
+//				}
+//			});
+//			
+//			JLabel inputPW_lb = new JLabel("비밀번호를 입력하세요.");
+//			inputPW_lb.setBounds(262, 278,200,40);
+//			inputPW_lb.setFont(wrFont);
+//			getContentPane().add(inputPW_lb);
+//			
+//			JTextField inputPW_tf = new JPasswordField();
+//			inputPW_tf.setBounds(262, 330,200,40);
+//			inputPW_tf.setBorder(null); // 테두리 제거
+//			inputPW_tf.setBackground(new Color(0,0,0,0)); // 배경 투명색
+//			inputPW_tf.setFont(wrFont);
+//			getContentPane().add(inputPW_tf);
+//			
+//			JButton inputPW_bt = new JButton("입력");
+//			inputPW_bt.setBounds(262, 360,50,30);
+//			inputPW_bt.setFont(wrFont);
+//			getContentPane().add(inputPW_bt);
+//			inputPW_bt.addMouseListener(new MouseAdapter() {
+//				// 마우스를 버튼에 올려놨을 때 이벤트
+//				@Override
+//				public void mouseEntered(MouseEvent e) {
+////					inputPW_bt.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
+//					inputPW_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+////					inputPW_bt.setCursor(myCursor);
+//				}
 //				
-				// 해당 버튼을 클릭했을 때
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					if(e.getButton()==1) {
-						// pw와 입력한 값이 같으면
-						if(pw.equals(inputPW_tf.getText())) {
-							// 방에 입장함을 서버에게 알린다.
-							send_message("EntryRoom/"+userInfo.getUserID());
-							// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
-							dispose();
-//							new PaintEx(room_No);
-						}
-					}
-				}
-			});
-			
-			
-			JButton cancel_bt = new JButton("취소");
-			cancel_bt.setBounds(275,170,50,30);
-			cancel_bt.setFont(wrFont);
-			inputPW.add(cancel_bt);
-			cancel_bt.addMouseListener(new MouseAdapter() {
-				// 마우스를 버튼에 올려놨을 때 이벤트
-				@Override
-				public void mouseEntered(MouseEvent e) {
-//					cancel_bt.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-					cancel_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
-//					cancel_bt.setCursor(myCursor);
-				}
-				
-				// 마우스를 버튼에서 떼었을때 이벤트
-				@Override  
-				public void mouseExited(MouseEvent e) {
-//					cancel_bt.setIcon(exitBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-					cancel_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
-				}
+//				// 마우스를 버튼에서 떼었을때 이벤트
+//				@Override  
+//				public void mouseExited(MouseEvent e) {
+////					inputPW_bt.setIcon(exitBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
+//					inputPW_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+//				}
+////				
+//				// 해당 버튼을 클릭했을 때
+//				@Override
+//				public void mouseClicked(MouseEvent e) {
+//					if(e.getButton()==1) {
+//						// pw와 입력한 값이 같으면
+//						if(room_Pw.equals(inputPW_tf.getText())) {
+//							// 방에 입장함을 서버에게 알린다.
+//							send_message("EntryRoom/"+userInfo.getUserID());
+//							// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
+//							dispose();
+////							new PaintEx(room_No);
+//						}
+//					}
+//				}
+//			});
+//			
+//			
+//			JButton cancel_bt = new JButton("취소");
+//			cancel_bt.setBounds(300, 360,50,30);
+//			cancel_bt.setFont(wrFont);
+//			getContentPane().add(cancel_bt);
+//			cancel_bt.addMouseListener(new MouseAdapter() {
+//				// 마우스를 버튼에 올려놨을 때 이벤트
+//				@Override
+//				public void mouseEntered(MouseEvent e) {
+////					cancel_bt.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
+//					cancel_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+////					cancel_bt.setCursor(myCursor);
+//				}
 //				
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					if(e.getButton()==1) {
-						dispose();
-					}
-				}
-			});
+//				// 마우스를 버튼에서 떼었을때 이벤트
+//				@Override  
+//				public void mouseExited(MouseEvent e) {
+////					cancel_bt.setIcon(exitBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
+//					cancel_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+//				}
+////				
+//				@Override
+//				public void mouseClicked(MouseEvent e) {
+//					if(e.getButton()==1) {
+//						dispose();
+//					}
+//				}
+//			});
 			
 		}
+		
+//		@Override
+//		public void paint(Graphics g) {
+//			viewImage = createImage(500,232);
+//			viewGraphics = viewImage.getGraphics();
+//			screenDraw(viewGraphics);
+//			g.drawImage(viewImage,0,0, null);
+//		}
+//		
+//		public void screenDraw(Graphics g) {
+//			g.drawImage(inputPwPanelImage.getImage(), 0, 0, null);
+//			paintComponents(g);
+//			this.repaint();
+//		}	
 	}
 	
 	
@@ -1065,6 +1122,7 @@ public class WaitingRoom extends JFrame{
 			this.img = img;
 			setSize(new Dimension(img.getWidth(null), img.getHeight(null))); // null은 최댓값
 			setPreferredSize(new Dimension(img.getWidth(null), img.getHeight(null)));
+			setOpaque(false);
 			setLayout(null); // 패널에 추가하는 요소들의 위치를 자유롭게 설정하기 위해 Layout을 null로 해준다.
 		}
 		

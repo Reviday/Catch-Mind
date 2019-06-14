@@ -5,6 +5,8 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -14,18 +16,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.text.AttributeSet;
@@ -69,6 +69,9 @@ public class MainView extends JFrame{
 	private boolean flag = false;
 	private WaitingRoom wr; // WaitingRoom 클래스 객체
 	private PaintEx paint; // Paint 클래스 객체
+	private Toolkit tk = Toolkit.getDefaultToolkit();
+	Image img = tk.getImage(Main.class.getResource("/images/cursorBasic.png"));
+	Cursor myCursor = tk.createCustomCursor(img, new Point(10,10), "WaterDrop");
 	
 //Image	
 	// #MainView 배경
@@ -103,7 +106,8 @@ public class MainView extends JFrame{
 		setBackground(new Color(0,0,0,0)); // 배경색을 투명하게 한다.(paint()메소드로 그리는 배경을 보이게 하기 위함)
 		setVisible(true); // 윈도우를 볼 수 있음.
 		setLayout(null); // 배치 관리자 삭제
-	
+		setCursor(myCursor);
+		
 	// Label
 		// #메뉴바
 		mainMenuBar.setBounds(0, 0, Main.SCREEN_WIDTH, 30);
@@ -222,7 +226,11 @@ public class MainView extends JFrame{
 				System.out.println("연결 버튼 클릭");
 				// 연결 버튼을 누르면 Server IP, port를 저장한다.
 				ip = serverIp_tf.getText().trim(); // 빈 공간 제거
-				port = Integer.parseInt(port_tf.getText().trim());
+				try {
+					port = Integer.parseInt(port_tf.getText().trim());
+				} catch(NumberFormatException ee) {
+					
+				}
 				
 				// 네트워크 연결 설정
 				Network();
@@ -463,44 +471,61 @@ public class MainView extends JFrame{
 			break;
 			
 		// #게임방 입장
-		case " ":
+		case "EntryGameRoom":
+			// 방 번호를 넘겨 받는다.
 			int room_No = Integer.parseInt(st.nextToken()); // 방 번호
-			// 방에 입장함을 서버에게 알린다.
 			
+			// 넘겨 받은 방 번호로 Paint 창을 연다.
 			paint = new PaintEx(room_No);
+			
+			// 방에 입장함을  서버에 알리는 것은 Paint 클래스에서 진행
 			
 			break;
 			
 		// #WaitingRoom으로 넘김
 		case "WaitingRoom":
-			/* 채팅을 전달할 때, 메시지에 딜리미터가 포함되어 있을 경우
-			 * 메시지도 잘려서 전송되므로 해당 내용이 채팅일 경우 
-			 * 토크나이저로 잘려진 메시지를 다시 결합해서 
-			 * WaitingRoom으로 재전송한다. */
-			String msg = st.nextToken();
-			// 다음 토큰이 있을 경우,
-			while(st.hasMoreElements()) {
-				// 해당 토큰을 누적한다.
-				msg += "/"+ st.nextToken();
+			st = new StringTokenizer(str, "/", true);
+			st.nextToken(); // 프로토콜 토큰은 저장 안함
+			st.nextToken(); // 구획문자 "/" 저장 안함
+			st.nextToken(); // 메시지 토큰은 저장 안함
+			st.nextToken(); // 구획문자 "/" 저장 안함
+
+			String totalMessage = "";
+			String tempMsg = "";
+			ArrayList<String> msgList=new ArrayList<String>();
+			while(st.hasMoreTokens()) {
+				tempMsg=st.nextToken();
+				msgList.add(tempMsg);
 			}
-			System.out.println("내용 : " + msg);
-			wr.wr_Inmessage(msg);
+
+			for(int i=0; i<msgList.size(); i++) {
+				totalMessage+=msgList.get(i);
+			}
+			System.out.println("채팅 내용:"+totalMessage);
+			wr.wr_Inmessage(totalMessage);
 			break;
 			
 		// #Paint로 넘김
 		case "Paint" :
-			/* 채팅을 전달할 때, 메시지에 딜리미터가 포함되어 있을 경우
-			 * 메시지도 잘려서 전송되므로 해당 내용이 채팅일 경우 
-			 * 토크나이저로 잘려진 메시지를 다시 결합해서 
-			 * WaitingRoom으로 재전송한다. */
-			msg = st.nextToken();
-			// 다음 토큰이 있을 경우,
-			while(st.hasMoreElements()) {
-				// 해당 토큰을 누적한다.
-				msg += "/"+ st.nextToken();
+			st = new StringTokenizer(str, "/", true);
+			st.nextToken(); // 프로토콜 토큰은 저장 안함
+			st.nextToken(); // 구획문자 "/" 저장 안함
+			st.nextToken(); // 메시지 토큰은 저장 안함
+			st.nextToken(); // 구획문자 "/" 저장 안함
+
+			totalMessage = "";
+			tempMsg = "";
+			msgList=new ArrayList<String>();
+			while(st.hasMoreTokens()) {
+				tempMsg=st.nextToken();
+				msgList.add(tempMsg);
 			}
-			System.out.println("내용 : " + msg);
-			wr.wr_Inmessage(msg);
+
+			for(int i=0; i<msgList.size(); i++) {
+				totalMessage+=msgList.get(i);
+			}
+			System.out.println("채팅 내용:" + totalMessage);
+			wr.wr_Inmessage(totalMessage);
 			break;
 		}
 	}

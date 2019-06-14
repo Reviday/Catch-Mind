@@ -21,6 +21,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -81,8 +82,8 @@ public class MainServer extends JFrame {
 	/* Multi Thread 환경에서는 Vector가 더 나은거같아서 Vector를 써야겠다. */
 	private Vector<User> allUser_vc = new Vector<User>(); // 모든 회원의 정보를 담아두는 Vector
 	private Vector<UserInfo> user_vc = new Vector<UserInfo>(); // 사용자 Vector 
-//	private Vector wRoom_vc = new Vector(); // 대기실 사용자 Vector  => 대기실유저/인게임 유저 나눠야하니까 구상해야함.
-	private Vector<RoomInfo> room_vc = new Vector<RoomInfo>(); // 게임방 사용자 Vector
+	private Vector<UserInfo> wRoom_vc = new Vector<UserInfo>(); // 대기실 사용자 Vector  => 대기실유저/인게임 유저 나눠야하니까 구상해야함.
+	private Vector<RoomInfo> room_vc = new Vector<RoomInfo>(); // 게임방  Vector(유저 리스트 포함)
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
 	private boolean scrollpanemove = false; // 스크롤 패인에 사용되는 변수(스크롤 허용 관련)
 
@@ -98,7 +99,7 @@ public class MainServer extends JFrame {
 	private JButton exitButton = new JButton(exitBasicImage); // 나가기 버튼
 	
 	MainServer() {
-		new intro();
+		new Intro();
 	}
 	
 	private void main_View() { // 서버 메인 화면
@@ -281,7 +282,7 @@ public class MainServer extends JFrame {
 	}
 	
 	//인트로 화면용 내부 클래스
-	class intro extends JFrame{
+	class Intro extends JFrame{
 	// Frame, Panel
 		private JFrame introView = new JFrame("Server"); // 인트로 프레임 (포트번호를 입력하여 서버를 실행하면 메인 프레임 창을 띄워 넘어가는 구조)
 		private JLabel port_lb = new JLabel("포트 번호 : ");
@@ -307,7 +308,7 @@ public class MainServer extends JFrame {
 		private JButton exitButton = new JButton(exitButtonBasicImage); // 나가기 버튼
 		
 		
-		intro() {
+		Intro() {
 			Font font = new Font("Inconsolata",Font.BOLD,12);
 			setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
 			setTitle("Server"); // 프레임 타이틀 바 이름(타이틀 바를 없앨 예정이기 때문에 없어도 되는 코드)
@@ -596,15 +597,15 @@ public class MainServer extends JFrame {
 			}
 			
 			//현재 접속중인 사용자의 리스트를 자신에게 알림
-			for(int i=0; i<user_vc.size(); i++) 
+			for(int i=0; i<wRoom_vc.size(); i++) 
 			{
 				// 기존 접속자 유저 객체를 하나 가져와서
-				UserInfo u = (UserInfo)user_vc.elementAt(i);
+				UserInfo u = (UserInfo)wRoom_vc.elementAt(i);
 				
 				/* 기존 사용자의 정보를 읽어온다.
 				 * 서버가 연결된 사용자에게 보내는 부분 */
 				String msg="";
-				if(i==user_vc.size()-1) {
+				if(i==wRoom_vc.size()-1) {
 					msg="WaitingRoom/pass/OldUser@"
 							+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer+"@"+"last";
 				} else {
@@ -640,6 +641,7 @@ public class MainServer extends JFrame {
 			
 			user_vc.add(this); // 사용자에게 알린 후 Verctor에 자신을 추가
 			//Vector는 동적으로 늘어나는 배열로 이해하면 되는데, 객체에 저장한 사용자 정보를 Vector에 저장한다.
+			wRoom_vc.add(this); // 대기실 유저 리스트에도 적용
 			statusArea.append("현재 접속된 사용자 수 : " + user_vc.size()+"\n");
 		}
 		
@@ -699,10 +701,10 @@ public class MainServer extends JFrame {
 			st = new StringTokenizer(str,"/"); // 넘기는 구조를 눈에 띄게 하기위해 /와 @로 나누었음
 			
 			String protocol = st.nextToken();
-			String message = st.nextToken(); // 보통 유저id가 저장된다.
+			String mUserId = st.nextToken(); // 보통 유저id가 저장된다.
 			
 			System.out.println("프로토콜 : " +protocol);
-			System.out.println("메세지 : " + message);
+			System.out.println("메세지 : " + mUserId);
 			
 			// protocol 요청 처리
 			switch(protocol) {
@@ -715,9 +717,9 @@ public class MainServer extends JFrame {
 				for(int i=0; i<allUser_vc.size(); i++) 
 				{
 					User user = (User)allUser_vc.elementAt(i);
-					if(user.getId().equals(message) && user.getPw().equals(pw)) // ID와 PW가 일치하는지 확인한다.
+					if(user.getId().equals(mUserId) && user.getPw().equals(pw)) // ID와 PW가 일치하는지 확인한다.
 					{
-						userID = message;
+						userID = mUserId;
 						connectCk=false;
 						findID = true;
 						send_Message("LoginOK/ok");
@@ -735,15 +737,15 @@ public class MainServer extends JFrame {
 				//note = 받는 내용
 				String note = st.nextToken();
 				
-				System.out.println("받는 사람 : "+message);
+				System.out.println("받는 사람 : "+mUserId);
 				System.out.println("보낼 내용 : "+note);
 				
 				// 벡터에서 해당 사용자를 찾아서 메세지 전송
-				for(int i=0; i<user_vc.size(); i++) 
+				for(int i=0; i<wRoom_vc.size(); i++) 
 				{
-					UserInfo u = (UserInfo)user_vc.elementAt(i);
+					UserInfo u = (UserInfo)wRoom_vc.elementAt(i);
 					
-					if(u.userID.equals(message))
+					if(u.userID.equals(mUserId))
 					{
 						u.send_Message("Note/"+userID+"/"+note);
 						// Note/User1/~~~
@@ -775,16 +777,17 @@ public class MainServer extends JFrame {
 					break; // continue에 도달하지 않는다는건 같은 방번호가 존재하지 않는다는 것.
 				}
 				
-				// 전달받은 정보로 RoomInfo객체를 생성하고 room_vc에 추가
+				// 전달받은 정보로 RoomInfo객체를 생성하고 room_vc에 추가(이때 방 생성자도 게임방 유저에 추가된다.)
 				RoomInfo new_room = new RoomInfo(roomNo,title,roomPW,fixed_User, this);
 				room_vc.add(new_room); // 전체 채팅 방 Vector에 방을 추가
 				
 				//방이 만들어졌을때 BroadCast로 알린다.
-				BroadCast("WaitingRoom/pass/NewRoom@"+message+"@"
+				BroadCast("WaitingRoom/pass/NewRoom@"+mUserId+"@"
 						+roomNo+"@"+title+"@"+roomPW+"@"+fixed_User+"@"+new_room.Room_user_vc.size()+"@");
 				//방을 생성한 유저에게 방 개설이 가능함을 알리고 할당한 방 번호를 넘겨준다.
-				send_Message("WaitingRoom/pass/CreateRoom@"+message+"@"+roomNo);
+				send_Message("WaitingRoom/pass/CreateRoom@"+mUserId+"@"+roomNo);
 				//MainView에 Paint창을 띄우라고 알린다.
+				send_Message("EntryGameRoom/"+mUserId+"/"+roomNo);
 				
 				break;
 				
@@ -796,27 +799,32 @@ public class MainServer extends JFrame {
 				for(int i=0; i<room_vc.size(); i++) {
 					RoomInfo r = (RoomInfo)room_vc.get(i);
 					// 방번호가 같은 객체를 찾았다면 pw가 존재하는지 확인한다.
-					if(r.room_No == room_No && r.room_PW != null) {
+					/* room_PW의 값은 null이여도 넘어올때 String 값으로 받는다. 때문에 비교문도 "null"로 비교한다. */
+					if(r.room_No == room_No && !(r.room_PW.equals("null"))) {
 						// 비밀번호가 null이 아니라면 pw를 입력하라는 메시지를 보낸다.(비밀번호도 같이 보내서 해당 창에서 빠르게 체크하도록한다.)
-						send_Message("WaitingRoom/pass/InputPW@"+message+"@"+room_No+"@"+r.room_PW);
+						send_Message("WaitingRoom/pass/InputPW@"+mUserId+"@"+room_No+"@"+r.room_PW);
 						break; // 작업을 완료했으므로 for문을 탈출한다.
-					} else if(r.room_No == room_No && r.room_PW == null) {
+					// 비밀번호가 null일 경우 
+					} else if(r.room_No == room_No && r.room_PW.equals("null")) {
 						// 비밀번호가 null이라면 바로 입장하도록 한다.
 						// 해당 유저를 게임방 Room_user_vc에 추가한다.
-						for(int j=0; j<user_vc.size(); j++) {
-							UserInfo u = (UserInfo)user_vc.get(j);
+						for(int j=0; j<wRoom_vc.size(); j++) {
+							UserInfo u = (UserInfo)wRoom_vc.get(j);
 							// 해당 아이디를 찾으면
-							if(message.equals(u.getUserID())) {
+							if(mUserId.equals(u.getUserID())) {
 								// 해당 유저를 방 유저 리스트에 추가한다.
 								r.Room_user_vc.add(u);
 								break;
 							}
 						}
-						// 유저에게 해당 방의 번호를 보낸다. 
-						send_Message("WaitingRoom/pass/EntryRoom@"+message+"@"+r.room_No);
+						// 유저에게 방 입장을 허가받았다 알림. 유저는 이 메시지로 WaitingRoom창을 종료한다.
+						send_Message("WaitingRoom/pass/EntryRoom@"+mUserId);
+						
+						// 이어서 MainView로 방 번호를 넘기면서 Paint창을 열도록 지시한다.
+						send_Message("EntryGameRoom/"+mUserId+"/"+r.room_No);
 						
 						// 모든 유저에게 해당 유저가 게임방에 들어갔으니 리스트에서 제거하라고 알린다.
-						BroadCast("WaitingRoom/pass/RemoveUser"+message);
+						BroadCast("WaitingRoom/pass/RemoveUser@"+mUserId);
 						/*  비밀번호 없이 바로 입장하는 코드  */
 						
 						break; // 작업을 완료했으므로 for문을 탈출한다.
@@ -828,20 +836,20 @@ public class MainServer extends JFrame {
 				
 			// #방 입장 알림 
 			case "EntryRoom": 
-				// 게임방에 입장(또는 로그아웃)하여 현재 대기실 유저에서 제거되어야 된다.
-				for(int i=0; i<user_vc.size(); i++) {
-					UserInfo u = (UserInfo)user_vc.get(i);
+				// 게임방에 입장하여 현재 대기실 유저에서 제거되어야 된다.
+				for(int i=0; i<wRoom_vc.size(); i++) {
+					UserInfo u = (UserInfo)wRoom_vc.get(i);
 					// 해당 유저아이디를 찾는다.
-					if(u.getUserID().equals(message)) {
+					if(u.getUserID().equals(mUserId)) {
 						// 해당 아이디를 대기실 유저에서 지운다.
-						user_vc.remove(i); 
+						wRoom_vc.remove(i); 
 						// 프로토콜이 EntryRoom이면
 						/*
 						 *  해당 유저를 게임룸 유저목록에 추가한다.
 						 */
 						
 						// 해당 유저를 리스트에서 제거하라는 브로드캐스트를 보낸다.
-						BroadCast("WaitingRoom/pass/RemoveUser@"+message);
+						BroadCast("WaitingRoom/pass/RemoveUser@"+mUserId);
 						break; // 작업을 완료했으므로 for문을 탈출한다.
 					}
 				}
@@ -849,32 +857,53 @@ public class MainServer extends JFrame {
 				
 			// #유저 로그아웃	
 			case "UserLogout" :	
-				// 게임방에 입장(또는 로그아웃)하여 현재 대기실 유저에서 제거되어야 된다.
+				// 로그아웃 하여 현재 접속 사용자 리스트에서 제거되어야 된다.
 				for(int i=0; i<user_vc.size(); i++) {
 					UserInfo u = (UserInfo)user_vc.get(i);
 					// 해당 유저아이디를 찾는다.
-					if(u.getUserID().equals(message)) {
-						// 해당 아이디를 대기실 유저에서 지운다.
+					if(u.getUserID().equals(mUserId)) {
+						// 해당 아이디를 접속자 유저에서 지운다.
 						user_vc.remove(i); 
-						// 해당 유저를 리스트에서 제거하라는 브로드캐스트를 보낸다.
-						BroadCast("WaitingRoom/pass/RemoveUser@"+message);
 						break; // 작업을 완료했으므로 for문을 탈출한다.
 					}
 				}
+				// 로그아웃 하여 현재 대기실 리스트에서 제거되어야 된다.
+				for(int i=0; i<wRoom_vc.size(); i++) {
+					UserInfo u = (UserInfo)wRoom_vc.get(i);
+					// 해당 유저아이디를 찾는다.
+					if(u.getUserID().equals(mUserId)) {
+						// 해당 아이디를 대기실 유저에서 지운다.
+						wRoom_vc.remove(i); 
+						break; // 작업을 완료했으므로 for문을 탈출한다.
+					}
+				}
+				// 해당 유저를 리스트에서 제거하라는 브로드캐스트를 보낸다.
+				BroadCast("WaitingRoom/pass/RemoveUser@"+mUserId);
 				break;
+				
 			// #채팅 요청이 들어왔을 때
 			case "ChattingWR" :
-				/* 채팅을 전달할 때, 메시지에 딜리미터가 포함되어 있을 경우
-				 * 메시지도 잘려서 전송되므로 해당 내용이 채팅일 경우 
-				 * 토크나이저로 잘려진 메시지를 다시 결합해서 전송한다. */
-				String msg = st.nextToken();
-				// 다음 토큰이 있을 경우,
-				while(st.hasMoreElements()) {
-					// 해당 토큰을 누적한다.
-					msg += "/"+ st.nextToken();
+				st = new StringTokenizer(str,"/", true); // 구획문자"/"도 토큰으로 간주한다.
+				st.nextToken();	// 프로토콜 토큰 저장 안함
+				st.nextToken();	// 구획문자 "/" 저장 안함
+				st.nextToken(); // messageUserID 토큰 저장 안함
+				st.nextToken();	// 구획문자"/" 저장 안함
+				ArrayList<String> chattingMsgList = new ArrayList<String>(); // 채팅메시지 저장할 리스트
+				String totalChattingMsg=""; // 전체 채팅 메시지 저장 변수
+				String tempMsg="";
+//				String chattingMsg = st.nextToken(); // 메세지 부분을 잘라서 저장
+				while(st.hasMoreTokens()) { // 리턴할 다음 토큰이 있으면 true를 없으면 false를 리턴한다.
+					tempMsg=st.nextToken();
+					System.out.println("채팅 토큰들 출력:"+tempMsg);
+					chattingMsgList.add(tempMsg); // 메시지 토큰을 ArrayList에 추가
 				}
-				System.out.println(message +", 내용 : " + msg);
-				BroadCast("WaitingRoom/pass/ChattingWR@"+message+"@"+msg); 
+
+				for(int i=0; i<chattingMsgList.size(); i++) { // chattingMsgList의 모든 메시지를 totalChattingMsg에 저장한다.
+					totalChattingMsg+=chattingMsgList.get(i);
+				}
+
+				System.out.println("MainServer Inmessage에서 protocol이 ChattingWR 일때 들어온 아이디:"+mUserId);
+				BroadCast("WaitingRoom/pass/ChattingWR@"+mUserId+"@"+totalChattingMsg); 
 				break;
 				
 			// #초기 게임방에 입장했을때 정보를 요구한다
@@ -882,50 +911,69 @@ public class MainServer extends JFrame {
 				/* 사용자가 처음에 게임방에 입장했을 때 필요한 부분이다.
 				 * 기존 방에 입장하고 있는 다른 사용자의 정보와 게임방의 정보를 다시 보내준다. */
 				room_No = Integer.parseInt(st.nextToken());
+				
 				//제일 처음, 방의 정보를 보내준다.
 				for(int i=0; i<room_vc.size(); i++) {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					if(r.room_No==room_No) { // 같은 방 번호가 존재할 시 
-						send_Message("Paint/pass/RoomInfo@"+
+						send_Message("Paint/pass/RoomInfo@"+ mUserId +"@"+
 								r.room_name+"@"+r.room_PW+"@"+r.fixed_User+"@"+r.Room_user_vc.size());
 					}
 				}
-				// 이미 입장 중인 유저가 있으면 해당 유저들의 정보를 먼저 보낸다.
+				
+				// 이미 입장 중인 유저가 있으면 해당 유저들의 정보를 먼저 보낸다.(여기에 자신의 정보도 포함되어 있음)
 				for(int i=0; i<room_vc.size(); i++) {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					if(r.room_No==room_No) { // 같은 방 번호가 존재할 시 
 						// 해당 방에 있는 유저들의 정보를 보낸다.
-						for(int j=0; j<r.Room_user_vc.size(); i++) {
+						for(int j=0; j<r.Room_user_vc.size(); j++) {
 							UserInfo u = (UserInfo)r.Room_user_vc.get(j);
-							send_Message("Paint/pass/RoomInfo@"+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer);
+							send_Message("Paint/pass/OldUser@"+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer);
 						}
 					}
 				}
 				
-				// 끝으로 자신의 정보를 보내준다.
-				for(int i=0; i<user_vc.size(); i++) {
-					UserInfo u = (UserInfo)user_vc.elementAt(i);
-					if(u.userID==message) { // 같은 방 번호가 존재할 시 
-						send_Message("Paint/pass/UserInfo"+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer);
-					}
-				}
+				// 이미 방에 접속해 있는 유저에게 자신의 정보를 보낸다. (처리 중)
+//				gBroadCast(room_No,"Paint/pass/NewUser@");
 				
 				break;
 			}
 		}
 		
 	// 문자열 전송 메소드	
-		private void BroadCast(String str) // 전체 사용자에게 메세지를 보내는 부분
+		// 대기실 사용자에게 메시지를 보내는 부분
+		private void BroadCast(String str) 
 		{
-			for(int i=0; i<user_vc.size(); i++)  //현재 접속된 사용자에게 새로운 사용자 알림
+			for(int i=0; i<wRoom_vc.size(); i++)  //현재 접속된 사용자에게 전송
 			{	
-				UserInfo u = (UserInfo)user_vc.elementAt(i); //i번쨰에 있는 사용자에게 메세지를 전송
+				UserInfo u = (UserInfo)wRoom_vc.elementAt(i); //i번쨰에 있는 사용자에게 메세지를 전송
 				System.out.println("["+u.getUserID()+"]에게 : " + str);
 				u.send_Message(str);
 			}
 		}
+	
+		// 게임방에 있는 유저들에게 메시지를 보내는 부분
+		private void gBroadCast(int room_No, String str) 
+		{
+			for(int i=0; i<room_vc.size(); i++)  //게임방에 있는 사용자에게 전송
+			{	
+				RoomInfo r = (RoomInfo)room_vc.elementAt(i); //i번째에 있는 방을 찾아
+				// 입력받은 방 번호와 일치하는 방 번호를 찾으면
+				if(room_No==r.room_No) {
+					// 해당 방에 있는 유저 전원에게 메시지를 보낸다.
+					for(int j=0; j<r.Room_user_vc.size(); j++) {
+						// 게임방의 있는 유저 한명을 찾아서
+						UserInfo u = (UserInfo)r.Room_user_vc.get(i);
+						System.out.println("["+u.getUserID()+"]에게 : " + str);
+						//메시지를 보낸다.
+						u.send_Message(str);
+					}
+				}
+			}
+		}
 		
-		// 서버쪽에서도 클라이언트와 대화할 수 있는 메소드를 만들어 줍니다.
+		
+		// 서버쪽에서도 클라이언트와 대화할 수 있는 메소드
 		private void send_Message(String str)  // 문자열을 받아서 전송
 		{
 			try {
@@ -948,7 +996,7 @@ public class MainServer extends JFrame {
 		/* 생성할 때 생성한 유저의 객체를 전달받아 리스트에 저장하고 
 		 * 입장하는 유저들의 유저 객체를 user_vc에서 제거하고 room_vc로 옮기는 작업을 한다.
 		 * 그리고 해당 방의 유저 수를 리턴해야할 때, Room_user_vc의 사이즈를 리턴한다. */
-		private Vector Room_user_vc = new Vector(); // 게임방 유저 Vector
+		private Vector<UserInfo> Room_user_vc = new Vector<UserInfo>(); // 게임방 유저 Vector
 		
 		RoomInfo(int room_No, String room_name, String room_PW, int fixed_User, UserInfo u) // 방번호를 기준으로!
 		{

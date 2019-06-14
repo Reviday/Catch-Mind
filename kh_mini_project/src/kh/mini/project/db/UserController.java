@@ -55,7 +55,6 @@ public class UserController {
 	public Vector dataLoadAll() {
 		Vector users = new Vector();
 		try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream("userDB.dat"))) {
-			;
 			User user = new User();
 			while((user=(User)(ois.readObject()))!=null) {
 				users.add(user);
