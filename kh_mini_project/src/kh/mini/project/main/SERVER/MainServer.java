@@ -943,6 +943,10 @@ public class MainServer extends JFrame {
 						for(int j=0; j<r.Room_user_vc.size(); j++) {
 							UserInfo u = (UserInfo)r.Room_user_vc.get(j);
 							send_Message("Paint/pass/OldUser@"+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer);
+							
+							if(r.fixed_User==r.Room_user_vc.size()) {
+								gBroadCast(room_No, "Paint/pass/GameStart@pass");
+							}
 						}
 					}
 				}

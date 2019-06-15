@@ -980,6 +980,7 @@ public class WaitingRoom extends JFrame{
 		// 각종 변수 변수
 //		private Image viewImage; // 이미지 저장용 변수
 //		private Graphics viewGraphics; // 그래픽 저장용 변수	
+		private String input_Pw; // 방 비밀번호 
 		
 		public inputPw(int room_No, String room_Pw) {
 			setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
@@ -1032,8 +1033,16 @@ public class WaitingRoom extends JFrame{
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(e.getButton()==1) {
+						
+						//JPasswordField는 getText()메소드를 권하지 않는다 하여 아래와 같은 방법으로 저장
+						input_Pw = "";
+						char[] tempPw = inputPW_tf.getPassword();
+						for(char a : tempPw) {
+							input_Pw += a;
+						}
+						
 						// pw와 입력한 값이 같으면
-						if(room_Pw.equals(inputPW_tf.getText())) {
+						if(input_Pw.equals(inputPW_tf.getText())) {
 							// 방에 입장함을 서버에게 알린다.
 							send_message("EntryRoom/"+userInfo.getUserID());
 							// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
