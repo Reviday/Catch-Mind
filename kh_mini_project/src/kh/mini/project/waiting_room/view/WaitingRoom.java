@@ -1,13 +1,18 @@
 package kh.mini.project.waiting_room.view;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,6 +38,7 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -42,6 +48,9 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.ScrollPaneLayout;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -105,14 +114,14 @@ public class WaitingRoom extends JFrame{
 	
 	// Button Icon (basic : 버튼의 기본 상태, Entered : 버튼에 마우스를 가져간 상태) 
 	// => 버튼 기본상태, 마우스를 올려놨을 때 상태, 눌렀을 때 상태 3가지 가능?
-	private ImageIcon exitBasicImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
-	private ImageIcon exitEnteredImage = new ImageIcon(Main.class.getResource("/images/exite.png")); 
-	private ImageIcon createRoomBasicImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
-	private ImageIcon createRoomEnteredImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
-	private ImageIcon rightRBasicImage = new ImageIcon(Main.class.getResource("/images/화살표1_R_basic.png"));
-	private ImageIcon rightREnteredImage = new ImageIcon(Main.class.getResource("/images/화살표1_R_entered.png")); 
-	private ImageIcon leftRBasicImage = new ImageIcon(Main.class.getResource("/images/화살표1_L_basic.png"));
-	private ImageIcon leftREnteredImage = new ImageIcon(Main.class.getResource("/images/화살표1_L_entered.png")); 
+	private ImageIcon exitBasicImage = new ImageIcon(Main.class.getResource("/images/wrExitButtonBasic.png"));
+	private ImageIcon exitEnteredImage = new ImageIcon(Main.class.getResource("/images/wrExitButtonEntered.png")); 
+	private ImageIcon createRoomBasicImage = new ImageIcon(Main.class.getResource("/images/wrCreateRoomButtonBasic.png"));
+	private ImageIcon createRoomEnteredImage = new ImageIcon(Main.class.getResource("/images/wrCreateRoomButtonEntered.png"));
+	private ImageIcon rightRBasicImage = new ImageIcon(Main.class.getResource("/images/arrowRButtonBasic.png"));
+	private ImageIcon rightREnteredImage = new ImageIcon(Main.class.getResource("/images/arrowRButtonEntered.png")); 
+	private ImageIcon leftRBasicImage = new ImageIcon(Main.class.getResource("/images/arrowLButtonBasic.png"));
+	private ImageIcon leftREnteredImage = new ImageIcon(Main.class.getResource("/images/arrowLButtonEntered.png")); 
 	private ImageIcon gamgeRoomBasicImage = new ImageIcon(Main.class.getResource("/images/gameroom.png")); 
 	private ImageIcon gamgeRoomEnteredImage = new ImageIcon(Main.class.getResource("/images/gameroomEntered1.png")); 
 	private ImageIcon gamgeRoomPressedImage = new ImageIcon(Main.class.getResource("/images/gameroomPressed.png"));
@@ -171,9 +180,103 @@ public class WaitingRoom extends JFrame{
 		
 	// JScrollPane
 		// #채팅뷰
-		chattingView.setBounds(240, 490, 768, 200);
-		chattingView.setBackground(new Color(40,40,40,40));
+		chattingView = new JScrollPane(chattingArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		chattingView.setComponentZOrder(chattingView.getVerticalScrollBar(), 0);
+		chattingView.setComponentZOrder(chattingView.getViewport(), 1);
+		chattingView.getVerticalScrollBar().setOpaque(false);
+		/* 이하 코드는 스크롤 바 변경을 위한 코드로
+		 * 만들어보려고 노력했지만 되지 않아 검색해서 알아봄.
+		 * 코드 이해가 어려워 주석 없이 붙여넣어 사용함.ㅠㅠ
+		 */
+		chattingView.setLayout(new ScrollPaneLayout() {
+			@Override
+			public void layoutContainer(Container parent) {
+				JScrollPane scrollPane = (JScrollPane) parent;
+
+				Rectangle availR = scrollPane.getBounds();
+				availR.x = availR.y = 0;
+
+				Insets insets = parent.getInsets();
+				availR.x = insets.left;
+				availR.y = insets.top;
+				availR.width -= insets.left + insets.right;
+				availR.height -= insets.top + insets.bottom;
+
+				Rectangle vsbR = new Rectangle();
+				vsbR.width = 12;
+				vsbR.height = availR.height;
+				vsbR.x = availR.x + availR.width - vsbR.width;
+				vsbR.y = availR.y;
+
+				if (viewport != null) {
+					viewport.setBounds(availR);
+				}
+				if (vsb != null) {
+					vsb.setVisible(true);
+					vsb.setBounds(vsbR);
+				}
+			}
+		});
+		chattingView.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+			private final Dimension d = new Dimension();
+
+			@Override
+			protected JButton createDecreaseButton(int orientation) {
+				return new JButton() {
+					@Override
+					public Dimension getPreferredSize() {
+						return d;
+					}
+				};
+			}
+
+			@Override
+			protected JButton createIncreaseButton(int orientation) {
+				return new JButton() {
+					@Override
+					public Dimension getPreferredSize() {
+						return d;
+					}
+				};
+			}
+
+			@Override
+			protected void paintTrack(Graphics g, JComponent c, Rectangle r) {
+			}
+
+			@Override
+			protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
+				Graphics2D g2 = (Graphics2D) g.create();
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				Color color = null;
+				JScrollBar sb = (JScrollBar) c;
+				if (!sb.isEnabled() || r.width > r.height) {
+					return;
+				} else if (isDragging) {
+					color = new Color(200, 200, 100, 200);
+				} else if (isThumbRollover()) {
+					color = new Color(255, 255, 100, 200);
+				} else {
+					color = new Color(220, 220, 200, 200);
+				}
+				g2.setPaint(color);
+				g2.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
+				g2.setPaint(Color.WHITE);
+				g2.drawRoundRect(r.x, r.y, r.width, r.height, 10, 10);
+				g2.dispose();
+			}
+
+			@Override
+			protected void setThumbBounds(int x, int y, int width, int height) {
+				super.setThumbBounds(x, y, width, height);
+				scrollbar.repaint();
+			}
+		});
+		chattingView.setBounds(264, 492, 720, 182);
+		chattingView.setBackground(new Color(0,0,0,0));
 		chattingView.setViewportView(chattingArea);
+		chattingView.setBorder(null); // 테두리 제거
 		chattingArea.setBackground(new Color(0,0,0,0)); 
 		chattingArea.setFont(font);
 		chattingArea.setForeground(Color.BLACK);
@@ -200,47 +303,50 @@ public class WaitingRoom extends JFrame{
 		add(chattingView);
 		
 		// #유저 정보(자신) 뷰
-		userInfoView.setBounds(30, 250, 190, 68);
+		userInfoView.setBounds(30, 251, 190, 66);
 		userInfoView.setBackground(new Color(40,40,40,40));
 		add(userInfoView); 
 		
 		
 		// #유저 리스트 뷰
-		userListView.setBounds(30, 330, 190, 374);
+		userListView.setBounds(30, 336, 190, 374);
 		userListView.setLayout(new FlowLayout(FlowLayout.CENTER));
 		userListView.setBackground(new Color(40,40,40,40));
 		allocationUserInfo();
 		add(userListView); 
 		
 		// #게임방 뷰
-		gameRoomView.setBounds(240, 110, 768, 370);
+		gameRoomView.setBounds(264, 110, 720, 320);
 		gameRoomView.setLayout(new FlowLayout(FlowLayout.CENTER));
-		gameRoomView.setBackground(new Color(40,40,40,40));
+		gameRoomView.setBackground(new Color(0,0,0,0));
 		allocationRoom(); // 대기실에 게임방이 보이도록 하는 메소드
 		add(gameRoomView); 
 		
 		
 	// TextField
 		chatting_tf = new JTextField(); 
-		chatting_tf.setBounds(260, 690, 728, 30);
-		chatting_tf.setBackground(new Color(40,40,40,40));
-		add(chatting_tf);
+		chatting_tf.setBounds(280, 674, 688, 30);
+		chatting_tf.setBorder(null);
+		chatting_tf.setBackground(new Color(0,0,0,0));
 		chatting_tf.setDocument(new JTextFieldLimit(45)); // 채팅 45자 제한 	 
 		chatting_tf.setFont(font);
 		chatting_tf.setForeground(Color.BLACK);
-		chatting_tf.addKeyListener(new keyAdapter());
+		chatting_tf.addKeyListener(new keyAdapter()); // 클래스로 정의한 키 이벤트를 적용
+		add(chatting_tf);
 			
 	// Button
 		// #나가기 버튼
-		exitButton.setBounds(440, 60, 180, 50);
+		exitButton.setBounds(400, 36, 135, 53);
+		exitButton.setBorder(null);
+		exitButton.setBackground(new Color(0,0,0,0));
 		add(exitButton);
 		exitButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				exitButton.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-//				exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
-				exitButton.setCursor(myCursor);
+				exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+//				exitButton.setCursor(myCursor);
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -262,7 +368,9 @@ public class WaitingRoom extends JFrame{
 		});
 		
 		// #방만들기 버튼
-		createRoomButton.setBounds(260, 60, 180, 50);
+		createRoomButton.setBounds(260, 37, 135, 53);
+		createRoomButton.setBorder(null);
+		createRoomButton.setBackground(new Color(0,0,0,0));
 		add(createRoomButton);
 		createRoomButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -288,7 +396,9 @@ public class WaitingRoom extends JFrame{
 		});
 		
 		// #방 오른쪽 넘기기 버튼
-		rightRButton.setBounds(640, 450, 60, 40);
+		rightRButton.setBounds(647, 437, 36, 21);
+		rightRButton.setBorder(null);
+		rightRButton.setBackground(new Color(0,0,0,0));
 		add(rightRButton);
 		rightRButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -314,7 +424,9 @@ public class WaitingRoom extends JFrame{
 		});
 
 		// #방 왼쪽 넘기기 버튼
-		leftRButton.setBounds(540, 450, 60, 40);
+		leftRButton.setBounds(568, 437, 36, 21);
+		leftRButton.setBorder(null);
+		leftRButton.setBackground(new Color(0,0,0,0));
 		add(leftRButton);
 		leftRButton.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
@@ -1136,4 +1248,19 @@ public class WaitingRoom extends JFrame{
 			else return -1;
 		} 
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+//	/====================================================================/
+	
+
+	
 }
