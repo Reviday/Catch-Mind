@@ -50,7 +50,6 @@ import kh.mini.project.main.view.Main;
 import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
-import kh.mini.project.paint.PaintEx;
 
 public class WaitingRoom extends JFrame{
 // Frame, Panel
@@ -825,7 +824,6 @@ public class WaitingRoom extends JFrame{
 			setSize(360,213); // null은 최댓값
 			setBackground(new Color(0,0,0,0));
 			setAlwaysOnTop(true); // 항상 모든 윈도우 위에 위치하도록 함
-			setPreferredSize(new Dimension(crbackgroundImage.getWidth(null), crbackgroundImage.getHeight(null)));
 			setResizable(false); // 프레임 크기 고정
 			setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
@@ -974,142 +972,116 @@ public class WaitingRoom extends JFrame{
 	
 	class inputPw extends JFrame {
 //		JPanel inputPW = new GameRoomPanel(inputPwPanelImage.getImage());
+		private JLabel inputPW_lb;
+		private JButton inputPW_bt;
+		private JButton cancel_bt;
+		private JPasswordField inputPW_tf;
 		
 		// 각종 변수 변수
-		private Image viewImage; // 이미지 저장용 변수
-		private Graphics viewGraphics; // 그래픽 저장용 변수	
-		private int mouseX; // 마우스 좌표 변수
-		private int mouseY; // 마우스 좌표 변수
+//		private Image viewImage; // 이미지 저장용 변수
+//		private Graphics viewGraphics; // 그래픽 저장용 변수	
 		
 		public inputPw(int room_No, String room_Pw) {
 			setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
 			setSize(1024,768); // null은 최댓값
 			setBackground(new Color(40,40,40,40));
-			setAlwaysOnTop(true); // 항상 모든 윈도우 위에 위치하도록 함
+//			setAlwaysOnTop(true); // 항상 모든 윈도우 위에 위치하도록 함
 			setPreferredSize(new Dimension(1024,768));
 			setResizable(false); // 프레임 크기 고정
 			setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
 			setVisible(true); // 윈도우를 볼 수 있음.
-			setLayout(null);	
+			setLayout(null);
 
-			JLabel inputPW = new JLabel(inputPwPanelImage);
-			inputPW.setBounds(262, 278, 500, 232);
-			inputPW.setBackground(new Color(0,0,0,0));
-			inputPW.setLayout(null);
-			inputPW.setVisible(true);
-			add(inputPW);
+			inputPW_lb = new JLabel();
+			inputPW_lb.setBounds(430, 310,200,30);
+			inputPW_lb.setText("비밀번호를 입력하세요.");
+			inputPW_lb.setFont(wrFont);
+			add(inputPW_lb);
 			
-//			// 마우스로 창을 움직일 수 있다.
-//			inputPW.addMouseListener(new MouseAdapter() {
-//				@Override
-//				public void mousePressed(MouseEvent e) {
-//					mouseX = e.getX();
-//					mouseY = e.getY();
-//				}
-//			});
-//			inputPW.addMouseMotionListener(new MouseMotionAdapter() {
-//				// #해당 창을 드래그 시, 움직일 수 있게 한다.
-//				@Override
-//				public void mouseDragged(MouseEvent e) {
-//					int x = e.getXOnScreen();
-//					int y = e.getYOnScreen();
-//					setLocation(x - mouseX, y - mouseY);
-//				}
-//			});
-//			
-//			JLabel inputPW_lb = new JLabel("비밀번호를 입력하세요.");
-//			inputPW_lb.setBounds(262, 278,200,40);
-//			inputPW_lb.setFont(wrFont);
-//			getContentPane().add(inputPW_lb);
-//			
-//			JTextField inputPW_tf = new JPasswordField();
-//			inputPW_tf.setBounds(262, 330,200,40);
-//			inputPW_tf.setBorder(null); // 테두리 제거
-//			inputPW_tf.setBackground(new Color(0,0,0,0)); // 배경 투명색
-//			inputPW_tf.setFont(wrFont);
-//			getContentPane().add(inputPW_tf);
-//			
-//			JButton inputPW_bt = new JButton("입력");
-//			inputPW_bt.setBounds(262, 360,50,30);
-//			inputPW_bt.setFont(wrFont);
-//			getContentPane().add(inputPW_bt);
-//			inputPW_bt.addMouseListener(new MouseAdapter() {
-//				// 마우스를 버튼에 올려놨을 때 이벤트
-//				@Override
-//				public void mouseEntered(MouseEvent e) {
-////					inputPW_bt.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-//					inputPW_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
-////					inputPW_bt.setCursor(myCursor);
-//				}
+			inputPW_tf  = new JPasswordField();
+			inputPW_tf.setBounds(410, 350,200,30);
+			inputPW_tf.setBorder(null); // 테두리 제거
+			inputPW_tf.setBackground(new Color(40,40,40,40)); // 배경 반투명
+			inputPW_tf.setEchoChar('*'); // 화면에 표기할 문자를 '*'로 지정
+			inputPW_tf.setFont(wrFont);
+			add(inputPW_tf);
+			
+			
+			inputPW_bt = new JButton();
+			inputPW_bt.setText("입력");
+			inputPW_bt.setBounds(412, 400,80,30);
+			inputPW_bt.setBorder(null); // 테두리 제거
+			inputPW_bt.setBackground(new Color(0,0,0,0)); // 배경 투명
+			inputPW_bt.setFont(wrFont);
+			add(inputPW_bt);
+			inputPW_bt.addMouseListener(new MouseAdapter() {
+				// 마우스를 버튼에 올려놨을 때 이벤트
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					inputPW_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				}
+				
+				// 마우스를 버튼에서 떼었을때 이벤트
+				@Override  
+				public void mouseExited(MouseEvent e) {
+					inputPW_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				}
 //				
-//				// 마우스를 버튼에서 떼었을때 이벤트
-//				@Override  
-//				public void mouseExited(MouseEvent e) {
-////					inputPW_bt.setIcon(exitBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-//					inputPW_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
-//				}
-////				
-//				// 해당 버튼을 클릭했을 때
-//				@Override
-//				public void mouseClicked(MouseEvent e) {
-//					if(e.getButton()==1) {
-//						// pw와 입력한 값이 같으면
-//						if(room_Pw.equals(inputPW_tf.getText())) {
-//							// 방에 입장함을 서버에게 알린다.
-//							send_message("EntryRoom/"+userInfo.getUserID());
-//							// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
-//							dispose();
-////							new PaintEx(room_No);
-//						}
-//					}
-//				}
-//			});
-//			
-//			
-//			JButton cancel_bt = new JButton("취소");
-//			cancel_bt.setBounds(300, 360,50,30);
-//			cancel_bt.setFont(wrFont);
-//			getContentPane().add(cancel_bt);
-//			cancel_bt.addMouseListener(new MouseAdapter() {
-//				// 마우스를 버튼에 올려놨을 때 이벤트
-//				@Override
-//				public void mouseEntered(MouseEvent e) {
-////					cancel_bt.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-//					cancel_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
-////					cancel_bt.setCursor(myCursor);
-//				}
-//				
-//				// 마우스를 버튼에서 떼었을때 이벤트
-//				@Override  
-//				public void mouseExited(MouseEvent e) {
-////					cancel_bt.setIcon(exitBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-//					cancel_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
-//				}
-////				
-//				@Override
-//				public void mouseClicked(MouseEvent e) {
-//					if(e.getButton()==1) {
-//						dispose();
-//					}
-//				}
-//			});
+				// 해당 버튼을 클릭했을 때
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if(e.getButton()==1) {
+						// pw와 입력한 값이 같으면
+						if(room_Pw.equals(inputPW_tf.getText())) {
+							// 방에 입장함을 서버에게 알린다.
+							send_message("EntryRoom/"+userInfo.getUserID());
+							// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
+							dispose();
+//							new PaintEx(room_No);
+						}
+					}
+				}
+			});
+			
+			
+			cancel_bt = new JButton();
+			cancel_bt.setText("취소");
+			cancel_bt.setBounds(532, 400,80,30);
+			cancel_bt.setBorder(null); // 테두리 제거
+			cancel_bt.setBackground(new Color(0,0,0,0)); // 배경 투명
+			cancel_bt.setFont(wrFont);
+			add(cancel_bt);
+			cancel_bt.addMouseListener(new MouseAdapter() {
+				// 마우스를 버튼에 올려놨을 때 이벤트
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					cancel_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				}
+				
+				// 마우스를 버튼에서 떼었을때 이벤트
+				@Override  
+				public void mouseExited(MouseEvent e) {
+					cancel_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				}
+				
+//				// 버튼을 클릭할 시	
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if(e.getButton()==1) {
+						dispose(); // 창 종료
+					}
+				}
+			});
 			
 		}
 		
-//		@Override
-//		public void paint(Graphics g) {
-//			viewImage = createImage(500,232);
-//			viewGraphics = viewImage.getGraphics();
-//			screenDraw(viewGraphics);
-//			g.drawImage(viewImage,0,0, null);
-//		}
-//		
-//		public void screenDraw(Graphics g) {
-//			g.drawImage(inputPwPanelImage.getImage(), 0, 0, null);
-//			paintComponents(g);
-//			this.repaint();
-//		}	
+		@Override
+		public void paint(Graphics g) {
+			g.drawImage(inputPwPanelImage.getImage(), 262, 268, null);
+			paintComponents(g);
+			this.repaint();
+		}
 	}
 	
 	

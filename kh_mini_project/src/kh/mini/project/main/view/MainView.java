@@ -525,7 +525,7 @@ public class MainView extends JFrame{
 				totalMessage+=msgList.get(i);
 			}
 			System.out.println("채팅 내용:" + totalMessage);
-			wr.wr_Inmessage(totalMessage);
+			paint.paint_Inmessage(totalMessage);
 			break;
 		}
 	}

@@ -807,16 +807,6 @@ public class MainServer extends JFrame {
 					// 비밀번호가 null일 경우 
 					} else if(r.room_No == room_No && r.room_PW.equals("null")) {
 						// 비밀번호가 null이라면 바로 입장하도록 한다.
-						// 해당 유저를 게임방 Room_user_vc에 추가한다.
-						for(int j=0; j<wRoom_vc.size(); j++) {
-							UserInfo u = (UserInfo)wRoom_vc.get(j);
-							// 해당 아이디를 찾으면
-							if(mUserId.equals(u.getUserID())) {
-								// 해당 유저를 방 유저 리스트에 추가한다.
-								r.Room_user_vc.add(u);
-								break;
-							}
-						}
 						// 유저에게 방 입장을 허가받았다 알림. 유저는 이 메시지로 WaitingRoom창을 종료한다.
 						send_Message("WaitingRoom/pass/EntryRoom@"+mUserId);
 						
@@ -921,6 +911,30 @@ public class MainServer extends JFrame {
 					}
 				}
 				
+				// 이미 방에 접속해 있는 유저에게 자신의 정보를 보낸다. (처리 중)
+				for(int i=0; i<user_vc.size();i++) {
+					UserInfo u = (UserInfo)user_vc.elementAt(i);
+					// 사용자의 아이디와 같은 아이디를 찾아
+					if(mUserId.equals(u.userID)) {
+						// 해당 유저의 정보를 그 방에 있는 모두에게 보낸다.
+						gBroadCast(room_No,"Paint/pass/NewUser@"+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer);
+					}
+				}
+				
+				// 해당 유저를 게임방 Room_user_vc에 추가한다.
+				for (int i = 0; i < room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo) room_vc.get(i);
+					for (int j = 0; j < wRoom_vc.size(); j++) {
+						UserInfo u = (UserInfo) wRoom_vc.get(j);
+						// 해당 아이디를 찾으면
+						if (mUserId.equals(u.getUserID())) {
+							// 해당 유저를 방 유저 리스트에 추가한다.
+							r.Room_user_vc.add(u);
+							break;
+						}
+					}
+				}
+				
 				// 이미 입장 중인 유저가 있으면 해당 유저들의 정보를 먼저 보낸다.(여기에 자신의 정보도 포함되어 있음)
 				for(int i=0; i<room_vc.size(); i++) {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
@@ -932,9 +946,6 @@ public class MainServer extends JFrame {
 						}
 					}
 				}
-				
-				// 이미 방에 접속해 있는 유저에게 자신의 정보를 보낸다. (처리 중)
-//				gBroadCast(room_No,"Paint/pass/NewUser@");
 				
 				break;
 			}
