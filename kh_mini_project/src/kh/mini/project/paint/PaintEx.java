@@ -31,12 +31,15 @@ import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
 
-public class PaintEx extends JFrame implements ActionListener {
+public class PaintEx extends JFrame implements ActionListener, Runnable {
 
 	public static void main(String[] args) {
 		new PaintEx(1);
 	}
 
+	StartThread startT;
+	int tempUser=0;
+	JButton tempBt;
 	// 프레임 안에 있는 요소들
 	Canvas canvas = new Canvas();
 
@@ -46,6 +49,9 @@ public class PaintEx extends JFrame implements ActionListener {
 	int thick = 8;
 	int eraserThick = 30;
 	boolean clear_Sel = false;
+	
+	//펜 색상 전송하기위한 코드설정
+	String colorCode;
 
 	// 도형
 	ShapeSave newshape;
@@ -64,16 +70,9 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JButton color_red;
 	private JButton clear;
 	private JButton color_black;
-	private JPanel panel_1;
-	private JPanel panel_2;
-	private JPanel panel_3;
-	private JPanel panel_4;
-	private JPanel panel_5;
 	private JProgressBar expBar;
-	private JPanel panel_6;
-	private JPanel panel_7;
-	private JLabel lblNewLabel_1;
 	
+	private JLabel levelUpImg;
 	private JLabel readyImg;
 	private JLabel startImg;
 
@@ -83,9 +82,27 @@ public class PaintEx extends JFrame implements ActionListener {
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
 	private RoomInfo roomInfo; // 방정보를 객체로 저장한다.
 	private Toolkit tk = Toolkit.getDefaultToolkit();
-	Image img = tk.getImage(Main.class.getResource("/images/pencilCursorBasic.png"));
-	Cursor myCursor = tk.createCustomCursor(img, new Point(10,10), "WaterDrop");
 	
+	JPanel cursorPanel = new JPanel();
+	
+	Image pen_black = tk.getImage(PaintEx.class.getResource("/images/pen_black.png"));
+	Image pen_red = tk.getImage(PaintEx.class.getResource("/images/pen_red.png"));
+	Image pen_blue = tk.getImage(PaintEx.class.getResource("/images/pen_blue.png"));
+	Image pen_green = tk.getImage(PaintEx.class.getResource("/images/pen_green.png"));
+	Image pen_yellow = tk.getImage(PaintEx.class.getResource("/images/pen_yellow.png"));
+	Image eraserImg = tk.getImage(PaintEx.class.getResource("/images/eraser.png"));
+	Image clearImg = tk.getImage(PaintEx.class.getResource("/images/clear.png"));
+	
+	
+	Cursor blackCursor = tk.createCustomCursor(pen_black, new Point(10,10), "WaterDrop");
+	Cursor redCursor = tk.createCustomCursor(pen_red, new Point(10,10), "WaterDrop");
+	Cursor blueCursor = tk.createCustomCursor(pen_blue, new Point(10,10), "WaterDrop");
+	Cursor greenCursor = tk.createCustomCursor(pen_green, new Point(10,10), "WaterDrop");
+	Cursor yellowCursor = tk.createCustomCursor(pen_yellow, new Point(10,10), "WaterDrop");
+	Cursor eraserCursor = tk.createCustomCursor(eraserImg, new Point(10,10), "WaterDrop");
+	Cursor clearCursor = tk.createCustomCursor(clearImg, new Point(10,10), "WaterDrop");
+	
+	Cursor myCursor;
 	
 	
 // Network 자원 변수
@@ -100,91 +117,101 @@ public class PaintEx extends JFrame implements ActionListener {
 		dos = MainView.getDos();
 
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
-		send_message("GameRoomCheck/" + id + "/" + room_No);
+//		send_message("GameRoomCheck/" + id + "/" + room_No);
 
 		// 프레임 설정
 		setSize(1024, 768);
+		setUndecorated(true);
+		setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
 		getContentPane().setLayout(null);
-		getContentPane().setBackground(Color.lightGray);
-		setCursor(myCursor);
+		
+		setCursor(blackCursor);
 		
 		getContentPane().add(canvas);
-		canvas.setBounds(219, 70, 570, 500);
-		canvas.setBackground(Color.WHITE);
-		canvas.setVisible(true);
+		canvas.setBounds(216, 134, 593, 440);
+		canvas.setBackground(Color.white);
+		canvas.setVisible(false);
 
 		//색깔 버튼
-		color_black = new JButton(new ImageIcon(PaintEx.class.getResource("/images/black1.png")));
-		color_black.setBackground(Color.lightGray);
-		color_black.setBounds(223, 586, 48, 49);
-		color_black.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/black2.png")));
+		color_black = new JButton("black");
+		color_black.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_black.png")));
+		color_black.setContentAreaFilled(false);
+		color_black.setBounds(486, 620, 122, 60);
+		//color_black.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_black.png")));
 		color_black.setFocusPainted(false);
 		color_black.setBorderPainted(false);
 		getContentPane().add(color_black);
 		color_black.addActionListener(this);
 		color_black.setVisible(true);
 
-		color_red = new JButton(new ImageIcon(PaintEx.class.getResource("/images/red1.png")));
-		color_red.setBackground(Color.lightGray);
-		color_red.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/red2.png")));
+		color_red = new JButton("red");
+		color_red.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_red.png")));
+		color_red.setContentAreaFilled(false);
+		color_red.setBounds(486, 685, 122, 60);
+		//color_red.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_red.png")));
 		color_red.setFocusPainted(false);
 		color_red.setBorderPainted(false);
-		color_red.setBounds(276, 586, 48, 49);
 		getContentPane().add(color_red);
 		color_red.addActionListener(this);
 		color_red.setVisible(true);
 
-		color_blue = new JButton(new ImageIcon(PaintEx.class.getResource("/images/blue1.png")));
-		color_blue.setBackground(Color.lightGray);
-		color_blue.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/blue2.png")));
+		color_blue = new JButton("blue");
+		color_blue.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_blue.png")));
+		color_blue.setContentAreaFilled(false);
+		//color_blue.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_blue.png")));
 		color_blue.setFocusPainted(false);
 		color_blue.setBorderPainted(false);
-		color_blue.setBounds(329, 586, 48, 49);
+		color_blue.setBounds(615, 620, 122, 60);
 		getContentPane().add(color_blue);
 		color_blue.addActionListener(this);
 		color_blue.setVisible(true);
 
-		color_green = new JButton(new ImageIcon(PaintEx.class.getResource("/images/green1.png")));
-		color_green.setBackground(Color.lightGray);
-		color_green.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/green2.png")));
+		color_green = new JButton("green");
+		color_green.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_green.png")));
+		color_green.setContentAreaFilled(false);
 		color_green.setFocusPainted(false);
 		color_green.setBorderPainted(false);
-		color_green.setBounds(382, 586, 48, 49);
+		color_green.setBounds(615, 685, 122, 60);
 		getContentPane().add(color_green);
 		color_green.addActionListener(this);
 		color_green.setVisible(true);
 
-		color_yellow = new JButton(new ImageIcon(PaintEx.class.getResource("/images/yellow1.png")));
-		color_yellow.setBackground(Color.lightGray);
-		color_yellow.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/yellow2.png")));
+		color_yellow = new JButton("yellow");
+		color_yellow.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_yellow.png")));
+		color_yellow.setContentAreaFilled(false);
+		//color_yellow.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_yellow.png")));
 		color_yellow.setFocusPainted(false);
 		color_yellow.setBorderPainted(false);
 		color_yellow.setVisible(true);
-		color_yellow.setBounds(435, 586, 48, 49);
+		color_yellow.setBounds(743, 620, 122, 60);
 		getContentPane().add(color_yellow);
 		color_yellow.addActionListener(this);
 
 		//지우개 버튼
-		eraser = new JButton("eraser");
-		eraser.setBackground(Color.lightGray);
+		eraser = new JButton(new ImageIcon(PaintEx.class.getResource("/images/eraser.png")));
+		eraser.setContentAreaFilled(false);
 		eraser.setFocusPainted(false);
-		eraser.setBounds(487, 586, 89, 49);
+		eraser.setBorderPainted(false);
+		eraser.setBounds(752, 693, 50, 42);
 		getContentPane().add(eraser);
 		eraser.addActionListener(this);
 		eraser.setVisible(true);
 
 		//클리어 버튼
 		clear = new JButton("clear");
+		clear.setIcon(new ImageIcon(PaintEx.class.getResource("/images/clear.png")));
+		clear.setContentAreaFilled(false);
 		clear.setBackground(Color.lightGray);
 		clear.setFocusPainted(false);
-		clear.setBounds(581, 586, 89, 49);
+		clear.setBorderPainted(false);
+		clear.setBounds(810, 693, 50, 42);
 		getContentPane().add(clear);
 		clear.addActionListener(this);
 
 		//펜 굵기 버튼
 		thick_Bold = new JButton("굵은 펜");
 		thick_Bold.setBackground(Color.lightGray);
-		thick_Bold.setBounds(682, 586, 97, 23);
+		thick_Bold.setBounds(868, 628, 97, 23);
 		thick_Bold.setFocusPainted(false);
 		getContentPane().add(thick_Bold);
 		thick_Bold.addActionListener(this);
@@ -192,7 +219,7 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		thick_Sharp = new JButton("얇은 펜");
 		thick_Sharp.setBackground(Color.lightGray);
-		thick_Sharp.setBounds(682, 612, 97, 23);
+		thick_Sharp.setBounds(868, 654, 97, 23);
 		thick_Sharp.setFocusPainted(false);
 		getContentPane().add(thick_Sharp);
 		thick_Sharp.addActionListener(this);
@@ -204,62 +231,34 @@ public class PaintEx extends JFrame implements ActionListener {
 		exit.setFocusPainted(false);
 		getContentPane().add(exit);
 		exit.setVisible(true);
-
-		//캐릭터창 임시로 넣어둔거
-		panel_1 = new JPanel();
-		panel_1.setBounds(12, 246, 198, 147);
-		getContentPane().add(panel_1);
-
-		panel_2 = new JPanel();
-		panel_2.setBounds(12, 423, 198, 147);
-		getContentPane().add(panel_2);
-
-		panel_3 = new JPanel();
-		panel_3.setBounds(798, 70, 198, 147);
-		getContentPane().add(panel_3);
-
-		panel_4 = new JPanel();
-		panel_4.setBounds(798, 246, 198, 147);
-		getContentPane().add(panel_4);
-
-		panel_5 = new JPanel();
-		panel_5.setBounds(798, 423, 198, 147);
-		getContentPane().add(panel_5);
-
-		JPanel panel = new JPanel();
-		panel.setBounds(14, 70, 198, 147);
-		getContentPane().add(panel);
-		panel.setLayout(null);
-
-		JLabel lblNewLabel = new JLabel("New label");
-		lblNewLabel.setBounds(14, 12, 87, 123);
-		panel.add(lblNewLabel);
-
-		panel_6 = new JPanel();
-		panel_6.setBounds(107, 12, 77, 34);
-		panel.add(panel_6);
-
-		panel_7 = new JPanel();
-		panel_7.setBounds(107, 101, 77, 34);
-		panel.add(panel_7);
-
-		lblNewLabel_1 = new JLabel("New label");
-		lblNewLabel_1.setBounds(107, 53, 77, 42);
-		panel.add(lblNewLabel_1);
+		
+		tempBt = new JButton();
+		tempBt.setSize(30, 30);
+		tempBt.setBackground(Color.DARK_GRAY);
+		tempBt.setLocation(149, 21);
+		getContentPane().add(tempBt);
+		tempBt.setVisible(true);
+		tempBt.addActionListener(this);
 
 		// 경험치 표시
 		expBar = new JProgressBar();
-		expBar.setBounds(284, 695, 495, 14);
+		expBar.setBounds(276, 753, 495, 10);
 		getContentPane().add(expBar);
 		expBar.setValue(50);
 		expBar.setBackground(Color.white);
 		expBar.setForeground(Color.gray);
 		
+		//levelUp 이미지
+		levelUpImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/levelUpImg.gif")));
+		getContentPane().add(levelUpImg);
+		levelUpImg.setBounds(356,169,300,350);
+		levelUpImg.setVisible(false);
+		
 		//ready이미지
 		readyImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/readyImg.png")));
 		getContentPane().add(readyImg);
 		readyImg.setBounds(356,169,300,300);
-		readyImg.setVisible(true);
+		readyImg.setVisible(false);
 		
 		//start이미지
 		startImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/startImg.png")));
@@ -267,23 +266,30 @@ public class PaintEx extends JFrame implements ActionListener {
 		startImg.setBounds(356,169,300,300);
 		startImg.setVisible(false);
 		
-		getContentPane().add(canvas);
-		canvas.setVisible(true);
+		JLabel gameRoombackground = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/GameRoom_Background.png")));
+		gameRoombackground.setBounds(0, 0, 1024, 768);
+		getContentPane().add(gameRoombackground);
 		
-
+		canvas.setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
+	
+	@Override
+	public void run() {
+		if(tempUser == 5)
+			startT.start();
+	}
 
 	// 서버에게 메시지를 보내는 부분
-	private void send_message(String str) {
-		try {
-			dos.writeUTF(str);
-		} catch (IOException e) // 에러 처리 부분
-		{
-			e.printStackTrace();
-		}
-	}
+//	private void send_message(String str) {
+//		try {
+//			dos.writeUTF(str);
+//		} catch (IOException e) // 에러 처리 부분
+//		{
+//			e.printStackTrace();
+//		}
+//	}
 
 	// 서버로부터 들어오는 모든 메시지
 	private void Inmessage(String str) {
@@ -329,7 +335,28 @@ public class PaintEx extends JFrame implements ActionListener {
 			}
 			// 기존 접속자의 정보를 받고 이어서 본인의 정보를 이어받으므로, 모두 받은 후에 패널 업데이트를 진행한다.
 			break;
+			// 기존 접속자에게 새로운 접속자를 알린다.
+		case "NewUser":
+			// 신규 사용자의 정보를 가져와 저장한다.
+			level = Integer.parseInt(st.nextToken()); // 레벨
+			exp = Integer.parseInt(st.nextToken()); // 경험치
+			corAnswer = Integer.parseInt(st.nextToken()); // 누적 정답수
+
+			// 가져온 정보로 객체를 생성
+			UserInfo newUser = new UserInfo(mUserId, level, exp, corAnswer);
+
+			// 해당 객체를 Vector에 추가(유저 객체를 RooInfo 객체의 벡터에 저장한다)
+			roomInfo.addRoom_user_vc(newUser);
+
+			// 패널 업데이트를 진행한다.
+			/*
+			 * 패널 업데이트 코드
+			 */
+
+			break;
 		}
+		
+		
 
 	}
 
@@ -338,7 +365,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		Inmessage(str);
 	}
 
-	// class StartPnThread
+	
 
 	// 그림판
 	class Canvas extends JPanel {
@@ -443,6 +470,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		@Override
 		public void run() {
 			try {
+				System.out.println("시작");
 				sleep(3000);
 				ReadyImgThread rit = new ReadyImgThread();
 				rit.start();
@@ -473,8 +501,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		public void run() {
 			try {
 				startImg.setVisible(true);
-				sleep(1500);
+				sleep(1000);
 				startImg.setVisible(false);
+				canvas.setVisible(true);
 			}catch(InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -519,32 +548,69 @@ public class PaintEx extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
+		if(e.getSource() == tempBt) {
+			tempUser++;
+			System.out.println(tempUser);
+		}
+			
 		if (e.getSource() == clear) {
 			clear_Sel = true;
 			canvas.repaint();
 			while (!shape.isEmpty())
 				shape.pop();
+			clear.setCursor(clearCursor);
+			getContentPane().setCursor(myCursor);
 		} else {
 			if (e.getSource() == eraser) {
 				eraser_Sel = true;
 				eraserThick = 30;
 				mypencolor = Color.white;
+				colorCode = "white";
+				myCursor=eraserCursor;
+				eraser.setCursor(myCursor);
+				getContentPane().setCursor(myCursor);
 			} else {
 				eraser_Sel = false;
 				if (e.getSource() == thick_Bold)
 					thick = 8;
 				else if (e.getSource() == thick_Sharp)
 					thick = 3;
-				else if (e.getSource() == color_black)
+				else if (e.getSource() == color_black) {
 					mypencolor = Color.black;
-				else if (e.getSource() == color_red)
+					colorCode = "black";
+					myCursor=blackCursor;
+					color_black.setCursor(myCursor);
+					getContentPane().setCursor(myCursor);
+				}
+				else if (e.getSource() == color_red) {
 					mypencolor = Color.red;
-				else if (e.getSource() == color_blue)
+					colorCode = "red";
+					myCursor=redCursor;
+					color_red.setCursor(myCursor);
+					getContentPane().setCursor(myCursor);
+				}
+				else if (e.getSource() == color_blue) {
 					mypencolor = Color.blue;
-				else if (e.getSource() == color_green)
+					colorCode = "blue";
+					myCursor=blueCursor;
+					color_blue.setCursor(myCursor);
+					getContentPane().setCursor(myCursor);
+				}
+				else if (e.getSource() == color_green) {
 					mypencolor = new Color(0, 192, 0);
-				else if (e.getSource() == color_yellow)
+					colorCode = "green";
+					myCursor=greenCursor;
+					color_green.setCursor(myCursor);
+					getContentPane().setCursor(myCursor);
+					
+				}
+				else if (e.getSource() == color_yellow) {
 					mypencolor = Color.yellow;
+					colorCode = "yellow";
+					myCursor=yellowCursor;
+					color_yellow.setCursor(myCursor);
+					getContentPane().setCursor(myCursor);
+				}
 			}
 		}
 	}
