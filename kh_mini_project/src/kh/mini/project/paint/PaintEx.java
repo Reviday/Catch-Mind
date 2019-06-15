@@ -31,15 +31,15 @@ import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
 
-public class PaintEx extends JFrame implements ActionListener, Runnable {
+public class PaintEx extends JFrame implements ActionListener {
 
 	public static void main(String[] args) {
 		new PaintEx(1);
 	}
 
 	StartThread startT;
-	int tempUser=0;
-	JButton tempBt;
+
+
 	// 프레임 안에 있는 요소들
 	Canvas canvas = new Canvas();
 
@@ -232,13 +232,6 @@ public class PaintEx extends JFrame implements ActionListener, Runnable {
 		getContentPane().add(exit);
 		exit.setVisible(true);
 		
-		tempBt = new JButton();
-		tempBt.setSize(30, 30);
-		tempBt.setBackground(Color.DARK_GRAY);
-		tempBt.setLocation(149, 21);
-		getContentPane().add(tempBt);
-		tempBt.setVisible(true);
-		tempBt.addActionListener(this);
 
 		// 경험치 표시
 		expBar = new JProgressBar();
@@ -275,12 +268,7 @@ public class PaintEx extends JFrame implements ActionListener, Runnable {
 		setVisible(true);
 	}
 	
-	@Override
-	public void run() {
-		if(tempUser == 5)
-			startT.start();
-	}
-
+	
 	// 서버에게 메시지를 보내는 부분
 //	private void send_message(String str) {
 //		try {
@@ -548,10 +536,6 @@ public class PaintEx extends JFrame implements ActionListener, Runnable {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
-		if(e.getSource() == tempBt) {
-			tempUser++;
-			System.out.println(tempUser);
-		}
 			
 		if (e.getSource() == clear) {
 			clear_Sel = true;
