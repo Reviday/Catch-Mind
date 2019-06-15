@@ -944,8 +944,12 @@ public class MainServer extends JFrame {
 							UserInfo u = (UserInfo)r.Room_user_vc.get(j);
 							send_Message("Paint/pass/OldUser@"+u.userID+"@"+u.level+"@"+u.exp+"@"+u.corAnswer);
 							
-							if(r.fixed_User==r.Room_user_vc.size()) {
-								gBroadCast(room_No, "Paint/pass/GameStart@pass");
+							//테스트 코드
+							System.out.println("최대 :" + r.fixed_User + ", 현재 : " + r.Room_user_vc.size());
+							
+							// 최대 인원과 현재 인원이 같을 경우, 메시지를 보내는 마지막에 방 전체 인원을 대상으로 게임 시작을 알린다.
+							if(r.fixed_User==r.Room_user_vc.size() && j==r.Room_user_vc.size()-1) {
+								gBroadCast(room_No, "Paint/pass/GameStart@pass@");
 							}
 						}
 					}
@@ -978,7 +982,7 @@ public class MainServer extends JFrame {
 					// 해당 방에 있는 유저 전원에게 메시지를 보낸다.
 					for(int j=0; j<r.Room_user_vc.size(); j++) {
 						// 게임방의 있는 유저 한명을 찾아서
-						UserInfo u = (UserInfo)r.Room_user_vc.get(i);
+						UserInfo u = (UserInfo)r.Room_user_vc.get(j);
 						System.out.println("["+u.getUserID()+"]에게 : " + str);
 						//메시지를 보낸다.
 						u.send_Message(str);
