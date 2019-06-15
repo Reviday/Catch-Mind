@@ -824,6 +824,29 @@ public class MainServer extends JFrame {
 				
 				break;
 				
+			// #비밀번호를 맞게 입력했을 경우
+			case "PassPW":
+				room_No = Integer.parseInt(st.nextToken()); // 방번호
+
+				// room_vc에서 해당 방 번호와 일치하는 객체를 찾는다.
+				for (int i = 0; i < room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo) room_vc.get(i);
+					// 방번호가 같은 객체를 찾아서 입장 처리를 한다.
+					if (r.room_No == room_No) {
+						// 유저에게 방 입장을 허가받았다 알림. 유저는 이 메시지로 WaitingRoom창을 종료한다.
+						send_Message("WaitingRoom/pass/EntryRoom@" + mUserId);
+
+						// 이어서 MainView로 방 번호를 넘기면서 Paint창을 열도록 지시한다.
+						send_Message("EntryGameRoom/" + mUserId + "/" + r.room_No);
+
+						// 모든 유저에게 해당 유저가 게임방에 들어갔으니 리스트에서 제거하라고 알린다.
+						BroadCast("WaitingRoom/pass/RemoveUser@" + mUserId);
+
+						break; // 작업을 완료했으므로 for문을 탈출한다.
+					}
+				}
+				break;
+
 			// #방 입장 알림 
 			case "EntryRoom": 
 				// 게임방에 입장하여 현재 대기실 유저에서 제거되어야 된다.

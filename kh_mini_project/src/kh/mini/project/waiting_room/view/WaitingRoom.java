@@ -436,7 +436,6 @@ public class WaitingRoom extends JFrame{
 			send_message("EntryRoom/"+userInfo.getUserID());
 			// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
 			dispose();
-//			paint = new PaintEx(room_No);
 			
 			break;
 		
@@ -1033,21 +1032,22 @@ public class WaitingRoom extends JFrame{
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(e.getButton()==1) {
-						
-						//JPasswordField는 getText()메소드를 권하지 않는다 하여 아래와 같은 방법으로 저장
+						// JPasswordField는 getText()메소드를 권하지 않는다 하여 아래와 같은 방법으로 저장
 						input_Pw = "";
 						char[] tempPw = inputPW_tf.getPassword();
-						for(char a : tempPw) {
+						for (char a : tempPw) {
 							input_Pw += a;
 						}
-						
+
 						// pw와 입력한 값이 같으면
-						if(input_Pw.equals(inputPW_tf.getText())) {
+						if (room_Pw.equals(input_Pw)) {
 							// 방에 입장함을 서버에게 알린다.
-							send_message("EntryRoom/"+userInfo.getUserID());
-							// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
+							send_message("PassPW/" + userInfo.getUserID() + "/" + room_No);
+							// WaitingRoom 창을 종료한다.
 							dispose();
-//							new PaintEx(room_No);
+						} else {
+							// 비밀번호가 일치하지 않을 때
+							JOptionPane.showMessageDialog(null, "비밀번호가 일치하지 않습니다.", "알림", JOptionPane.ERROR_MESSAGE);
 						}
 					}
 				}
