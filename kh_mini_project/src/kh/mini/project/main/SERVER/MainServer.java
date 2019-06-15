@@ -979,6 +979,17 @@ public class MainServer extends JFrame {
 				}
 				
 				break;
+			// #사용자가 그림을 그리면
+			case "GameRoomPaint":
+				int gameRoomNo = Integer.parseInt(mUserId);
+				String pointX1 = st.nextToken();
+				String pointY1 = st.nextToken();
+				String pointX2 = st.nextToken();
+				String pointY2 = st.nextToken();
+				System.out.println("MainServer에서 받은 방번호:" + gameRoomNo + ", x1좌표:" + pointX1 + ", y1좌표:" + pointY1
+						+ ", x2좌표:" + pointX2 + ", y2좌표:" + pointY2);
+				gBroadCast(gameRoomNo, "GameRoomPaint/pass/" + pointX1 + "/" + pointY1 + "/" + pointX1 + "/" + pointY1);
+				break;
 			}
 		}
 		

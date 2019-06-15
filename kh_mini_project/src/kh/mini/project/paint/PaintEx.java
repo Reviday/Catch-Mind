@@ -270,14 +270,14 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	
 	// 서버에게 메시지를 보내는 부분
-//	private void send_message(String str) {
-//		try {
-//			dos.writeUTF(str);
-//		} catch (IOException e) // 에러 처리 부분
-//		{
-//			e.printStackTrace();
-//		}
-//	}
+	private void send_message(String str) {
+		try {
+			dos.writeUTF(str);
+		} catch (IOException e) // 에러 처리 부분
+		{
+			e.printStackTrace();
+		}
+	}
 
 	// 서버로부터 들어오는 모든 메시지
 	private void Inmessage(String str) {
@@ -352,6 +352,16 @@ public class PaintEx extends JFrame implements ActionListener {
 			startT.start();
 
 			break;	
+		case "GameRoomPaint" :
+			int pointX1=Integer.parseInt(st.nextToken());
+			int pointY1=Integer.parseInt(st.nextToken());
+			int pointX2=Integer.parseInt(st.nextToken());
+			int pointY2=Integer.parseInt(st.nextToken());
+			
+//			Graphics2D g2d=(Graphics2D)canvas.getGraphics();
+			canvas.getGraphics().drawLine(pointX1, pointY1, pointX2, pointY2);
+			
+			break;
 		}
 		
 		
@@ -535,6 +545,12 @@ public class PaintEx extends JFrame implements ActionListener {
 		public void mouseDragged(MouseEvent e) {
 			newshape.sketchSP.add(e.getPoint());
 			sketSP.add(e.getPoint());
+			
+			System.out.println("현재 그림그리는 좌표 x좌표:"+sketSP.get(sketSP.size()-1).x+", y좌표:"+sketSP.get(sketSP.size()-1).y);
+			send_message("GameRoomPaint/"+room_No+"/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).x+"/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).y
+					+"/"+sketSP.get(sketSP.size()-1).x+"/"+sketSP.get(sketSP.size()-1).y);
+			
+			
 			repaint();
 		}
 
