@@ -349,6 +349,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			//테스트 코드
 			System.out.println("GameStart 메시지 수신");
 			/* 서버에서 인원이 다 찼으므로 게임 시작을 하도록 하는 코드 */
+			startT.start();
 
 			break;	
 		}
