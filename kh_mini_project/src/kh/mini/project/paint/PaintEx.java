@@ -603,7 +603,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 			user_pn[i].setLayout(null);
 			user_pn[i].setOpaque(true);
-			user_pn[i].setBackground(new Color(40,40,40,40)); // 투명
+			user_pn[i].setBackground(new Color(0,0,0,0)); // 투명
 			add(user_pn[i]);
 			
 			

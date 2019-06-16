@@ -1059,6 +1059,41 @@ public class MainServer extends JFrame {
 				}
 			}
 		}
+		
+		// 인게임에서 그림을 그리는 사람, 혹은 방장 등 특별한 인원을 제외하고 혹은 그 인원만 선택적으로 할때 사용
+		/*
+		 * [메소드 설명] room_No은 해당 게임방을 찾을 때 사용하는 인수 id는 선택적인 옵션에 적용할 대상 id flag가 'true'이면
+		 * 해당 유저에게만, 'false'이면 해당유저를 제외한 나머지에게 str로 받은 메시지를 전달한다.
+		 */
+		private void gSelectiveCast(int room_No, String id, boolean flag, String str) {
+			Pointer: for (int i = 0; i < room_vc.size(); i++) // 게임방에 있는 사용자에게 전송
+			{
+				RoomInfo r = (RoomInfo) room_vc.elementAt(i); // i번째에 있는 방을 찾아
+				// 입력받은 방 번호와 일치하는 방 번호를 찾으면
+				if (room_No == r.room_No) {
+					// 해당 방에 있는 유저에게 메시지를 보낸다.
+					for (int j = 0; j < r.Room_user_vc.size(); j++) {
+						// 게임방의 있는 유저 한명을 찾아서
+						UserInfo u = (UserInfo) r.Room_user_vc.get(j);
+
+						// 해당 유저에게만 메시지를 보낼 때
+						if (id.equals(u.getUserID()) && flag) {
+							System.out.println("[" + u.getUserID() + "]에게 : " + str);
+							// 메시지를 보낸다.
+							u.send_Message(str);
+							break Pointer; // 해당 유저에게만 메시지를 보내면 되므로 전체 break 처리
+						}
+						// 해당 유저를 제외한 나머지 인원에게 메시지를 보낼 떄
+						else if (!id.equals(u.getUserID()) && !flag) {
+							System.out.println("[" + u.getUserID() + "]에게 : " + str);
+							// 메시지를 보낸다.
+							u.send_Message(str);
+						}
+
+					}
+				}
+			}
+		}
 
 		// 서버쪽에서도 클라이언트와 대화할 수 있는 메소드
 		private void send_Message(String str) // 문자열을 받아서 전송
