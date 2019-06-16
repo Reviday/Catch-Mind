@@ -634,6 +634,12 @@ public class WaitingRoom extends JFrame{
 			System.out.println("WaingRoom 채팅 내용 : " + totalChattingMsg);
 			chattingArea.append("["+mUserId+"] : "+totalChattingMsg+"\n");
 			break;
+			
+		// # 방 인원 업데이트 정보가 있을 경우
+		case "RoomInfoUpdate":
+			// 방 패널을 갱신해서 다시 그린다.
+			relocationRoom();
+			break;
 		}
 	}
 	

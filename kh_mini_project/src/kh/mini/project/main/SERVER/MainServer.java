@@ -943,62 +943,74 @@ public class MainServer extends JFrame {
 				room_No = Integer.parseInt(st.nextToken());
 
 				// 제일 처음, 방의 정보를 보내준다.
-				for (int i = 0; i < room_vc.size(); i++) {
-					RoomInfo r = (RoomInfo) room_vc.elementAt(i);
-					if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
+	            for (int i = 0; i < room_vc.size(); i++) {
+	               RoomInfo r = (RoomInfo) room_vc.elementAt(i);
+	               if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
 
-						send_Message("Paint/pass/RoomInfo@" + mUserId + "@" + r.room_name + "@" + r.room_PW + "@"
-								+ r.fixed_User + "@" + r.Room_user_vc.size());
-					}
-				}
+	                  send_Message("Paint/pass/RoomInfo@" + mUserId + "@" + r.room_name + "@" + r.room_PW + "@"
+	                        + r.fixed_User + "@" + r.Room_user_vc.size());
+	                  break;
+	               }
+	            }
 
-//								// 이미 방에 접속해 있는 유저에게 자신의 정보를 보낸다.
-				for (int i = 0; i < user_vc.size(); i++) {
-					UserInfo u = (UserInfo) user_vc.elementAt(i);
-					// 사용자의 아이디와 같은 아이디를 찾아
-					if (mUserId.equals(u.userID)) {
-						// 해당 유저의 정보를 그 방에 있는 모두에게 보낸다.
-						gBroadCast(room_No,
-								"Paint/pass/NewUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + u.corAnswer);
-					}
-				}
+//	                        // 이미 방에 접속해 있는 유저에게 자신의 정보를 보낸다.
+	            for (int i = 0; i < user_vc.size(); i++) {
+	               UserInfo u = (UserInfo) user_vc.elementAt(i);
+	               // 사용자의 아이디와 같은 아이디를 찾아
+	               if (mUserId.equals(u.userID)) {
+	                  // 해당 유저의 정보를 그 방에 있는 모두에게 보낸다.
+	                  gBroadCast(room_No,
+	                        "Paint/pass/NewUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + u.corAnswer);
+	               }
+	            }
 
-				// 해당 유저를 게임방 Room_user_vc에 추가한다.
-				for (int i = 0; i < room_vc.size(); i++) {
-					RoomInfo r = (RoomInfo) room_vc.get(i);
-					for (int j = 0; j < user_vc.size(); j++) {
-						UserInfo u = (UserInfo) user_vc.get(j);
-						// 해당 아이디를 찾으면
-						if (mUserId.equals(u.getUserID())) {
-							// 해당 유저를 방 유저 리스트에 추가한다.
-							System.out.println("asdasdsadsadas");
-							r.Room_user_vc.add(u);
-							break;
-						}
-					}
-				}
+	            // 해당 유저를 게임방 Room_user_vc에 추가한다.
+	            Pointer:
+	            for (int i = 0; i < room_vc.size(); i++) {
+	               RoomInfo r = (RoomInfo) room_vc.get(i);
+	               for (int j = 0; j < user_vc.size(); j++) {
+	                  UserInfo u = (UserInfo) user_vc.get(j);
+	                  // 해당 아이디를 찾으면
+	                  if (mUserId.equals(u.getUserID())) {
+	                     // 해당 유저를 방 유저 리스트에 추가한다.
+	                     System.out.println("asdasdsadsadas");
+	                     r.Room_user_vc.add(u);
+	                     break Pointer;
+	                  }
+	               }
+	            }
 
-				// 이미 입장 중인 유저가 있으면 해당 유저들의 정보를 먼저 보낸다.(여기에 자신의 정보도 포함되어 있음)
-				for (int i = 0; i < room_vc.size(); i++) {
-					RoomInfo r = (RoomInfo) room_vc.elementAt(i);
-					if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
-						// 해당 방에 있는 유저들의 정보를 보낸다.
-						for (int j = 0; j < r.Room_user_vc.size(); j++) {
-							UserInfo u = (UserInfo) r.Room_user_vc.get(j);
-							send_Message(
-									"Paint/pass/OldUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + u.corAnswer);
+	            // 이미 입장 중인 유저가 있으면 해당 유저들의 정보를 먼저 보낸다.(여기에 자신의 정보도 포함되어 있음)
+	            for (int i = 0; i < room_vc.size(); i++) {
+	               RoomInfo r = (RoomInfo) room_vc.elementAt(i);
+	               if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
+	                  // 해당 방에 있는 유저들의 정보를 보낸다.
+	                  for (int j = 0; j < r.Room_user_vc.size(); j++) {
+	                     UserInfo u = (UserInfo) r.Room_user_vc.get(j);
+	                     send_Message(
+	                           "Paint/pass/OldUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + u.corAnswer);
 
-							// 테스트 코드
-							System.out.println("최대 :" + r.fixed_User + ", 현재 : " + r.Room_user_vc.size());
+	                     // 테스트 코드
+	                     System.out.println("최대 :" + r.fixed_User + ", 현재 : " + r.Room_user_vc.size());
 
-							// 최대 인원과 현재 인원이 같을 경우, 메시지를 보내는 마지막에 방 전체 인원을 대상으로 게임 시작을 알린다.
-							if (r.fixed_User == r.Room_user_vc.size() && j == r.Room_user_vc.size() - 1) {
-								gBroadCast(room_No, "Paint/pass/GameStart@pass@");
-							}
-						}
-					}
-				}
-
+	                     // 최대 인원과 현재 인원이 같을 경우, 메시지를 보내는 마지막에 방 전체 인원을 대상으로 게임 시작을 알린다.
+	                     if (r.fixed_User == r.Room_user_vc.size() && j == r.Room_user_vc.size() - 1) {
+	                        gBroadCast(room_No, "Paint/pass/GameStart@pass@");
+	                     }
+	                  }
+	                  break;
+	               }
+	            }
+	            
+	            // 유저의 입장이 끝나면 대기실에도 인원의 변동을 알려줘야 한다.
+	            for (int i = 0; i < room_vc.size(); i++) {
+	               RoomInfo r = (RoomInfo) room_vc.elementAt(i);
+	               if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
+	                  // 해당 브로드 캐스트를 받는거 만으로 게임방 패널을 갱신한다.
+	                  BroadCast("WaitingRoom/pass/RoomInfoUpdate@");
+	               }
+	            }
+	            
 				break;
 			// #사용자가 그림을 그리면
 			case "GameRoomPaint":
