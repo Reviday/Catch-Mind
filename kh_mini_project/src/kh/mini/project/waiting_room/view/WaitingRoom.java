@@ -30,6 +30,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.StringTokenizer;
@@ -94,8 +95,10 @@ public class WaitingRoom extends JFrame{
 	private Vector<UserInfo> user_list = new Vector<UserInfo>();
 	private Toolkit tk = Toolkit.getDefaultToolkit();
 	// 커서 테스트
-	Image img = tk.getImage(Main.class.getResource("/images/cursorBasic.png"));
-	Cursor myCursor = tk.createCustomCursor(img, new Point(10,10), "dynamite stick");
+	private Image cursorBasic = tk.getImage(Main.class.getResource("/images/pencilCursor.png"));
+	private Image cursorClicked = tk.getImage(Main.class.getResource("/images/pencilCursorClicked.png"));
+	private Cursor myCursor = tk.createCustomCursor(cursorBasic, new Point(10,10), "Pencil Cursor");
+	private Cursor myCursorClicked = tk.createCustomCursor(cursorClicked, new Point(10,10), "Pencil Cursor Clicked");
 	// 방 만들기에 필요한 변수
 	private String room_name; // 방제목
 	private String roomPW; // 방 비밀번호
@@ -123,7 +126,7 @@ public class WaitingRoom extends JFrame{
 	private ImageIcon leftRBasicImage = new ImageIcon(Main.class.getResource("/images/arrowLButtonBasic.png"));
 	private ImageIcon leftREnteredImage = new ImageIcon(Main.class.getResource("/images/arrowLButtonEntered.png")); 
 	private ImageIcon gamgeRoomBasicImage = new ImageIcon(Main.class.getResource("/images/gameroom.png")); 
-	private ImageIcon gamgeRoomEnteredImage = new ImageIcon(Main.class.getResource("/images/gameroomEntered1.png")); 
+	private ImageIcon gamgeRoomEnteredImage = new ImageIcon(Main.class.getResource("/images/gameroomEntered.png")); 
 	private ImageIcon gamgeRoomPressedImage = new ImageIcon(Main.class.getResource("/images/gameroomPressed.png"));
 	private ImageIcon userInfoPanelImage = new ImageIcon(Main.class.getResource("/images/userInfoPanel.png")); 
 	private ImageIcon inputPwPanelImage = new ImageIcon(Main.class.getResource("/images/inputPwBackground.png")); 
@@ -159,7 +162,7 @@ public class WaitingRoom extends JFrame{
 			// 마우스를 버튼에 올려놨을 때 이벤트
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				mainMenuBar.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				mainMenuBar.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 			}
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -345,7 +348,7 @@ public class WaitingRoom extends JFrame{
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				exitButton.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-				exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				exitButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 //				exitButton.setCursor(myCursor);
 			}
 			
@@ -353,7 +356,7 @@ public class WaitingRoom extends JFrame{
 			@Override  
 			public void mouseExited(MouseEvent e) {
 				exitButton.setIcon(exitBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-				exitButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				exitButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 			}
 //			
 			@Override
@@ -377,14 +380,14 @@ public class WaitingRoom extends JFrame{
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				createRoomButton.setIcon(createRoomEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-				createRoomButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				createRoomButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 			}
 
 			// 마우스를 버튼에서 떼었을때 이벤트
 			@Override
 			public void mouseExited(MouseEvent e) {
 				createRoomButton.setIcon(createRoomBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-				createRoomButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				createRoomButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 			}
 			// 버튼을 떼었을때 이벤트
 			@Override
@@ -405,14 +408,14 @@ public class WaitingRoom extends JFrame{
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				rightRButton.setIcon(rightREnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-				rightRButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				rightRButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 			}
 
 			// 마우스를 버튼에서 떼었을때 이벤트
 			@Override
 			public void mouseExited(MouseEvent e) {
 				rightRButton.setIcon(rightRBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-				rightRButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				rightRButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 			}
 			// 버튼을 떼었을때 이벤트
 			@Override
@@ -433,14 +436,14 @@ public class WaitingRoom extends JFrame{
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				leftRButton.setIcon(leftREnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-				leftRButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				leftRButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 			}
 
 			// 마우스를 버튼에서 떼었을때 이벤트
 			@Override
 			public void mouseExited(MouseEvent e) {
 				leftRButton.setIcon(leftRBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-				leftRButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				leftRButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 			}
 			// 버튼을 떼었을때 이벤트
 			@Override
@@ -605,38 +608,31 @@ public class WaitingRoom extends JFrame{
 			// 방번호와 패스워드를 받는다.
 			room_No = Integer.parseInt(st.nextToken());
 			room_PW = st.nextToken();
-//			send_message("EntryRoom/"+Message+"/"+room_No);
 			new inputPw(room_No,room_PW);
-//			JFrame inputPW_fr = new JFrame();
-//			inputPW_fr.setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
-//			inputPW_fr.setSize(1024,768); // null은 최댓값
-//			inputPW_fr.setBackground(new Color(40,40,40,40));
-//			inputPW_fr.setAlwaysOnTop(true); // 항상 모든 윈도우 위에 위치하도록 함
-//			inputPW_fr.setPreferredSize(new Dimension(1024,768));
-//			inputPW_fr.setResizable(false); // 프레임 크기 고정
-//			inputPW_fr.setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
-//			inputPW_fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
-//			inputPW_fr.setVisible(true); // 윈도우를 볼 수 있음.
-//			inputPW_fr.setLayout(null);
-//			
-//			
-//			JLabel inputPW = new JLabel(inputPwPanelImage);
-//			inputPW.setBounds(100, 100, 500, 500);
-//			inputPW_fr.add(inputPW);
-			
-//			JPanel inputPW = new GameRoomPanel(inputPwPanelImage.getImage());
-//			inputPW.setLocation(0, 0);
-//			inputPW_fr.add(inputPW);
-			
-			
 			
 			break;
 			
 		// #채팅
 		case "ChattingWR":
-			String chattingMsg = st.nextToken(); 
-			System.out.println("WaingRoom 채팅 내용 : " + chattingMsg);
-			chattingArea.append("["+mUserId+"] : "+chattingMsg+"\n");
+			st = new StringTokenizer(str,"/@", true); // 구획문자"/"도 토큰으로 간주한다.
+			for(int i=0; i<4; i++) { 
+				st.nextToken(); // 토큰 제거용
+			}
+			ArrayList<String> chattingMsgList = new ArrayList<String>(); // 채팅메시지 저장할 리스트
+			String totalChattingMsg = ""; // 전체 채팅 메시지 저장 변수
+			String tempMsg = "";
+			while(st.hasMoreTokens()) { // 리턴할 다음 토큰이 있으면 true를 없으면 false를 리턴한다.
+				tempMsg=st.nextToken();
+				System.out.println("채팅 토큰들 출력:"+tempMsg);
+				chattingMsgList.add(tempMsg); // 메시지 토큰을 ArrayList에 추가
+			}
+
+			for(int i=0; i<chattingMsgList.size(); i++) { // chattingMsgList의 모든 메시지를 totalChattingMsg에 저장한다.
+				totalChattingMsg += chattingMsgList.get(i);
+			}
+			
+			System.out.println("WaingRoom 채팅 내용 : " + totalChattingMsg);
+			chattingArea.append("["+mUserId+"] : "+totalChattingMsg+"\n");
 			break;
 		}
 	}
@@ -693,14 +689,14 @@ public class WaitingRoom extends JFrame{
 					@Override
 					public void mouseEntered(MouseEvent e) {
 						grp.setGRImage(gamgeRoomEnteredImage.getImage()); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-						grp.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+						grp.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 					}
 					
 					// 마우스를 버튼에서 떼었을때 이벤트
 					@Override
 					public void mouseExited(MouseEvent e) {
 						grp.setGRImage(gamgeRoomBasicImage.getImage()); // 마우스를 떼었을때 이미지 변경(Basic Image)
-						grp.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+						grp.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 					}
 					
 					// 마우스로 버튼을 눌렀을 때 이벤트
@@ -742,7 +738,7 @@ public class WaitingRoom extends JFrame{
 				// gameRoomNumber_lb를 세팅한다.
 				gameRoomNumber_lb.setText(number);
 				gameRoomNumber_lb.setFont(roomFont);
-				gameRoomNumber_lb.setBounds(32, 23, 40, 20);
+				gameRoomNumber_lb.setBounds(38, 21, 40, 20);
 				gameRoomNumber_lb.setForeground(Color.DARK_GRAY);
 				gameRoomNumber_lb.setLayout(null);
 				gameRoom[i].add(gameRoomNumber_lb);
@@ -751,7 +747,7 @@ public class WaitingRoom extends JFrame{
 				JLabel gameRoomTitle_lb = new JLabel();
 				gameRoomTitle_lb.setText(r.getRoom_name());
 				gameRoomTitle_lb.setFont(roomFont);
-				gameRoomTitle_lb.setBounds(90, 23, 200, 20);
+				gameRoomTitle_lb.setBounds(95, 21, 200, 20);
 				gameRoomTitle_lb.setForeground(Color.DARK_GRAY);
 				gameRoom[i].add(gameRoomTitle_lb);
 				
@@ -760,7 +756,7 @@ public class WaitingRoom extends JFrame{
 				String userCount = "" + r.getRoom_UCount() + " / " + r.getFixed_User();
 				gameRoomPlayerCount_lb.setText(userCount);
 				gameRoomPlayerCount_lb.setFont(roomFont);
-				gameRoomPlayerCount_lb.setBounds(275, 68, 50, 20);
+				gameRoomPlayerCount_lb.setBounds(250, 65, 50, 20);
 				gameRoomPlayerCount_lb.setForeground(Color.DARK_GRAY);
 				gameRoom[i].add(gameRoomPlayerCount_lb);
 			}
@@ -1004,14 +1000,14 @@ public class WaitingRoom extends JFrame{
 				@Override
 				public void mouseEntered(MouseEvent e) {
 					cancelButton.setIcon(crCancelEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-					cancelButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+					cancelButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
 				@Override  
 				public void mouseExited(MouseEvent e) {
 					cancelButton.setIcon(crCancelBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-					cancelButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+					cancelButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 				}
 				@Override
 				public void mouseClicked(MouseEvent e) {
@@ -1029,14 +1025,14 @@ public class WaitingRoom extends JFrame{
 				@Override
 				public void mouseEntered(MouseEvent e) {
 					createButton.setIcon(createEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-					createButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+					createButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
 				@Override  
 				public void mouseExited(MouseEvent e) {
 					createButton.setIcon(createBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-					createButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+					createButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 				}
 				// 버튼을 떼었을때 이벤트
 				@Override
@@ -1131,13 +1127,13 @@ public class WaitingRoom extends JFrame{
 				// 마우스를 버튼에 올려놨을 때 이벤트
 				@Override
 				public void mouseEntered(MouseEvent e) {
-					inputPW_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+					inputPW_bt.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
 				@Override  
 				public void mouseExited(MouseEvent e) {
-					inputPW_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+					inputPW_bt.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 				}
 //				
 				// 해당 버튼을 클릭했을 때
@@ -1177,13 +1173,13 @@ public class WaitingRoom extends JFrame{
 				// 마우스를 버튼에 올려놨을 때 이벤트
 				@Override
 				public void mouseEntered(MouseEvent e) {
-					cancel_bt.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+					cancel_bt.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
 				@Override  
 				public void mouseExited(MouseEvent e) {
-					cancel_bt.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+					cancel_bt.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 				}
 				
 //				// 버튼을 클릭할 시	

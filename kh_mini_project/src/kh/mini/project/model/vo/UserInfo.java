@@ -1,4 +1,7 @@
 package kh.mini.project.model.vo;
+
+import javax.swing.ImageIcon;
+
 //Server와는 다르게 서버로부터 받은 유저들의 정보를 임시적으로 저장하기 위한 클래스(정보 저장용 클래스)
 public class UserInfo {
 	/* 해당 클래스는 서버를 제외한 클라이언트에서 사용하는 용도로
@@ -11,12 +14,20 @@ public class UserInfo {
 	private int exp; // 경험치
 	private int corAnswer; // 누적 정답 개수
 	
+	private ImageIcon charImg; // 레벨에 따른 캐릭터 이미지
+	private ImageIcon gradeImg; // 레벨에 따른 등급 이미지
+	
+	
 	public UserInfo(String userID, int level, int exp, int corAnswer) {
 		super();
 		this.userID = userID;
 		this.level = level;
 		this.exp = exp;
 		this.corAnswer = corAnswer;
+		
+		// 레벨에 따른 이미지 저장
+		setCharImg(level);
+		setGradeImg(level);
 	}
 
 	public String getUserID() {
@@ -43,6 +54,23 @@ public class UserInfo {
 		this.corAnswer += corAnswer;
 	}
 	
+	public ImageIcon getCharImg() {
+		return charImg;
+	}
+
+	public void setCharImg(int level) {
+		/* 레벨에 따른 캐릭터 이미지 저장 방식 */
+		
+	}
+
+	public ImageIcon getGradeImg() {
+		return gradeImg;
+	}
+
+	public void setGradeImg(int level) {
+		/* 레벨에 따른 등급 이미지 저장 방식 */
+	}
+
 	// 일정 경험치에 도달하여 레벨업을 할 시 동작을 위한 메소드
 	public void levelUp() {
 		

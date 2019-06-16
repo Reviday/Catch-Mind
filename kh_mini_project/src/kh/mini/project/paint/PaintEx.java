@@ -3,6 +3,7 @@ package kh.mini.project.paint;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -10,6 +11,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -25,8 +28,15 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
 import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
@@ -119,6 +129,17 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	Cursor myCursor;
 	
+	private JLabel[] user_lb = new JLabel[6]; // 유저 정보를 띄울 라벨 (최대 인수 6인 기준)
+	private JLabel[] chatting_lb = new JLabel[6]; // 유저의 채팅을 말풍선으로 띄우는 라벨(최대 인원 6인 기준)
+	private JLabel[] chattingCover_lb = new JLabel[6];
+	private JTextArea[] chatting_ta = new JTextArea[6]; 
+	private JPanel[] user_pn = new JPanel[6];
+// Label
+	private JLabel mainMenuBar = new JLabel();
+	
+// Textfield
+	private JTextField chatting_tf; // 채팅 내용을 입력받기 위한 텍스트필드	
+	private ImageIcon chatAreaBackground = new ImageIcon(PaintEx.class.getResource("/images/wordBubble.png"));
 	
 	
 // Network 자원 변수
@@ -132,6 +153,25 @@ public class PaintEx extends JFrame implements ActionListener {
 		// MainView로부터 dos를 이어받아온다.
 		dos = MainView.getDos();
 
+		
+		createUserPanel();
+
+		createChattingLabel();
+
+		Font font = new Font("휴먼편지체", Font.BOLD, 17); // 폰트설정
+
+		// 채팅 입력창
+		chatting_tf = new JTextField();
+		chatting_tf.setBounds(280, 674, 300, 25);
+		chatting_tf.setOpaque(true);
+		chatting_tf.setDocument(new JTextFieldLimit(20)); // 채팅 45자 제한
+		chatting_tf.setFont(font);
+		chatting_tf.addKeyListener(new keyAdapter()); // 클래스로 정의한 키 이벤트를 적용
+		add(chatting_tf);
+		
+		
+		
+		
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
 		send_message("GameRoomCheck/" + id + "/" + room_No);
 
@@ -278,6 +318,27 @@ public class PaintEx extends JFrame implements ActionListener {
 		exit.setBounds(991, 2, 19, 25);
 		getContentPane().add(exit);
 		exit.setVisible(true);
+		exit.addMouseListener(new MouseAdapter() {
+			// 마우스를 버튼에 올려놨을 때 이벤트
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				exit.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+			}
+			
+			// 마우스를 버튼에서 떼었을때 이벤트
+			@Override  
+			public void mouseExited(MouseEvent e) {
+				exit.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+			}
+//			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(e.getButton()==1) {
+//					dispose();
+					System.exit(0); // 테스트 중이여서 종료 처리
+				}
+			}
+		});
 		
 		giveUpBt = new JButton(new ImageIcon(PaintEx.class.getResource("/images/giveup.png")));
 		giveUpBt.setContentAreaFilled(false);
@@ -371,11 +432,14 @@ public class PaintEx extends JFrame implements ActionListener {
 
 			// 해당 객체를 Vector에 추가(유저 객체를 RooInfo 객체의 벡터에 저장한다)
 			roomInfo.addRoom_user_vc(oldUser);
+
+			// 유저 패널 업데이트
+			updateUserPanel();
 			
 			Vector temp = roomInfo.getRoom_user_vc();
 			for (int i = 0; i < temp.size(); i++) {
 				UserInfo u = (UserInfo) temp.get(i);
-				System.out.println("유저 정보 [" +i +"] : " +u);
+				System.out.println("유저 정보 [" + i + "] : " + u);
 			}
 			// 기존 접속자의 정보를 받고 이어서 본인의 정보를 이어받으므로, 모두 받은 후에 패널 업데이트를 진행한다.
 			break;
@@ -392,10 +456,37 @@ public class PaintEx extends JFrame implements ActionListener {
 			// 해당 객체를 Vector에 추가(유저 객체를 RooInfo 객체의 벡터에 저장한다)
 			roomInfo.addRoom_user_vc(newUser);
 
+			// 유저 패널 업데이트
+			updateUserPanel();
+			
 			// 패널 업데이트를 진행한다.
 			/*
 			 * 패널 업데이트 코드
 			 */
+
+			break;
+		// #채팅
+		case "ChattingPA":
+			st = new StringTokenizer(str, "/@", true); // 구획문자"/"도 토큰으로 간주한다.
+			for (int i = 0; i < 4; i++) {
+				st.nextToken(); // 토큰 제거용
+			}
+			ArrayList<String> chattingMsgList = new ArrayList<String>(); // 채팅메시지 저장할 리스트
+			String totalChattingMsg = ""; // 전체 채팅 메시지 저장 변수
+			String tempMsg = "";
+			while (st.hasMoreTokens()) { // 리턴할 다음 토큰이 있으면 true를 없으면 false를 리턴한다.
+				tempMsg = st.nextToken();
+				System.out.println("채팅 토큰들 출력:" + tempMsg);
+				chattingMsgList.add(tempMsg); // 메시지 토큰을 ArrayList에 추가
+			}
+
+			for (int i = 0; i < chattingMsgList.size(); i++) { // chattingMsgList의 모든 메시지를 totalChattingMsg에 저장한다.
+				totalChattingMsg += chattingMsgList.get(i);
+			}
+
+			System.out.println("Paint 채팅 내용 : " + totalChattingMsg);
+
+			setChattingLabel(mUserId, totalChattingMsg);
 
 			break;
 			
@@ -482,7 +573,256 @@ public class PaintEx extends JFrame implements ActionListener {
 		Inmessage(str);
 	}
 
+	// 유저 정보 갱신이 있을때마다 유저 라벨을 새로 만들어준다.
+	private void createUserPanel() {
+		
+		for(int i=0; i<user_pn.length; i++) {
+			user_pn[i] = new JPanel();
+			
+			// switch문으로 나누기로 함
+			switch (i) {
+			case 0: // 1번칸 위치 setBounds(9, 62, 188, 147);
+					user_pn[i].setBounds(9, 62, 188, 147);
+					break;
+			case 1: // 2번칸 위치 setBounds(825, 62, 188, 147);
+					user_pn[i].setBounds(825, 62, 188, 147);
+					break;
+			case 2: // 3번칸 위치 setBounds(9, 241, 188, 147);
+					user_pn[i].setBounds(9, 241, 188, 147);
+					break;
+			case 3: // 4번칸 위치 setBounds(825, 241, 188, 147);
+					user_pn[i].setBounds(825, 241, 188, 147);
+					break;
+			case 4: // 5번칸 위치 setBounds(9, 419, 188, 147);
+					user_pn[i].setBounds(9, 419, 188, 147);
+					break;
+			case 5: // 6번칸 위치 setBounds(825, 419, 188, 147);
+					user_pn[i].setBounds(825, 419, 188, 147);
+					break;
+			}
+			
+			user_pn[i].setLayout(null);
+			user_pn[i].setOpaque(true);
+			user_pn[i].setBackground(new Color(40,40,40,40)); // 투명
+			add(user_pn[i]);
+			
+			
+		}	
+	}
 	
+	private void updateUserPanel() {
+		
+		// 모든 user_lb에 적용할 코드. 라벨 배열의 개수만큼 적용(추후 여유있으면 클릭 이벤트도 추가할 생각)
+		System.out.println("updateUserLabel실행");
+		for (int i = 0; i < user_lb.length; i++) {
+			
+			// 유저의 인원 수 만큼 해당 반복문을 진행시킨다.
+			if (i < roomInfo.getRoom_user_vc().size()) {
+				// 방 정보 객체에서 유저리스트로 접근하여 해당 유저 객체를 꺼내온다.
+				// 인덱스로 넣은 순서 지키므로 따로 정렬할 필요 없음
+				UserInfo u = (UserInfo) roomInfo.getRoom_user_vc().get(i);
+
+				System.out.println(u.getUserID() + "님의 라벨 갱신");
+
+				// 꺼내온 유저 객체를 이용해서 UserLabel 객체를 생성해 user_lb에 저장시킨다.
+				user_lb[i] = new UserLabel(u);
+
+				user_pn[i].add(user_lb[i]);
+
+			}
+			// 패널의 변경사항을 적용하기위한 메소드
+			revalidate(); // 레이아웃 변화를 재확인 시킨다.
+			repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
+		}
+	}
+	
+	// #채팅 라벨을 만들어 비활성 상태로 초기화 시킨다. 
+	private void createChattingLabel() {
+		Font chatlbfont = new Font("휴먼편지체", Font.BOLD,15 );
+		
+		for(int i=0; i<chatting_lb.length; i++) {
+			chatting_lb[i] = new JLabel(chatAreaBackground);
+			chatting_lb[i].setBackground(new Color(0,0,0,0));
+			
+			chattingCover_lb[i] = new JLabel("", SwingConstants.CENTER);
+			chattingCover_lb[i].setVerticalTextPosition(SwingConstants.CENTER); // 덱스트 세로 가운데 정렬(자동 정렬 되는 느낌이긴한데..)
+			chattingCover_lb[i].setHorizontalTextPosition(SwingConstants.CENTER); // 텍스트 가로 가운데 정렬
+//			chattingCover_lb[i].setText("<html><body>빨리시작하자 친구들아<br></body></html>");
+			chattingCover_lb[i].setFont(chatlbfont);
+			
+			chatting_lb[i].add(chattingCover_lb[i]);
+			add(chatting_lb[i]);
+			
+			// switch문으로 나누기로 함
+			switch(i) {
+			case 0: chatting_lb[i].setBounds(10, 38, 189, 60);
+					chattingCover_lb[i].setBounds(10, 0, 180, 50);
+					break;
+			case 1: chatting_lb[i].setBounds(826, 38, 189, 60);
+					chattingCover_lb[i].setBounds(10, 0, 180, 50);
+					break;
+			case 2:	chatting_lb[i].setBounds(10, 217, 189, 60);
+					chattingCover_lb[i].setBounds(10, 0, 180, 50);
+					break;
+			case 3: chatting_lb[i].setBounds(826, 217, 189, 60);
+					chattingCover_lb[i].setBounds(10, 0, 180, 50);
+					break;
+			case 4: chatting_lb[i].setBounds(10, 395, 189, 60);
+					chattingCover_lb[i].setBounds(10, 0, 180, 50);
+					break;
+			case 5:	chatting_lb[i].setBounds(826, 395, 189, 60);
+					chattingCover_lb[i].setBounds(10, 0, 180, 50);
+					break;
+			}
+			
+			// 생성을 완료했으므로 해당 라벨을 보이지않게 한다.
+			chatting_lb[i].setVisible(false);
+			chattingCover_lb[i].setVisible(false);
+		}
+	}
+	
+	
+	// # 채팅이 들어오면 메시지를 띄우는 메소드로, 해당 유저의 아이디를 받아 적용한다.
+	private void setChattingLabel(String userID, String msg) {
+		// roomInfo에서 유저목록을 가져와 해당 유저를 찾는다.
+		for(int i=0; i<roomInfo.getRoom_user_vc().size(); i++) {
+			// 해당 유저의 객체를 가져와 UserInfo 객체로 생성하고
+			UserInfo u = (UserInfo)roomInfo.getRoom_user_vc().get(i);
+			// 유저의 아이디와 일치하는 유저를 찾으면
+			if(userID.equals(u.getUserID())) {
+				// 해당 유저의 인덱스 값을 이용해 chattingCover_lb을 set한다.
+				// 우선 msg는 20자 제한이 걸려 있으나, 줄바꿈 처리를 위해 10자를 최대로 글자를 나눠준다.
+				if(msg.length()>10) { // 메시지의 길이가 10 초과라면
+					// 해당 문자열을 줄바꿈 처리하기위해 HTML을 사용한다.
+					String brString = "<html><body>";
+					brString += msg.substring(0, 9); // 인덱스 위치 0~9까지 자르고 문자열 누적
+					brString += "<br>"; // 문자열 줄바꿈 핵심
+					brString += msg.substring(10,msg.length());
+					brString += "</body></html>"; // HTML 구문 끝
+					// 처리된 문자열을 chattingCover_lb에 set
+					chattingCover_lb[i].setText(brString);
+					// 해당 라벨을 보이게 처리한다.
+					chatting_lb[i].setVisible(true);
+					chattingCover_lb[i].setVisible(true);
+				} else { // 10자 이하라면 
+					// 그냥 메시지를 보낸다.
+					chattingCover_lb[i].setText(msg);
+					// 해당 라벨을 보이게 처리한다.
+					chatting_lb[i].setVisible(true);
+					chattingCover_lb[i].setVisible(true);
+				}
+				
+				// 5초동안 해당 스레드를 멈추고 
+				try {
+					Thread.sleep(5000); // 0.5초뒤 종료
+				} catch (InterruptedException ex) {
+					ex.printStackTrace();
+				}
+				
+				// 5초 뒤 해당 라벨들을 보이지않게 처리한다.
+				chatting_lb[i].setVisible(false);
+				chattingCover_lb[i].setVisible(false);
+			}
+		}
+	}
+	
+	// 유저 정보를 띄우는 라벨 생성 클래스 
+	class UserLabel extends JLabel{
+		private JLabel user_Image;
+		private JLabel user_Id;
+		private JLabel user_Level;
+		private JLabel user_CorAnswer;
+		
+		// 갈색 x(190.909) y(151.695)
+		// 베이지 x(184.67) y(146.738)
+		// 좌측사각형 x(91.788) y(136.07)
+		// 우측사각형3개 x(77) y(42)
+		public UserLabel(UserInfo inGameUser) { // 유저 객체를 입력받는다.
+			
+			Font userLabelFont = new Font("휴먼편지체", Font.PLAIN,18 ); //폰트설정
+			
+			setSize(190,151);
+			
+			// user_Image 라벨  (레벨에 따른 캐릭터 이미지 삽입)
+
+			/*    레벨에 따른 캐릭터 이미지를 불러오는 코드 필요      */
+			
+			user_Image = new JLabel(inGameUser.getCharImg(), SwingConstants.CENTER); // 가운데 정렬
+			user_Image.setBounds(8, 6, 91, 135);
+			user_Image.setBackground(new Color(0,0,0,0));
+			user_Image.setOpaque(true);
+			add(user_Image);
+			System.out.println(inGameUser.getCharImg());
+			
+			
+			// user_Id 라벨
+			user_Id = new JLabel("",SwingConstants.CENTER); // 가운데 정렬
+			user_Id.setText(inGameUser.getUserID());
+			user_Id.setHorizontalTextPosition(JLabel.CENTER);
+			user_Id.setBounds(104, 7, 76, 41);
+			user_Id.setFont(userLabelFont);
+			user_Id.setBackground(new Color(0,0,0,0));
+			user_Id.setOpaque(true);
+			add(user_Id);
+			System.out.println(inGameUser.getUserID());
+			
+			// user_Level 라벨 (레벨에 따른 등급 이미지 삽입)
+			
+			/*    레벨에 따른 등급 이미지를 불러오는 코드 필요      */
+			
+			user_Level = new JLabel(inGameUser.getGradeImg(),SwingConstants.CENTER); // 가운데 정렬
+			user_Level.setBounds(104, 53, 76, 41);
+			user_Level.setBackground(new Color(0,0,0,0));
+			user_Level.setOpaque(true);
+			add(user_Level);
+			System.out.println(inGameUser.getGradeImg());
+			
+			// user_CorAnswer
+			user_CorAnswer = new JLabel("",SwingConstants.CENTER); // 가운데 정렬
+			user_CorAnswer.setText(Integer.toString(inGameUser.getCorAnswer()));
+			user_CorAnswer.setBounds(104, 99, 76, 41);
+			user_CorAnswer.setBackground(new Color(0,0,0,0));
+			user_CorAnswer.setOpaque(true);
+			user_CorAnswer.setFont(userLabelFont);
+			add(user_CorAnswer);
+			System.out.println(inGameUser.getCorAnswer());
+		}
+	}
+	
+	// 텍스트 필드 글자 수 제한을 위한 클래스 및 메소드
+	public class JTextFieldLimit extends PlainDocument {
+		private int limit;
+
+		JTextFieldLimit(int limit) {
+			super();
+			this.limit = limit;
+		}
+
+		public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
+			if (str == null)
+				return;
+
+			if ((getLength() + str.length()) <= limit) {
+				super.insertString(offset, str, attr);
+			}
+		}
+	} // JTextFieldLimit class 끝
+	
+	// 키 이벤트를 주기위한 클래스
+	public class keyAdapter extends KeyAdapter {
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				// 엔터를 누르면 전송이 되게 하기위한 메소드
+				String message = chatting_tf.getText();
+				if (message.equals("")) { // 아무것도 입력하지 않았을 시 알림창을 띄움
+					JOptionPane.showMessageDialog(null, "내용을 입력하시기 바랍니다.", "알림", JOptionPane.NO_OPTION);
+				} else {
+					send_message("ChattingPA/" + id + "/" + roomInfo.getRoom_No() +"/"+ message);
+					chatting_tf.setText("");
+				}
+			}
+		}
+	} // keyAdapter class 끝
 
 	// 그림판
 	class Canvas extends JPanel {

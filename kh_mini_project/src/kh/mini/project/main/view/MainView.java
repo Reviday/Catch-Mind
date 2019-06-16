@@ -484,30 +484,29 @@ public class MainView extends JFrame{
 			
 		// #WaitingRoom으로 넘김
 		case "WaitingRoom":
-			st = new StringTokenizer(str, "/", true);
-			st.nextToken(); // 프로토콜 토큰은 저장 안함
-			st.nextToken(); // 구획문자 "/" 저장 안함
-			st.nextToken(); // 메시지 토큰은 저장 안함
-			st.nextToken(); // 구획문자 "/" 저장 안함
+			st = new StringTokenizer(str, "/@", true);
+			for (int i = 0; i < 4; i++) {
+				st.nextToken(); // 토큰 제거용
+			}
 
 			String totalMessage = "";
 			String tempMsg = "";
-			ArrayList<String> msgList=new ArrayList<String>();
-			while(st.hasMoreTokens()) {
-				tempMsg=st.nextToken();
+			ArrayList<String> msgList = new ArrayList<String>();
+			while (st.hasMoreTokens()) {
+				tempMsg = st.nextToken();
 				msgList.add(tempMsg);
 			}
 
-			for(int i=0; i<msgList.size(); i++) {
-				totalMessage+=msgList.get(i);
+			for (int i = 0; i < msgList.size(); i++) {
+				totalMessage += msgList.get(i);
 			}
-			System.out.println("채팅 내용:"+totalMessage);
+			System.out.println("메시지 : " + totalMessage);
 			wr.wr_Inmessage(totalMessage);
 			break;
-			
+
 		// #Paint로 넘김
-		case "Paint" :
-			st = new StringTokenizer(str, "/", true);
+		case "Paint":
+			st = new StringTokenizer(str, "/@", true);
 			st.nextToken(); // 프로토콜 토큰은 저장 안함
 			st.nextToken(); // 구획문자 "/" 저장 안함
 			st.nextToken(); // 메시지 토큰은 저장 안함
@@ -515,18 +514,19 @@ public class MainView extends JFrame{
 
 			totalMessage = "";
 			tempMsg = "";
-			msgList=new ArrayList<String>();
-			while(st.hasMoreTokens()) {
-				tempMsg=st.nextToken();
+			msgList = new ArrayList<String>();
+			while (st.hasMoreTokens()) {
+				tempMsg = st.nextToken();
 				msgList.add(tempMsg);
 			}
 
-			for(int i=0; i<msgList.size(); i++) {
-				totalMessage+=msgList.get(i);
+			for (int i = 0; i < msgList.size(); i++) {
+				totalMessage += msgList.get(i);
 			}
-			System.out.println("채팅 내용:" + totalMessage);
+			System.out.println("메시지 : " + totalMessage);
 			paint.paint_Inmessage(totalMessage);
 			break;
+			
 		// #GameRoom으로 좌표 넘김
 		case "GameRoomPaint" :
 			String mouseState = st.nextToken();
