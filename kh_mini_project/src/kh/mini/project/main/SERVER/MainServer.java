@@ -1007,7 +1007,7 @@ public class MainServer extends JFrame {
 	               RoomInfo r = (RoomInfo) room_vc.elementAt(i);
 	               if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
 	                  // 해당 브로드 캐스트를 받는거 만으로 게임방 패널을 갱신한다.
-	                  BroadCast("WaitingRoom/pass/RoomInfoUpdate@");
+	            	   BroadCast("WaitingRoom/pass/RoomInfoUpdate@pass");
 	               }
 	            }
 	            

@@ -80,9 +80,6 @@ public class WaitingRoom extends JFrame{
 	
 // Network 자원 변수
 	private String id =""; 
-	private InputStream is;
-	private OutputStream os;
-	private DataInputStream dis;
 	private DataOutputStream dos;
 	
 // 각종 변수
@@ -721,8 +718,14 @@ public class WaitingRoom extends JFrame{
 							grp.setGRImage(gamgeRoomEnteredImage.getImage()); // 누른 버튼이 떼어졌을 때 이미지 변경(Entered Image) - 마우스는 이미 패널에 올려놓여진 상태이기 때문에
 							// 해당 패널에 저장된 객체 정보를 가져와서 roomInfo에 저장한다.
 							RoomInfo roomInfo = grp.getRoomInfo();
-							// 프로토콜은 EnterRoom으로 유저 id와 방 번호를 서버에 보낸다.
-							send_message("EnterRoom/"+userInfo.getUserID()+"/"+roomInfo.getRoom_No());
+							
+		                     //만약 인원수가 가득 찼다면 더이상 입장하지 못하도록 한다.
+		                     if(roomInfo.getRoom_UCount() == roomInfo.getFixed_User()) {
+		                        JOptionPane.showMessageDialog(null, "방이 꽉 찼습니다.", "알림", JOptionPane.ERROR_MESSAGE);
+		                     } else {
+		                        // 프로토콜은 EnterRoom으로 유저 id와 방 번호를 서버에 보낸다.
+		                        send_message("EnterRoom/"+userInfo.getUserID()+"/"+roomInfo.getRoom_No());
+		                     }
 						}
 					}
 				});
@@ -1053,13 +1056,22 @@ public class WaitingRoom extends JFrame{
 						} 
 						fixed_User = Integer.parseInt(rPlayer_tf.getSelectedItem().toString()); // rPlayer_tf의 제네릭을 Integer로 해놓음
 						
-						// 입력받은 값을 서버에 전송한다.
-						send_message("CreateRoom/"+id+"/"+room_name+"/"+state+"/"+roomPW+"/"+fixed_User);
-						
-						/* 해당 값을 가지고 RoomInfo 객체를 생성한다. 이때, 방번호는 0번으로 초기화하여 생성
-						 * 이때, room_list에는 등록하지 않는다.(방 번호를 할당 받고 등록)	 */
-						roomInfo = new RoomInfo(0,room_name, roomPW, fixed_User, userInfo); 
-						dispose();
+						// 비공개 설정을 하였는데도 roomPW에 공란을 입력했을 경우 알림창을 띄운다.
+		                  if(roomPW.equals("")) {
+		                     /*
+		                      *  모달창이 안되네? 다른방법 써야할듯..
+		                      */
+//		                     JOptionPane.showMessageDialog(null, 
+//		                           "비밀번호를 입력하시기 바랍니다.","알림",JOptionPane.NO_OPTION);
+		                  } else {
+		                     // 입력받은 값을 서버에 전송한다.
+		                     send_message("CreateRoom/"+id+"/"+room_name+"/"+state+"/"+roomPW+"/"+fixed_User);
+		                     
+		                     /* 해당 값을 가지고 RoomInfo 객체를 생성한다. 이때, 방번호는 0번으로 초기화하여 생성
+		                      * 이때, room_list에는 등록하지 않는다.(방 번호를 할당 받고 등록)    */
+		                     roomInfo = new RoomInfo(0,room_name, roomPW, fixed_User, userInfo); 
+		                     dispose();
+		                  }
 					}
 				}
 			});

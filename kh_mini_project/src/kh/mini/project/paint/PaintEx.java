@@ -54,6 +54,12 @@ public class PaintEx extends JFrame implements ActionListener {
 	// 프레임 안에 있는 요소들
 	Canvas canvas = new Canvas();
 	
+	// Panel, Label (유저 정보 및 채팅)
+	private JLabel[] user_lb = new JLabel[6]; // 유저 정보를 띄울 라벨 (최대 인수 6인 기준)
+	private JLabel[] chatting_lb = new JLabel[6]; // 유저의 채팅을 말풍선으로 띄우는 라벨(최대 인원 6인 기준)
+	private JLabel[] chattingCover_lb = new JLabel[6];
+	private JPanel[] user_pn = new JPanel[6];
+	
 	//메뉴바 설정용
 	private JLabel menuBar;
 	private int mouseX, mouseY;
@@ -128,14 +134,6 @@ public class PaintEx extends JFrame implements ActionListener {
 	Cursor clearCursor = tk.createCustomCursor(clearImg, new Point(10,10), "WaterDrop");
 	
 	Cursor myCursor;
-	
-	private JLabel[] user_lb = new JLabel[6]; // 유저 정보를 띄울 라벨 (최대 인수 6인 기준)
-	private JLabel[] chatting_lb = new JLabel[6]; // 유저의 채팅을 말풍선으로 띄우는 라벨(최대 인원 6인 기준)
-	private JLabel[] chattingCover_lb = new JLabel[6];
-	private JTextArea[] chatting_ta = new JTextArea[6]; 
-	private JPanel[] user_pn = new JPanel[6];
-// Label
-	private JLabel mainMenuBar = new JLabel();
 	
 // Textfield
 	private JTextField chatting_tf; // 채팅 내용을 입력받기 위한 텍스트필드	
@@ -647,7 +645,6 @@ public class PaintEx extends JFrame implements ActionListener {
 			chattingCover_lb[i] = new JLabel("", SwingConstants.CENTER);
 			chattingCover_lb[i].setVerticalTextPosition(SwingConstants.CENTER); // 덱스트 세로 가운데 정렬(자동 정렬 되는 느낌이긴한데..)
 			chattingCover_lb[i].setHorizontalTextPosition(SwingConstants.CENTER); // 텍스트 가로 가운데 정렬
-//			chattingCover_lb[i].setText("<html><body>빨리시작하자 친구들아<br></body></html>");
 			chattingCover_lb[i].setFont(chatlbfont);
 			
 			chatting_lb[i].add(chattingCover_lb[i]);
