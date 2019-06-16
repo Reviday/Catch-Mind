@@ -1057,7 +1057,7 @@ public class WaitingRoom extends JFrame{
 						fixed_User = Integer.parseInt(rPlayer_tf.getSelectedItem().toString()); // rPlayer_tf의 제네릭을 Integer로 해놓음
 						
 						// 비공개 설정을 하였는데도 roomPW에 공란을 입력했을 경우 알림창을 띄운다.
-		                  if(roomPW.equals("")) {
+							if( state.equals("비공개") && roomPW.equals("")) {
 		                     /*
 		                      *  모달창이 안되네? 다른방법 써야할듯..
 		                      */

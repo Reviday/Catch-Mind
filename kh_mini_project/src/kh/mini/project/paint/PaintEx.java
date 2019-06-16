@@ -112,6 +112,8 @@ public class PaintEx extends JFrame implements ActionListener {
 	private int room_No; // 게임방 번호
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
 	private RoomInfo roomInfo; // 방정보를 객체로 저장한다.
+	private boolean roomCaptain = false; // 방장인 사람에게는 true
+	private String roomCaptainID; // 방장 id
 	private Toolkit tk = Toolkit.getDefaultToolkit();
 	
 	JPanel cursorPanel = new JPanel();
