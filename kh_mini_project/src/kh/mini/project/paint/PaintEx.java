@@ -684,46 +684,57 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	// # 채팅이 들어오면 메시지를 띄우는 메소드로, 해당 유저의 아이디를 받아 적용한다.
 	private void setChattingLabel(String userID, String msg) {
-		// roomInfo에서 유저목록을 가져와 해당 유저를 찾는다.
-		for(int i=0; i<roomInfo.getRoom_user_vc().size(); i++) {
-			// 해당 유저의 객체를 가져와 UserInfo 객체로 생성하고
-			UserInfo u = (UserInfo)roomInfo.getRoom_user_vc().get(i);
-			// 유저의 아이디와 일치하는 유저를 찾으면
-			if(userID.equals(u.getUserID())) {
-				// 해당 유저의 인덱스 값을 이용해 chattingCover_lb을 set한다.
-				// 우선 msg는 20자 제한이 걸려 있으나, 줄바꿈 처리를 위해 10자를 최대로 글자를 나눠준다.
-				if(msg.length()>10) { // 메시지의 길이가 10 초과라면
-					// 해당 문자열을 줄바꿈 처리하기위해 HTML을 사용한다.
-					String brString = "<html><body>";
-					brString += msg.substring(0, 9); // 인덱스 위치 0~9까지 자르고 문자열 누적
-					brString += "<br>"; // 문자열 줄바꿈 핵심
-					brString += msg.substring(10,msg.length());
-					brString += "</body></html>"; // HTML 구문 끝
-					// 처리된 문자열을 chattingCover_lb에 set
-					chattingCover_lb[i].setText(brString);
-					// 해당 라벨을 보이게 처리한다.
-					chatting_lb[i].setVisible(true);
-					chattingCover_lb[i].setVisible(true);
-				} else { // 10자 이하라면 
-					// 그냥 메시지를 보낸다.
-					chattingCover_lb[i].setText(msg);
-					// 해당 라벨을 보이게 처리한다.
-					chatting_lb[i].setVisible(true);
-					chattingCover_lb[i].setVisible(true);
-				}
+		// 해당 과정을 쓰레드로 처리한다. (충복처리가 많기 때문에 쓰레드가 아니면 채팅 하나하나 기다려야함)
+		new Thread() {
+			public void run() {
 				
-				// 5초동안 해당 스레드를 멈추고 
-				try {
-					Thread.sleep(5000); // 0.5초뒤 종료
-				} catch (InterruptedException ex) {
-					ex.printStackTrace();
+				// roomInfo에서 유저목록을 가져와 해당 유저를 찾는다.
+				for (int i = 0; i < roomInfo.getRoom_user_vc().size(); i++) {
+					// 해당 유저의 객체를 가져와 UserInfo 객체로 생성하고
+					UserInfo u = (UserInfo) roomInfo.getRoom_user_vc().get(i);
+					// 유저의 아이디와 일치하는 유저를 찾으면
+					if (userID.equals(u.getUserID())) {
+						// 해당 유저의 인덱스 값을 이용해 chattingCover_lb을 set한다.
+						// 우선 msg는 20자 제한이 걸려 있으나, 줄바꿈 처리를 위해 10자를 최대로 글자를 나눠준다.
+						if (msg.length() > 10) { // 메시지의 길이가 10 초과라면
+							// 해당 문자열을 줄바꿈 처리하기위해 HTML을 사용한다.
+							String brString = "<html><body>";
+							brString += msg.substring(0, 9); // 인덱스 위치 0~9까지 자르고 문자열 누적
+							brString += "<br>"; // 문자열 줄바꿈 핵심
+							brString += msg.substring(10, msg.length());
+							brString += "</body></html>"; // HTML 구문 끝
+							
+							// 처리된 문자열을 chattingCover_lb에 set
+							chattingCover_lb[i].setText(brString);
+							
+							// 해당 라벨을 보이게 처리한다.
+							chatting_lb[i].setVisible(true);
+							chattingCover_lb[i].setVisible(true);
+							
+						} else { // 10자 이하라면
+							// 그냥 메시지를 보낸다.
+							chattingCover_lb[i].setText(msg);
+							
+							// 해당 라벨을 보이게 처리한다.
+							chatting_lb[i].setVisible(true);
+							chattingCover_lb[i].setVisible(true);
+						}
+
+						// 5초동안 해당 스레드를 멈추고
+						try {
+							Thread.sleep(5000); // 0.5초뒤 종료
+						} catch (InterruptedException ex) {
+							ex.printStackTrace();
+						}
+
+						// 5초 뒤 해당 라벨들을 보이지않게 처리한다.
+						chatting_lb[i].setVisible(false);
+						chattingCover_lb[i].setVisible(false);
+					}
 				}
-				
-				// 5초 뒤 해당 라벨들을 보이지않게 처리한다.
-				chatting_lb[i].setVisible(false);
-				chattingCover_lb[i].setVisible(false);
+
 			}
-		}
+		}.start();
 	}
 	
 	// 유저 정보를 띄우는 라벨 생성 클래스 
