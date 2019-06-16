@@ -529,16 +529,29 @@ public class MainView extends JFrame{
 			break;
 		// #GameRoomÀ¸·Î ÁÂÇ¥ ³Ñ±è
 		case "GameRoomPaint" :
-//			String mouseState = st.next
-//			if()
-			String pointX1=st.nextToken();
-			String pointY1=st.nextToken();
-			String pointX2=st.nextToken();
-			String pointY2=st.nextToken();
-			
-			
-			System.out.println("MainView¿¡¼­ ¹ÞÀº x1ÁÂÇ¥:"+pointX1+", y1ÁÂÇ¥"+pointY1+", x2ÁÂÇ¥:"+pointX2+", y1ÁÂÇ¥"+pointY2);
-			paint.paint_Inmessage("GameRoomPaint@pass@"+pointX1+"@"+pointY1+"@"+pointX2+"@"+pointY2);
+			String mouseState = st.nextToken();
+			if(mouseState.equals("mousePress")) {
+				String receiveColor = st.nextToken();
+				
+				System.out.println("MainView¿¡¼­ ¹ÞÀº Ææ ÄÃ·¯:"+ receiveColor);
+				paint.paint_Inmessage("GameRoomPaint@pass@mousePress@"+receiveColor);
+			}
+			else if(mouseState.equals("mouseRelease"))
+				paint.paint_Inmessage("GameRoomPaint@pass@mouseRelease");
+			else if(mouseState.equals("mouseDrag")) {
+				String pointX1=st.nextToken();
+				String pointY1=st.nextToken();
+				String pointX2=st.nextToken();
+				String pointY2=st.nextToken();
+				String receiveThick = st.nextToken();
+				String receiveEraserSel = st.nextToken();
+				
+				System.out.println("MainView¿¡¼­ ¹ÞÀº x1ÁÂÇ¥:"+pointX1+", y1ÁÂÇ¥"+pointY1+", x2ÁÂÇ¥:"+pointX2+", y1ÁÂÇ¥"+pointY2+", Ææ ±½±â: "+receiveThick+", "+"Áö¿ì°³¼±ÅÃ¿©ºÎ: "+receiveEraserSel);
+				paint.paint_Inmessage("GameRoomPaint@pass@mouseDrag@"+pointX1+"@"+pointY1+"@"
+											+pointX2+"@"+pointY2+"@"+receiveThick+"@"+receiveEraserSel);
+			}
+			else if(mouseState.equals("canvasClear"))
+				paint.paint_Inmessage("GameRoomPaint@pass@canvasClear");
 			
 			break;
 		}

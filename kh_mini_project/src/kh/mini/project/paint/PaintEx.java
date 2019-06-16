@@ -16,6 +16,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -53,16 +54,18 @@ public class PaintEx extends JFrame implements ActionListener {
 	int thick = 8;
 	int eraserThick = 30;
 	boolean clear_Sel = false;
-	String colorCode; //펜 색상 전송하기위한 코드설정
+	String colorCode="black"; //펜 색상 전송하기위한 코드설정
+	int receiveThick;
+	boolean receiveEraserSel=false;
 
 	// 도형
 	ShapeSave newshape;
 	ShapeSave mainshape;
 
-	Vector<Point> sketSP = new Vector<Point>();
+	ArrayList<Point> sketSP = new ArrayList<Point>();
 	Stack<ShapeSave> shape = new Stack<ShapeSave>();
 	
-	Vector<Point> subSP = new Vector<Point>();
+	ArrayList<Point> subSP = new ArrayList<Point>();
 	Stack<ShapeSave> receiveshape = new Stack<ShapeSave>();
 	
 
@@ -116,7 +119,6 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	Cursor myCursor;
 	
-	String sendPaint=""; //그림 전송을 위한 변수
 	
 	
 // Network 자원 변수
@@ -145,7 +147,6 @@ public class PaintEx extends JFrame implements ActionListener {
 		getContentPane().add(canvas);
 		canvas.setBounds(216, 134, 593, 440);
 		canvas.setBackground(Color.white);
-		canvas.setVisible(false);
 		
 		//메뉴바
 		menuBar = new JLabel();
@@ -229,6 +230,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		//지우개 버튼
 		eraser = new JButton(new ImageIcon(PaintEx.class.getResource("/images/eraser.png")));
 		eraser.setContentAreaFilled(false);
+		eraser.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/eraserCLK.png")));
 		eraser.setFocusPainted(false);
 		eraser.setBorderPainted(false);
 		eraser.setBounds(752, 693, 50, 42);
@@ -270,7 +272,7 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		JButton exit = new JButton(new ImageIcon(PaintEx.class.getResource("/images/gameroom_Exit.png"))); // 버튼 액션 해야됨
 		exit.setContentAreaFilled(false);
-		//exit.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/.png")));
+		exit.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/gameroom_ExitCLK.png")));
 		clear.setFocusPainted(false);
 		clear.setBorderPainted(false);
 		exit.setBounds(991, 2, 19, 25);
@@ -317,7 +319,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		gameRoombackground.setBounds(0, 0, 1024, 768);
 		getContentPane().add(gameRoombackground);
 		
-		canvas.setVisible(false);
+		canvas.setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
@@ -409,28 +411,66 @@ public class PaintEx extends JFrame implements ActionListener {
 			break;	
 			
 		case "GameRoomPaint" :
-			int pointX1=Integer.parseInt(st.nextToken());
-			int pointY1=Integer.parseInt(st.nextToken());
-			int pointX2=Integer.parseInt(st.nextToken());
-			int pointY2=Integer.parseInt(st.nextToken());
 			
-			System.out.println("받은 좌표 : " + pointX1 + ", " + pointY1 + ", " + pointX2 + ", " + pointY2);
-//			Graphics2D g2d=(Graphics2D)canvas.getGraphics();
-//			canvas.getGraphics().drawLine(pointX1, pointY1, pointX2, pointY2);
+			String mouseState = st.nextToken();
+			if(mouseState.equals("mousePress")) {
+				String receiveColor = st.nextToken();
+				
+				System.out.println("mousePress");
+				mainshape = new ShapeSave();
+				
+				switch(receiveColor) {
+				case "black": mypencolor=Color.black; break;
+				case "red": mypencolor=Color.red; break;
+				case "blue": mypencolor=Color.blue; break;
+				case "green": mypencolor=Color.green; break;
+				case "yellow": mypencolor=Color.yellow; break;
+				case "white": mypencolor=Color.white; break;
+				}
+				mainshape.mypencolor=mypencolor;
+				
+			}
+			else if(mouseState.equals("mouseRelease")) {
+				System.out.println("mouseRelease");
+				receiveshape.add(mainshape);
+				subSP.clear();
+				repaint();
+			}
+			else if(mouseState.equals("mouseDrag")) {
+				int pointX1=Integer.parseInt(st.nextToken());
+				int pointY1=Integer.parseInt(st.nextToken());
+				int pointX2=Integer.parseInt(st.nextToken());
+				int pointY2=Integer.parseInt(st.nextToken());
+				receiveThick = Integer.parseInt(st.nextToken());
+				receiveEraserSel = Boolean.valueOf(st.nextToken()).booleanValue();
+				
+				if(receiveEraserSel) {
+					mainshape.thick=eraserThick;
+				}
+				else {
+					mainshape.thick=receiveThick;
+				}	
+				
+				//좌표테스트
+				System.out.println("받은 좌표 : " + pointX1 + ", " + pointY1 + ", " + pointX2 + ", " + pointY2);
+				//전송받은 좌표 대입
+				maindrow.setLocation(pointX1, pointY1);
+				subdrow.setLocation(pointX2, pointY2);
+				mainshape.sketchSP.add(maindrow.getLocation());
+				subSP.add(subdrow.getLocation());
+				
+				repaint();
 			
-//			Graphics g;
-//			Graphics2D g2 = (Graphics2D)g;
-			maindrow.setLocation(pointX1, pointY1);
-			subdrow.setLocation(pointX2, pointY2);
-			
-			mainshape = new ShapeSave();
-			mainshape.sketchSP.add(maindrow.getLocation());
-			receiveshape.add(mainshape);
-			subSP.add(subdrow.getLocation());
-			
-			repaint();
-			
-			
+			}
+			else if(mouseState.equals("canvasClear")) {
+				System.out.println("canvasClear");
+				clear_Sel=true;
+				canvas.repaint();
+				while(!receiveshape.isEmpty())
+					receiveshape.pop();
+//				subSP.clear();
+//				canvas.repaint();
+			}
 		
 			break;
 		}
@@ -460,23 +500,34 @@ public class PaintEx extends JFrame implements ActionListener {
 
 			Graphics2D g2 = (Graphics2D) g;
 
-			//테스트 그림그리기
-			for (int i = 0; i < receiveshape.size(); i++) {
-				g2.setStroke(new BasicStroke(receiveshape.get(i).thick, BasicStroke.CAP_ROUND, 0));
-				g2.setPaint(receiveshape.get(i).mypencolor);
-				for (int j = 1; j < receiveshape.get(i).sketchSP.size(); j++)
-					g2.drawLine(receiveshape.get(i).sketchSP.get(j - 1).x, receiveshape.get(i).sketchSP.get(j - 1).y,
-							receiveshape.get(i).sketchSP.get(j).x, receiveshape.get(i).sketchSP.get(j).y);
+			//전송받은 그림그리기
+			if(clear_Sel) {
+				clear_Sel=false;
+			}
+			else {
+				for (int i = 0; i < receiveshape.size(); i++) {
+					g2.setStroke(new BasicStroke(receiveshape.get(i).thick, BasicStroke.CAP_ROUND, 0));
+					g2.setPaint(receiveshape.get(i).mypencolor);
+					for (int j = 1; j < receiveshape.get(i).sketchSP.size(); j++)
+						g2.drawLine(receiveshape.get(i).sketchSP.get(j - 1).x, receiveshape.get(i).sketchSP.get(j - 1).y,
+								receiveshape.get(i).sketchSP.get(j).x, receiveshape.get(i).sketchSP.get(j).y);
+				}
 			}
 			
-			g2.setStroke(new BasicStroke(thick, BasicStroke.CAP_ROUND, 0));
+			//전송받은 잔상그리기
+			if (receiveEraserSel) {
+				g2.setStroke(new BasicStroke(30, BasicStroke.CAP_ROUND, 0));
+				for (int i = 1; i < sketSP.size(); i++) {
+					g2.setPaint(mypencolor);
+					g2.drawLine(subSP.get(i - 1).x, subSP.get(i - 1).y, subSP.get(i).x, subSP.get(i).y);
+				}
+				//g2.setStroke(new BasicStroke(receiveThick, BasicStroke.CAP_ROUND, 0));
+			}
+			g2.setStroke(new BasicStroke(receiveThick, BasicStroke.CAP_ROUND, 0));
 			for (int i = 1; i < subSP.size(); i++) {
 				g2.setPaint(mypencolor);
 				g2.drawLine(subSP.get(i - 1).x, subSP.get(i - 1).y, subSP.get(i).x, subSP.get(i).y);
 			}
-			
-			
-			
 			
 			// 그림 그리기
 			if (clear_Sel) {
@@ -618,32 +669,34 @@ public class PaintEx extends JFrame implements ActionListener {
 			newshape = new ShapeSave();
 			newshape.mypencolor = mypencolor;
 
-			if (eraser_Sel)
-				newshape.thick = eraserThick;
-			else
-				newshape.thick = thick;
+			send_message("GameRoomPaint/" + room_No+"/"+"mousePress" +"/"+colorCode);
 
 		}
 
 		public void mouseReleased(MouseEvent e) {
 			shape.add(newshape);
-			sketSP.removeAllElements();
+			sketSP.clear();
 
-//			send_message("GameRoomPaint/"+room_No+"/"+"mouseRelease");
+			send_message("GameRoomPaint/"+room_No+"/"+"mouseRelease");
 
 			repaint();
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
+			if (eraser_Sel)
+				newshape.thick = eraserThick;
+			else
+				newshape.thick = thick;
+			
 			newshape.sketchSP.add(e.getPoint());
 			sketSP.add(e.getPoint());
 			
+			
 			//System.out.println("현재 그림그리는 좌표 x좌표:"+sketSP.get(sketSP.size()-1).x+", y좌표:"+sketSP.get(sketSP.size()-1).y);
-//			send_message("GameRoomPaint/"+room_No+"/"+"mouseDrag/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).x+"/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).y
-//					+"/"+sketSP.get(sketSP.size()-1).x+"/"+sketSP.get(sketSP.size()-1).y);
-			send_message("GameRoomPaint/"+room_No+"/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).x+"/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).y
-					+"/"+sketSP.get(sketSP.size()-1).x+"/"+sketSP.get(sketSP.size()-1).y);
+			
+			send_message("GameRoomPaint/"+room_No+"/"+"mouseDrag/"+e.getPoint().x+"/"+e.getPoint().y
+					+"/"+e.getPoint().x+"/"+e.getPoint().y+"/"+thick+"/"+eraser_Sel);
 			
 			
 			
@@ -654,6 +707,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		public void mouseMoved(MouseEvent e) {
 		}
 	}
+	
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -664,6 +718,7 @@ public class PaintEx extends JFrame implements ActionListener {
 				shape.pop();
 			clear.setCursor(clearCursor);
 			getContentPane().setCursor(myCursor);
+			send_message("GameRoomPaint/"+room_No+"/"+"canvasClear");
 		} else {
 			if (e.getSource() == eraser) {
 				eraser_Sel = true;
