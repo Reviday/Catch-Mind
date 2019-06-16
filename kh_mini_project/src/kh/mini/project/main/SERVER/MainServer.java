@@ -982,13 +982,25 @@ public class MainServer extends JFrame {
 			// #»ç¿ëÀÚ°¡ ±×¸²À» ±×¸®¸é
 			case "GameRoomPaint":
 				int gameRoomNo = Integer.parseInt(mUserId);
+//				String mouseState = st.nextToken();
+//				if(mouseState.equals("mouseRelease"))
+//					gBroadCast(gameRoomNo, "GameRoomPaint/pass/mouseRelease");
+//				else if(mouseState.equals("mouseDrag")) {
+//					String pointX1 = st.nextToken();
+//					String pointY1 = st.nextToken();
+//					String pointX2 = st.nextToken();
+//					String pointY2 = st.nextToken();
+//					System.out.println("MainServer¿¡¼­ ¹ÞÀº ¹æ¹øÈ£:" + gameRoomNo + ", x1ÁÂÇ¥:" + pointX1 + ", y1ÁÂÇ¥:" + pointY1
+//							+ ", x2ÁÂÇ¥:" + pointX2 + ", y2ÁÂÇ¥:" + pointY2);
+//					gBroadCast(gameRoomNo, "GameRoomPaint/pass/mouseDrag/" + pointX1 + "/" + pointY1 + "/" + pointX1 + "/" + pointY1);
+//				}
 				String pointX1 = st.nextToken();
 				String pointY1 = st.nextToken();
 				String pointX2 = st.nextToken();
 				String pointY2 = st.nextToken();
-				System.out.println("MainServer¿¡¼­ ¹ÞÀº ¹æ¹øÈ£:" + gameRoomNo + ", x1ÁÂÇ¥:" + pointX1 + ", y1ÁÂÇ¥:" + pointY1
-						+ ", x2ÁÂÇ¥:" + pointX2 + ", y2ÁÂÇ¥:" + pointY2);
+				
 				gBroadCast(gameRoomNo, "GameRoomPaint/pass/" + pointX1 + "/" + pointY1 + "/" + pointX1 + "/" + pointY1);
+				
 				break;
 			}
 		}

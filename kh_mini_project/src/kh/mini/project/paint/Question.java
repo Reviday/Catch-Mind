@@ -20,13 +20,13 @@ public class Question {
 		selected = new String[question.length];
 	}
 	
-	public String selQuestion(int i){
+	public String selQuestion(int round){
 		int count = 0;
 		while(true){
-			selected[i] = question[(int)(Math.random()*100)];
+			selected[round] = question[(int)(Math.random()*100)];
 			
 			for(int j=0;j<i;j++){
-				if(selected[i].equals(selected[j]))
+				if(selected[round].equals(selected[j]))
 					count++;
 			}
 			

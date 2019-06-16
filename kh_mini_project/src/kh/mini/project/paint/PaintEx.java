@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -26,7 +27,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import kh.mini.project.main.view.Main;
 import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
@@ -42,22 +42,29 @@ public class PaintEx extends JFrame implements ActionListener {
 
 	// 프레임 안에 있는 요소들
 	Canvas canvas = new Canvas();
+	
+	//메뉴바 설정용
+	private JLabel menuBar;
+	private int mouseX, mouseY;
 
-	// 설정을 위한 변수
+	// 그림판 설정을 위한 변수
 	Color mypencolor = Color.black;
 	boolean eraser_Sel = false;
 	int thick = 8;
 	int eraserThick = 30;
 	boolean clear_Sel = false;
-	
-	//펜 색상 전송하기위한 코드설정
-	String colorCode;
+	String colorCode; //펜 색상 전송하기위한 코드설정
 
 	// 도형
 	ShapeSave newshape;
+	ShapeSave mainshape;
 
 	Vector<Point> sketSP = new Vector<Point>();
 	Stack<ShapeSave> shape = new Stack<ShapeSave>();
+	
+	Vector<Point> subSP = new Vector<Point>();
+	Stack<ShapeSave> receiveshape = new Stack<ShapeSave>();
+	
 
 	// 버튼
 	private JButton thick_Bold;
@@ -70,11 +77,16 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JButton color_red;
 	private JButton clear;
 	private JButton color_black;
+	private JButton giveUpBt;
+	
 	private JProgressBar expBar;
 	
 	private JLabel levelUpImg;
 	private JLabel readyImg;
 	private JLabel startImg;
+	
+	Point maindrow=new Point();
+	Point subdrow=new Point();
 
 // 각종 변수
 	private String id; // 사용자의 id를 저장
@@ -104,6 +116,8 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	Cursor myCursor;
 	
+	String sendPaint=""; //그림 전송을 위한 변수
+	
 	
 // Network 자원 변수
 	private DataOutputStream dos;
@@ -117,11 +131,12 @@ public class PaintEx extends JFrame implements ActionListener {
 		dos = MainView.getDos();
 
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
-//		send_message("GameRoomCheck/" + id + "/" + room_No);
+		send_message("GameRoomCheck/" + id + "/" + room_No);
 
 		// 프레임 설정
 		setSize(1024, 768);
 		setUndecorated(true);
+		setResizable(false);
 		setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
 		getContentPane().setLayout(null);
 		
@@ -131,13 +146,36 @@ public class PaintEx extends JFrame implements ActionListener {
 		canvas.setBounds(216, 134, 593, 440);
 		canvas.setBackground(Color.white);
 		canvas.setVisible(false);
+		
+		//메뉴바
+		menuBar = new JLabel();
+		menuBar.setBounds(0,0,1024,30);
+		menuBar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				mouseX = e.getX();
+				mouseY = e.getY();
+			}
+		});
+		menuBar.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				int x = e.getXOnScreen();
+				int y = e.getYOnScreen();
+				setLocation(x-mouseX, y-mouseY);
+			}
+		});
+		getContentPane().add(menuBar);
+		
 
 		//색깔 버튼
 		color_black = new JButton("black");
 		color_black.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_black.png")));
 		color_black.setContentAreaFilled(false);
 		color_black.setBounds(486, 620, 122, 60);
-		//color_black.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_black.png")));
+		color_black.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_blackCLK.png")));
 		color_black.setFocusPainted(false);
 		color_black.setBorderPainted(false);
 		getContentPane().add(color_black);
@@ -148,7 +186,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_red.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_red.png")));
 		color_red.setContentAreaFilled(false);
 		color_red.setBounds(486, 685, 122, 60);
-		//color_red.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_red.png")));
+		color_red.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_redCLK.png")));
 		color_red.setFocusPainted(false);
 		color_red.setBorderPainted(false);
 		getContentPane().add(color_red);
@@ -158,7 +196,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_blue = new JButton("blue");
 		color_blue.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_blue.png")));
 		color_blue.setContentAreaFilled(false);
-		//color_blue.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_blue.png")));
+		color_blue.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_blueCLK.png")));
 		color_blue.setFocusPainted(false);
 		color_blue.setBorderPainted(false);
 		color_blue.setBounds(615, 620, 122, 60);
@@ -169,6 +207,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_green = new JButton("green");
 		color_green.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_green.png")));
 		color_green.setContentAreaFilled(false);
+		color_green.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_greenCLK.png")));
 		color_green.setFocusPainted(false);
 		color_green.setBorderPainted(false);
 		color_green.setBounds(615, 685, 122, 60);
@@ -179,7 +218,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_yellow = new JButton("yellow");
 		color_yellow.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_yellow.png")));
 		color_yellow.setContentAreaFilled(false);
-		//color_yellow.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_yellow.png")));
+		color_yellow.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_yellowCLK.png")));
 		color_yellow.setFocusPainted(false);
 		color_yellow.setBorderPainted(false);
 		color_yellow.setVisible(true);
@@ -209,28 +248,43 @@ public class PaintEx extends JFrame implements ActionListener {
 		clear.addActionListener(this);
 
 		//펜 굵기 버튼
-		thick_Bold = new JButton("굵은 펜");
-		thick_Bold.setBackground(Color.lightGray);
-		thick_Bold.setBounds(868, 628, 97, 23);
+		thick_Bold = new JButton(new ImageIcon(PaintEx.class.getResource("/images/thick_Bold.png")));
+		thick_Bold.setContentAreaFilled(false);
+		thick_Bold.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/thick_BoldCLK.png")));
 		thick_Bold.setFocusPainted(false);
+		thick_Bold.setBorderPainted(false);
+		thick_Bold.setBounds(868, 628, 97, 23);
 		getContentPane().add(thick_Bold);
 		thick_Bold.addActionListener(this);
 		thick_Bold.setVisible(true);
 
-		thick_Sharp = new JButton("얇은 펜");
-		thick_Sharp.setBackground(Color.lightGray);
-		thick_Sharp.setBounds(868, 654, 97, 23);
+		thick_Sharp = new JButton(new ImageIcon(PaintEx.class.getResource("/images/thick_Sharp.png")));
+		thick_Sharp.setContentAreaFilled(false);
+		thick_Sharp.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/thick_SharpCLK.png")));
 		thick_Sharp.setFocusPainted(false);
+		thick_Sharp.setBorderPainted(false);
+		thick_Sharp.setBounds(868, 654, 97, 23);
 		getContentPane().add(thick_Sharp);
 		thick_Sharp.addActionListener(this);
 		thick_Sharp.setVisible(true);
 
-		JButton exit = new JButton("나가기"); // 버튼 액션 해야됨
-		exit.setBounds(868, 21, 97, 37);
-		exit.setBackground(Color.lightGray);
-		exit.setFocusPainted(false);
+		JButton exit = new JButton(new ImageIcon(PaintEx.class.getResource("/images/gameroom_Exit.png"))); // 버튼 액션 해야됨
+		exit.setContentAreaFilled(false);
+		//exit.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/.png")));
+		clear.setFocusPainted(false);
+		clear.setBorderPainted(false);
+		exit.setBounds(991, 2, 19, 25);
 		getContentPane().add(exit);
 		exit.setVisible(true);
+		
+		giveUpBt = new JButton(new ImageIcon(PaintEx.class.getResource("/images/giveup.png")));
+		giveUpBt.setContentAreaFilled(false);
+		giveUpBt.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/giveupCLK.png")));
+		giveUpBt.setFocusPainted(false);
+		giveUpBt.setBorderPainted(false);
+		giveUpBt.setBounds(885, 700, 63, 24);
+		getContentPane().add(giveUpBt);
+		giveUpBt.setVisible(true);
 		
 
 		// 경험치 표시
@@ -263,7 +317,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		gameRoombackground.setBounds(0, 0, 1024, 768);
 		getContentPane().add(gameRoombackground);
 		
-		canvas.setVisible(true);
+		canvas.setVisible(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
@@ -349,25 +403,40 @@ public class PaintEx extends JFrame implements ActionListener {
 			//테스트 코드
 			System.out.println("GameStart 메시지 수신");
 			/* 서버에서 인원이 다 찼으므로 게임 시작을 하도록 하는 코드 */
+			startT = new StartThread();
 			startT.start();
 
 			break;	
+			
 		case "GameRoomPaint" :
 			int pointX1=Integer.parseInt(st.nextToken());
 			int pointY1=Integer.parseInt(st.nextToken());
 			int pointX2=Integer.parseInt(st.nextToken());
 			int pointY2=Integer.parseInt(st.nextToken());
 			
+			System.out.println("받은 좌표 : " + pointX1 + ", " + pointY1 + ", " + pointX2 + ", " + pointY2);
 //			Graphics2D g2d=(Graphics2D)canvas.getGraphics();
-			canvas.getGraphics().drawLine(pointX1, pointY1, pointX2, pointY2);
+//			canvas.getGraphics().drawLine(pointX1, pointY1, pointX2, pointY2);
 			
+//			Graphics g;
+//			Graphics2D g2 = (Graphics2D)g;
+			maindrow.setLocation(pointX1, pointY1);
+			subdrow.setLocation(pointX2, pointY2);
+			
+			mainshape = new ShapeSave();
+			mainshape.sketchSP.add(maindrow.getLocation());
+			receiveshape.add(mainshape);
+			subSP.add(subdrow.getLocation());
+			
+			repaint();
+			
+			
+		
 			break;
 		}
-		
-		
-
 	}
-
+		
+		
 	// MainView 클래스에서 Paint 클래스로 메시지를 전달하기 위해 사용하는 메소드
 	public void paint_Inmessage(String str) {
 		Inmessage(str);
@@ -391,6 +460,24 @@ public class PaintEx extends JFrame implements ActionListener {
 
 			Graphics2D g2 = (Graphics2D) g;
 
+			//테스트 그림그리기
+			for (int i = 0; i < receiveshape.size(); i++) {
+				g2.setStroke(new BasicStroke(receiveshape.get(i).thick, BasicStroke.CAP_ROUND, 0));
+				g2.setPaint(receiveshape.get(i).mypencolor);
+				for (int j = 1; j < receiveshape.get(i).sketchSP.size(); j++)
+					g2.drawLine(receiveshape.get(i).sketchSP.get(j - 1).x, receiveshape.get(i).sketchSP.get(j - 1).y,
+							receiveshape.get(i).sketchSP.get(j).x, receiveshape.get(i).sketchSP.get(j).y);
+			}
+			
+			g2.setStroke(new BasicStroke(thick, BasicStroke.CAP_ROUND, 0));
+			for (int i = 1; i < subSP.size(); i++) {
+				g2.setPaint(mypencolor);
+				g2.drawLine(subSP.get(i - 1).x, subSP.get(i - 1).y, subSP.get(i).x, subSP.get(i).y);
+			}
+			
+			
+			
+			
 			// 그림 그리기
 			if (clear_Sel) {
 				clear_Sel = false;
@@ -425,7 +512,10 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		}
 
+			
+		
 	}
+
 
 	
 	//레벨별 비율 계산해서 경험치 바에 값 설정
@@ -538,6 +628,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		public void mouseReleased(MouseEvent e) {
 			shape.add(newshape);
 			sketSP.removeAllElements();
+
+//			send_message("GameRoomPaint/"+room_No+"/"+"mouseRelease");
+
 			repaint();
 		}
 
@@ -546,9 +639,12 @@ public class PaintEx extends JFrame implements ActionListener {
 			newshape.sketchSP.add(e.getPoint());
 			sketSP.add(e.getPoint());
 			
-			System.out.println("현재 그림그리는 좌표 x좌표:"+sketSP.get(sketSP.size()-1).x+", y좌표:"+sketSP.get(sketSP.size()-1).y);
+			//System.out.println("현재 그림그리는 좌표 x좌표:"+sketSP.get(sketSP.size()-1).x+", y좌표:"+sketSP.get(sketSP.size()-1).y);
+//			send_message("GameRoomPaint/"+room_No+"/"+"mouseDrag/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).x+"/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).y
+//					+"/"+sketSP.get(sketSP.size()-1).x+"/"+sketSP.get(sketSP.size()-1).y);
 			send_message("GameRoomPaint/"+room_No+"/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).x+"/"+newshape.sketchSP.get(newshape.sketchSP.size()-1).y
 					+"/"+sketSP.get(sketSP.size()-1).x+"/"+sketSP.get(sketSP.size()-1).y);
+			
 			
 			
 			repaint();
@@ -561,8 +657,6 @@ public class PaintEx extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
-			
 		if (e.getSource() == clear) {
 			clear_Sel = true;
 			canvas.repaint();
@@ -620,6 +714,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					myCursor=yellowCursor;
 					color_yellow.setCursor(myCursor);
 					getContentPane().setCursor(myCursor);
+					System.out.println("yellow");
 				}
 			}
 		}

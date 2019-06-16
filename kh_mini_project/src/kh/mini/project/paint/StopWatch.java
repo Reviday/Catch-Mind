@@ -134,12 +134,11 @@ public class StopWatch extends JFrame implements ActionListener{
 			timeT = new timeThread();
 			timeT.start();
 			
-			
-	
 		}
 
 		else if(e.getSource()==stopBt) {
 			if(timeT.isAlive()){
+				System.out.println(minute+ "Ка " + sec  + "УЪ");
 				timeT.interrupt();
 				currentTime=0l;
 				printTime(currentTime);

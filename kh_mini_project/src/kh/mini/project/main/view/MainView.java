@@ -529,13 +529,17 @@ public class MainView extends JFrame{
 			break;
 		// #GameRoomÀ¸·Î ÁÂÇ¥ ³Ñ±è
 		case "GameRoomPaint" :
+//			String mouseState = st.next
+//			if()
 			String pointX1=st.nextToken();
 			String pointY1=st.nextToken();
 			String pointX2=st.nextToken();
 			String pointY2=st.nextToken();
 			
+			
 			System.out.println("MainView¿¡¼­ ¹ÞÀº x1ÁÂÇ¥:"+pointX1+", y1ÁÂÇ¥"+pointY1+", x2ÁÂÇ¥:"+pointX2+", y1ÁÂÇ¥"+pointY2);
 			paint.paint_Inmessage("GameRoomPaint@pass@"+pointX1+"@"+pointY1+"@"+pointX2+"@"+pointY2);
+			
 			break;
 		}
 	}
