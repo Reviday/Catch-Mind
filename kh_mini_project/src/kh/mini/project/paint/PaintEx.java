@@ -59,6 +59,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JLabel[] chatting_lb = new JLabel[6]; // 유저의 채팅을 말풍선으로 띄우는 라벨(최대 인원 6인 기준)
 	private JLabel[] chattingCover_lb = new JLabel[6];
 	private JPanel[] user_pn = new JPanel[6];
+	private JLabel suggest_lb; // 제시어 표시 라벨
 	
 	//메뉴바 설정용
 	private JLabel menuBar;
@@ -104,8 +105,6 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JLabel readyImg;
 	private JLabel startImg;
 	
-	private boolean canvasUse=false;
-	
 	Point maindrow=new Point();
 	Point subdrow=new Point();
 
@@ -115,6 +114,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
 	private RoomInfo roomInfo; // 방정보를 객체로 저장한다.
 	private boolean roomCaptain = false; // 방장인 사람에게는 true
+	private String suggest; // 현재 제시어를 저장할 변수(출제자만 저장한다.)
 	private Toolkit tk = Toolkit.getDefaultToolkit();
 	
 	JPanel cursorPanel = new JPanel();
@@ -171,8 +171,13 @@ public class PaintEx extends JFrame implements ActionListener {
 		chatting_tf.addKeyListener(new keyAdapter()); // 클래스로 정의한 키 이벤트를 적용
 		add(chatting_tf);
 		
-		
-		
+		// 제시어 표시 라벨
+		suggest_lb = new JLabel();
+		suggest_lb.setBounds(490, 40, 50, 30);
+		suggest_lb.setText("제시어");
+		suggest_lb.setFont(font);
+		suggest_lb.setVisible(false);
+		add(suggest_lb);
 		
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
 		send_message("GameRoomCheck/" + id + "/" + room_No);
@@ -510,11 +515,44 @@ public class PaintEx extends JFrame implements ActionListener {
 
 			break;	
 		
+		// # 라운드가 끝났음을 알림
+		case "EndRound":
+			
+			/*
+			 * mUserId 에 정답자의 아이디가 저장됨
+			 * 이를 통해 라운드가 끝났음을 알리는 코드르 띄운다. 
+			 * 
+			 */
+			
+			
+			// 캔버스랑 제시어 라벨을 보이지않게
+			canvas.setVisible(false);
+			suggest_lb.setVisible(false);
+			
+			// 스타트 쓰레드를 시작할 준비를 가진다.
+			startT = new StartThread();
+			startT.start();
+            
+			
+			/* 
+			 *  정답자와 출제자의 정보 갱신이 생기므로 
+			 *  해당 유저들만 서버에 갱신요청을 알리는 메소드를 보낸다.
+			 *  서버는 이를 받고, 라벨 표기에 변경사항이 생기는 유저가 있을 시 
+			 *  전체 유저에게 갱신을 알려리는 메시지를 보낸다.
+			 *  
+			 */
+			break;
+			
 		// # 자신의 턴을 진행할 때
 		case "YourTurn":
-
+			suggest = st.nextToken(); // 제시어 저장
+			updateSuggestLabel(suggest);
+			/*
+			 *  [제시어를 화면에 띄우는 코드]
+			 *  동시에 스탑워치 동작
+			 */
+			
 			System.out.println("난 출제자야!");
-			canvasUse=true;
 			// 출제자에게만 버튼 활성화
 			setButtonEnabled(true);
 			break;
@@ -522,7 +560,6 @@ public class PaintEx extends JFrame implements ActionListener {
 		// # 문제를 푸는 자들
 		case "Solve":
 
-			canvasUse=false;
 			System.out.println("난 문제를 풀어!");
 
 			break;
@@ -569,8 +606,6 @@ public class PaintEx extends JFrame implements ActionListener {
 				else {
 					newshape.setThick(receiveThick);
 				}	
-				
-				thick=receiveThick;
 				
 				//좌표테스트
 				System.out.println("받은 좌표 : " + pointX1 + ", " + pointY1 + ", " + pointX2 + ", " + pointY2);
@@ -638,6 +673,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		}	
 	}
 	
+	// 유저 패널 갱신 메소드
 	private void updateUserPanel() {
 		
 		// 모든 user_lb에 적용할 코드. 라벨 배열의 개수만큼 적용(추후 여유있으면 클릭 이벤트도 추가할 생각)
@@ -662,6 +698,16 @@ public class PaintEx extends JFrame implements ActionListener {
 			revalidate(); // 레이아웃 변화를 재확인 시킨다.
 			repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
 		}
+	}
+	
+	// 제시어 갱신 메소드
+	private void updateSuggestLabel(String str) {
+		// 입력받은 문자로 텍스트 갱신
+		suggest_lb.setText(str);
+		suggest_lb.setVisible(true); // 볼 수 있도록 변경
+		// 패널의 변경사항을 적용하기위한 메소드
+		revalidate(); // 레이아웃 변화를 재확인 시킨다.
+		repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
 	}
 	
 	// #채팅 라벨을 만들어 비활성 상태로 초기화 시킨다. 
@@ -998,7 +1044,8 @@ public class PaintEx extends JFrame implements ActionListener {
 	            
 	            // 만약 방장이라면 
 	            if(roomCaptain) {
-	               send_message("RoundStart/"+id+"/"+room_No);
+	            	// 라운드 시작을 알린다.
+					send_message("RoundStart/"+id+"/"+room_No);
 	            }
 	         }catch(InterruptedException e) {
 	            e.printStackTrace();
@@ -1006,50 +1053,84 @@ public class PaintEx extends JFrame implements ActionListener {
 	      }
 	   }
 	   
+//	   //게임 시작 후 Ready이미지 1.5초띄우고 사라지는 스레드
+//	   class ReadyImgThread extends Thread{
+//	      @Override
+//	      public void run() {
+//	         try {
+//	            readyImg.setVisible(true);
+//	            sleep(2500);
+//	            readyImg.setVisible(false);
+//	            StartImgThread sit = new StartImgThread();
+//	            sit.start();
+//	         }catch(InterruptedException e) {
+//	            e.printStackTrace();
+//	         }   
+//	      }
+//	   }
+//	   
+//	   class StartImgThread extends Thread{
+//	      @Override
+//	      public void run() {
+//	         try {
+//	            startImg.setVisible(true);
+//	            sleep(1500);
+//	            startImg.setVisible(false);
+//	            canvas.setVisible(true);
+//	            
+//	            // 만약 방장이라면 
+//	            if(roomCaptain) {
+//	               send_message("RoundStart/"+id+"/"+room_No);
+//	            }
+//	            
+//	         }catch(InterruptedException e) {
+//	            e.printStackTrace();
+//	         }
+//	      }
+//	   }
+	   
+	
+	
+	
 
 	class MyMouseListener extends MouseAdapter implements MouseMotionListener {
 
 		
 		public void mousePressed(MouseEvent e) {
-			if(canvasUse) {
-				newshape = new ShapeSave();
-				newshape.mypencolor = mypencolor;
+			newshape = new ShapeSave();
+			newshape.mypencolor = mypencolor;
 
-				send_message("GameRoomPaint/"+id+"/"+ room_No+"/"+"mousePress" +"/"+colorCode);
-			}
+			send_message("GameRoomPaint/"+id+"/"+ room_No+"/"+"mousePress" +"/"+colorCode);
+
 		}
 
 		public void mouseReleased(MouseEvent e) {
-			if(canvasUse) {
-				shape.add(newshape);
-				sketSP.clear();
+			shape.add(newshape);
+			sketSP.clear();
 
-				send_message("GameRoomPaint/" + id + "/" + room_No + "/" + "mouseRelease");
+			send_message("GameRoomPaint/"+id+"/"+room_No+"/"+"mouseRelease");
 
-				repaint();
-			}
+			repaint();
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			if(canvasUse) {
-				if (eraser_Sel)
-					newshape.setThick(eraserThick);
-				else
-					newshape.setThick(thick);
-
-				newshape.sketchSP.add(e.getPoint());
-				sketSP.add(e.getPoint());
-
-				// System.out.println("현재 그림그리는 좌표 x좌표:"+sketSP.get(sketSP.size()-1).x+",
-				// y좌표:"+sketSP.get(sketSP.size()-1).y);
-
-				send_message("GameRoomPaint/" + id + "/" + room_No + "/" + "mouseDrag/" + e.getPoint().x + "/"
-						+ e.getPoint().y + "/" + e.getPoint().x + "/" + e.getPoint().y + "/" + thick + "/"
-						+ eraser_Sel);
-
-				repaint();
-			}
+			if (eraser_Sel)
+				newshape.setThick(eraserThick);
+			else
+				newshape.setThick(thick);
+			
+			newshape.sketchSP.add(e.getPoint());
+			sketSP.add(e.getPoint());
+			
+			
+			//System.out.println("현재 그림그리는 좌표 x좌표:"+sketSP.get(sketSP.size()-1).x+", y좌표:"+sketSP.get(sketSP.size()-1).y);
+			
+			send_message("GameRoomPaint/"+id+"/"+room_No+"/"+"mouseDrag/"+e.getPoint().x+"/"+e.getPoint().y
+					+"/"+e.getPoint().x+"/"+e.getPoint().y+"/"+thick+"/"+eraser_Sel);
+			
+			
+			repaint();
 		}
 
 		@Override

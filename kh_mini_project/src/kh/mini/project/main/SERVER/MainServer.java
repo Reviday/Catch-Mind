@@ -41,6 +41,7 @@ import javax.swing.table.DefaultTableModel;
 import kh.mini.project.db.UserController;
 import kh.mini.project.main.view.Main;
 import kh.mini.project.model.vo.User;
+import kh.mini.project.paint.Question;
 
 public class MainServer extends JFrame {
 	private static final long serialVersionUID = 1216070372320522836L;
@@ -914,7 +915,17 @@ public class MainServer extends JFrame {
 			case "ChattingPA":
 				// 우선 방번호를 받는다.
 				room_No = Integer.parseInt(st.nextToken());
-
+				
+				// RoomInfo 객체 저장용 => 정답 체크를 위해서 사용
+				RoomInfo r = null;
+				for (int i = 0; i < room_vc.size(); i++) {
+					 r = (RoomInfo) room_vc.get(i);
+					// 방번호가 같은 객체를 찾아서 저장한 후 break;
+					if (r.room_No == room_No) {
+						break;
+					}
+				}
+				
 				st = new StringTokenizer(str, "/", true); // 구획문자"/"도 토큰으로 간주한다.
 				for (int i = 0; i < 6; i++) {
 					st.nextToken(); // 토큰 제거용
@@ -935,6 +946,13 @@ public class MainServer extends JFrame {
 
 				System.out.println("MainServer Inmessage에서 protocol이 ChattingPA 일때 들어온 아이디:" + mUserId);
 				gBroadCast(room_No, "Paint/pass/ChattingPA@" + mUserId + "@" + totalChattingMsg);
+				
+				// 현재 게임중일 경우 제시어와 일치하는 확인한다.
+				if(r.state && r.suggest.equals(totalChattingMsg)) {
+					// 해당 방 유저들에게 정답자의 아이디를 보내면서 라운드가 끝났음을 알린다.	
+					gBroadCast(room_No, "Paint/pass/EndRound@" + mUserId + "@");
+					r.state = false; // 라운드 종료
+				}
 				break;
 
 			// #초기 게임방에 입장했을때 정보를 요구한다
@@ -946,7 +964,7 @@ public class MainServer extends JFrame {
 
 				// 제일 처음, 방의 정보를 보내준다.
 				for (int i = 0; i < room_vc.size(); i++) {
-					RoomInfo r = (RoomInfo) room_vc.elementAt(i);
+					r = (RoomInfo) room_vc.elementAt(i);
 					if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
 
 						send_Message("Paint/pass/RoomInfo@" + mUserId + "@" + r.room_name + "@" + r.room_PW + "@"
@@ -969,7 +987,7 @@ public class MainServer extends JFrame {
 	            // 해당 유저를 게임방 Room_user_vc에 추가한다.
 	            Pointer:
 	            for (int i = 0; i < room_vc.size(); i++) {
-	               RoomInfo r = (RoomInfo) room_vc.get(i);
+	               r = (RoomInfo) room_vc.get(i);
 	               for (int j = 0; j < user_vc.size(); j++) {
 	                  UserInfo u = (UserInfo) user_vc.get(j);
 	                  // 해당 아이디를 찾으면
@@ -984,7 +1002,7 @@ public class MainServer extends JFrame {
 
 	            // 이미 입장 중인 유저가 있으면 해당 유저들의 정보를 먼저 보낸다.(여기에 자신의 정보도 포함되어 있음)
 	            for (int i = 0; i < room_vc.size(); i++) {
-	               RoomInfo r = (RoomInfo) room_vc.elementAt(i);
+	               r = (RoomInfo) room_vc.elementAt(i);
 	               if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
 	                  // 해당 방에 있는 유저들의 정보를 보낸다.
 	                  for (int j = 0; j < r.Room_user_vc.size(); j++) {
@@ -1006,7 +1024,7 @@ public class MainServer extends JFrame {
 	            
 	            // 유저의 입장이 끝나면 대기실에도 인원의 변동을 알려줘야 한다.
 	            for (int i = 0; i < room_vc.size(); i++) {
-	               RoomInfo r = (RoomInfo) room_vc.elementAt(i);
+	               r = (RoomInfo) room_vc.elementAt(i);
 	               if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
 	                  // 해당 브로드 캐스트를 받는거 만으로 게임방 패널을 갱신한다.
 	            	   BroadCast("WaitingRoom/pass/RoomInfoUpdate@pass");
@@ -1021,7 +1039,7 @@ public class MainServer extends JFrame {
 				room_No = Integer.parseInt(st.nextToken());
 
 				// 해당 방의 정보를 가져온다.
-				RoomInfo r = null;
+				r = null;
 				for (int i = 0; i < room_vc.size(); i++) {
 					r = (RoomInfo) room_vc.get(i);
 					// 같은 방번호를 찾으면 저장한 후 break
@@ -1029,18 +1047,27 @@ public class MainServer extends JFrame {
 						break;
 					}
 				}
-
+				r.state = true; // 게임중 상태로 전환
+ 
 				r.round++; // round 1을 가산
 				// 라운드가 12 이하면 아직 게임이 끝나지않음
 				if (r.round <= 12) {
+					if(r.round == 1) { // 1라운드 일떄, 
+						r.question = new Question(); // 방 객체에 Question 객체를 생성
+					}
+					
+					// 제시어로 뽑힌 문자를 저장한다. 1라운드부터 시작하므로 인수는 1
+					r.suggest = r.question.selQuestion(r.round);
+					
+					
 					// 순서를 알아내기위해 다음을 계산한다. (모든 라운드에 적용가능)
 					int index = r.Room_user_vc.size() - (12 - r.round) % r.Room_user_vc.size() - 1;
 
 					// 알아낸 인덱스 번호로 유저를 가져온다.
 					UserInfo u = (UserInfo) r.Room_user_vc.get(index);
 
-					// 해당 유저에게만 자신의 순서임을 알리고 나머지 유저들에게는 문제를 맞추도록 한다.
-					gSelectiveCast(room_No, u.userID, true, "Paint/pass/YourTurn@pass@"); // 순서인 유저에게만
+					// 해당 유저에게만 자신의 순서임을 알리고 나머지 유저들에게는 문제를 맞추도록 한다.(문제를 내는 사람한테만 제시어를 넘김)
+					gSelectiveCast(room_No, u.userID, true, "Paint/pass/YourTurn@pass@"+r.suggest); // 순서인 유저에게만
 					gSelectiveCast(room_No, u.userID, false, "Paint/pass/Solve@pass@"); // 나머지 유저에게만
 
 				} else {
@@ -1173,9 +1200,12 @@ public class MainServer extends JFrame {
 	      private int fixed_User; // 유저 정원
 
 	      
+	      private Question question; // 제시어 객체 저장용 변수
 	      private String roomCaptainID; // 방장 id
 	      private String trun; // 현재 그리는 유저id
+	      private String suggest; // 현재 제시어
 	      private int round = 0; // 현재 게임 round(초기값 0)
+	      private boolean state = false; // 게임 진행 상태를 확인한다.(true - 게임중 )
 	      
 	      
 	      /*
