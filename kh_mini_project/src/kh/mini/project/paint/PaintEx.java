@@ -44,22 +44,19 @@ import kh.mini.project.model.vo.UserInfo;
 
 public class PaintEx extends JFrame implements ActionListener {
 
-	public static void main(String[] args) {
-		new PaintEx(1);
-	}
-
-	StartThread startT;
-	StopWatch clock = new StopWatch();
+	private StartThread startT;
+	private StopWatch clock = new StopWatch();
 
 	// 프레임 안에 있는 요소들
-	Canvas canvas = new Canvas();
+	private Canvas canvas = new Canvas();
 	
 	// Panel, Label (유저 정보 및 채팅)
-	private JPanel cursorPanel = new JPanel();
 	private JLabel[] user_lb = new JLabel[6]; // 유저 정보를 띄울 라벨 (최대 인수 6인 기준)
 	private JLabel[] chatting_lb = new JLabel[6]; // 유저의 채팅을 말풍선으로 띄우는 라벨(최대 인원 6인 기준)
 	private JLabel[] chattingCover_lb = new JLabel[6];
 	private JPanel[] user_pn = new JPanel[6];
+	private JLabel resultImage_lb; // 라운드 결과 표시 이미지용 라벨
+	private JLabel endGameImage_lb; // 게임이 끝났을 때 표시할 이미지용 라벨
 	private JLabel suggest_lb; // 제시어 표시 라벨
 	private JLabel roundImg_lb; // 라운드 이미지 라벨
 	private JLabel nowTurnID; // 라운드 라벨에 띄울 현재 턴 유저ID
@@ -71,19 +68,19 @@ public class PaintEx extends JFrame implements ActionListener {
 	private int mouseX, mouseY;
 
 	// 그림판 설정을 위한 변수
-	Color mypencolor = Color.black;
-	boolean eraser_Sel = false;
-	int thick = 8;
-	int eraserThick = 30;
-	boolean clear_Sel = false;
-	String colorCode="black"; //펜 색상 전송하기위한 코드설정
-	int receiveThick;
-	boolean receiveEraserSel=false;
+	private Color mypencolor = Color.black;
+	private boolean eraser_Sel = false;
+	private int thick = 8;
+	private int eraserThick = 30;
+	private boolean clear_Sel = false;
+	private String colorCode="black"; //펜 색상 전송하기위한 코드설정
+	private int receiveThick;
+	private boolean receiveEraserSel=false;
 
 	// 도형
-	ShapeSave newshape;
-	ArrayList<Point> sketSP = new ArrayList<Point>();
-	Stack<ShapeSave> shape = new Stack<ShapeSave>();
+	private ShapeSave newshape;
+	private ArrayList<Point> sketSP = new ArrayList<Point>();
+	private Stack<ShapeSave> shape = new Stack<ShapeSave>();
 	
 	
 	// 버튼
@@ -107,8 +104,8 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	private boolean canvasUse = false;
 	
-	Point maindrow=new Point();
-	Point subdrow=new Point();
+	private Point maindrow=new Point();
+	private Point subdrow=new Point();
 
 // 각종 변수
 	private String id; // 사용자의 id를 저장
@@ -121,28 +118,29 @@ public class PaintEx extends JFrame implements ActionListener {
 	private Toolkit tk = Toolkit.getDefaultToolkit();
 	
 	
-	
-	
 	private ImageIcon roundImg = new ImageIcon();
-	
-	Image pen_black = tk.getImage(PaintEx.class.getResource("/images/pen_black.png"));
-	Image pen_red = tk.getImage(PaintEx.class.getResource("/images/pen_red.png"));
-	Image pen_blue = tk.getImage(PaintEx.class.getResource("/images/pen_blue.png"));
-	Image pen_green = tk.getImage(PaintEx.class.getResource("/images/pen_green.png"));
-	Image pen_yellow = tk.getImage(PaintEx.class.getResource("/images/pen_yellow.png"));
-	Image eraserImg = tk.getImage(PaintEx.class.getResource("/images/eraser.png"));
-	Image clearImg = tk.getImage(PaintEx.class.getResource("/images/clear.png"));
+	private ImageIcon resultImage = new ImageIcon(PaintEx.class.getResource("/images/resultImage.png"));
+	private ImageIcon endGameImage = new ImageIcon(PaintEx.class.getResource("/images/endGameImage.png"));
 	
 	
-	Cursor blackCursor = tk.createCustomCursor(pen_black, new Point(10,10), "WaterDrop");
-	Cursor redCursor = tk.createCustomCursor(pen_red, new Point(10,10), "WaterDrop");
-	Cursor blueCursor = tk.createCustomCursor(pen_blue, new Point(10,10), "WaterDrop");
-	Cursor greenCursor = tk.createCustomCursor(pen_green, new Point(10,10), "WaterDrop");
-	Cursor yellowCursor = tk.createCustomCursor(pen_yellow, new Point(10,10), "WaterDrop");
-	Cursor eraserCursor = tk.createCustomCursor(eraserImg, new Point(10,10), "WaterDrop");
-	Cursor clearCursor = tk.createCustomCursor(clearImg, new Point(10,10), "WaterDrop");
+	private Image pen_black = tk.getImage(PaintEx.class.getResource("/images/pen_black.png"));
+	private Image pen_red = tk.getImage(PaintEx.class.getResource("/images/pen_red.png"));
+	private Image pen_blue = tk.getImage(PaintEx.class.getResource("/images/pen_blue.png"));
+	private Image pen_green = tk.getImage(PaintEx.class.getResource("/images/pen_green.png"));
+	private Image pen_yellow = tk.getImage(PaintEx.class.getResource("/images/pen_yellow.png"));
+	private Image eraserImg = tk.getImage(PaintEx.class.getResource("/images/eraser.png"));
+	private Image clearImg = tk.getImage(PaintEx.class.getResource("/images/clear.png"));
 	
-	Cursor myCursor;
+	
+	private Cursor blackCursor = tk.createCustomCursor(pen_black, new Point(10,10), "WaterDrop");
+	private Cursor redCursor = tk.createCustomCursor(pen_red, new Point(10,10), "WaterDrop");
+	private Cursor blueCursor = tk.createCustomCursor(pen_blue, new Point(10,10), "WaterDrop");
+	private Cursor greenCursor = tk.createCustomCursor(pen_green, new Point(10,10), "WaterDrop");
+	private Cursor yellowCursor = tk.createCustomCursor(pen_yellow, new Point(10,10), "WaterDrop");
+	private Cursor eraserCursor = tk.createCustomCursor(eraserImg, new Point(10,10), "WaterDrop");
+	private Cursor clearCursor = tk.createCustomCursor(clearImg, new Point(10,10), "WaterDrop");
+	
+	private Cursor myCursor;
 	
 // Textfield
 	private JTextField chatting_tf; // 채팅 내용을 입력받기 위한 텍스트필드	
@@ -180,10 +178,21 @@ public class PaintEx extends JFrame implements ActionListener {
 		// 제시어 표시 라벨
 		suggest_lb = new JLabel();
 		suggest_lb.setBounds(465, 40, 100, 30);
-		suggest_lb.setText("제시어");
 		suggest_lb.setFont(font);
 		suggest_lb.setVisible(false);
 		getContentPane().add(suggest_lb);
+		
+		// 라운드 결과 라벨
+		resultImage_lb = new JLabel(resultImage);
+		resultImage_lb.setBounds(306, 169, 400, 300);
+		getContentPane().add(resultImage_lb);
+		resultImage_lb.setVisible(false);
+		
+		// 게임 종료 알림 라벨
+		endGameImage_lb = new JLabel(endGameImage);
+		endGameImage_lb.setBounds(306, 169, 400, 300);
+		getContentPane().add(endGameImage_lb);
+		endGameImage_lb.setVisible(false);
 		
 		// 라운드 이미지 라벨
 		roundImg_lb = new JLabel();

@@ -2,6 +2,8 @@ package kh.mini.project.model.vo;
 
 import javax.swing.ImageIcon;
 
+import kh.mini.project.main.view.Main;
+
 //Server와는 다르게 서버로부터 받은 유저들의 정보를 임시적으로 저장하기 위한 클래스(정보 저장용 클래스)
 public class UserInfo {
 	/* 해당 클래스는 서버를 제외한 클라이언트에서 사용하는 용도로
@@ -17,6 +19,27 @@ public class UserInfo {
 	private ImageIcon charImg; // 레벨에 따른 캐릭터 이미지
 	private ImageIcon gradeImg; // 레벨에 따른 등급 이미지
 	
+	// 등급 이미지 저장
+	private static ImageIcon[] gradeImgArr = new ImageIcon[13];
+	
+	
+	static
+	{
+		// 이미지 초기화 
+		gradeImgArr[0] = new ImageIcon(Main.class.getResource("/images/F.PNG"));
+		gradeImgArr[1] = new ImageIcon(Main.class.getResource("/images/Dm.PNG"));
+		gradeImgArr[2] = new ImageIcon(Main.class.getResource("/images/D.PNG"));
+		gradeImgArr[3] = new ImageIcon(Main.class.getResource("/images/Dp.PNG"));
+		gradeImgArr[4] = new ImageIcon(Main.class.getResource("/images/Cm.PNG"));
+		gradeImgArr[5] = new ImageIcon(Main.class.getResource("/images/C.PNG"));
+		gradeImgArr[6] = new ImageIcon(Main.class.getResource("/images/Cp.PNG"));
+		gradeImgArr[7] = new ImageIcon(Main.class.getResource("/images/Bm.PNG"));
+		gradeImgArr[8] = new ImageIcon(Main.class.getResource("/images/B.PNG"));
+		gradeImgArr[9] = new ImageIcon(Main.class.getResource("/images/Bp.PNG"));
+		gradeImgArr[10] = new ImageIcon(Main.class.getResource("/images/Am.PNG"));
+		gradeImgArr[11] = new ImageIcon(Main.class.getResource("/images/A.PNG"));
+		gradeImgArr[12] = new ImageIcon(Main.class.getResource("/images/Ap.PNG"));
+	}
 	
 	public UserInfo(String userID, int level, int exp, int corAnswer) {
 		super();
@@ -75,7 +98,12 @@ public class UserInfo {
 	public void levelUp() {
 		
 	}
-
+	
+	// 레벨에 해당하는 등급 이미지를 반환한다.
+	public static ImageIcon getGrade(int level) {
+		return gradeImgArr[level-1];
+	}
+	
 	@Override
 	public String toString() {
 		return "UserInfo [userID=" + userID + ", level=" + level + ", exp=" + exp + ", corAnswer=" + corAnswer + "]";
