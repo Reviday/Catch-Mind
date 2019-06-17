@@ -581,6 +581,16 @@ public class PaintEx extends JFrame implements ActionListener {
 				send_message("RoundStart/"+id+"/"+room_No);
             }
             
+			// 변수 초기화
+			mypencolor = Color.black;
+			eraser_Sel = false;
+			thick = 8;
+			eraserThick = 30;
+			clear_Sel = false;
+			colorCode = "black";
+			receiveEraserSel = false;
+			getContentPane().setCursor(blackCursor);
+            
 			
 			/* 
 			 *  정답자와 출제자의 정보 갱신이 생기므로 
