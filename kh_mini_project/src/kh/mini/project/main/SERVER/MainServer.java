@@ -954,6 +954,7 @@ public class MainServer extends JFrame {
 					r.state = false; // 라운드 종료
 					
 					// 출제자와 정답자에게 경험치 10을 증가시키고, 누적 정답 개수 하나를 증가시킨다.
+					userExpUpdate(r.descriptor, mUserId, room_No);
 				}
 				break;
 
@@ -1089,8 +1090,6 @@ public class MainServer extends JFrame {
 						gSelectiveCast(room_No, u.userID, false, "Paint/pass/Solve@pass@" + u.userID + "@[마지막라운드]"); // 나머지 유저에게만
 
 					}
-
-
 					
 				} else {
 
@@ -1210,6 +1209,72 @@ public class MainServer extends JFrame {
 			}
 
 		}
+		
+		// 출제자와 정답자의 경험치와 정답 개수를 늘려주기 위한 메소드
+		private void userExpUpdate(String descriptor, String userID, int room_No) {
+			boolean levelUp = false;
+			User desUser = null;
+			User user = null;
+			
+			// 회원 전체 유저들 중에서
+			for(int i=0; i<allUser_vc.size(); i++) {
+				user = (User)allUser_vc.get(i);
+				//해당 유저를 찾아서
+				if(userID.equals(user.getId())){
+					// 레벨업을 확인한다. 
+					levelUp = user.expUpdate();
+					allUser_vc.set(i, user); // 적용
+				}
+			}
+			for(int i=0; i<allUser_vc.size(); i++) {
+				desUser = (User)allUser_vc.get(i);
+				//해당 유저를 찾아서
+				if(descriptor.equals(desUser.getId())){
+					// 레벨업을 확인한다. 
+					levelUp = desUser.expUpdate();
+					allUser_vc.set(i, desUser); // 적용
+				}
+			}
+			// 둘중 한 명이라도 레벨업을 할 시, 레벨업 이벤트를 진행
+			
+			
+			// 입력받은 방번호로 방을 찾는다.
+			for(int i=0; i<room_vc.size(); i++) {
+				RoomInfo r = (RoomInfo)room_vc.get(i);
+				// 일치하는 방을 찾으면
+				if(room_No == r.room_No) {
+					
+					// 정답자
+					for(int j=0; j<r.Room_user_vc.size(); j++) {
+						UserInfo ui = (UserInfo)r.Room_user_vc.get(j);
+						//해당 유저를 찾아서
+						if(userID.equals(ui.userID)) {
+							//경험치가 증가되었음을 알린다.(DB랑 연관있는 벡터로부터 가져온다. 유사 DB)
+							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+user.getLevel()+"@"+user.getExp()+"@"+user.getCorAnswer());
+						}
+					}
+					
+					// 출제자
+					for(int j=0; j<r.Room_user_vc.size(); j++) {
+						UserInfo ui = (UserInfo)r.Room_user_vc.get(j);
+						//해당 유저를 찾아서
+						if(descriptor.equals(ui.userID)) {
+							//경험치가 증가되었음을 알린다.(DB랑 연관있는 벡터로부터 가져온다. 유사 DB)
+							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+desUser.getLevel()+"@"+desUser.getExp()+"@"+desUser.getCorAnswer());
+							// 레벨업을 하였을 경우
+							
+						}
+					}
+					
+					// 레벨업을 하였을 경우
+					if(levelUp) {
+						gBroadCast(room_No, "Paint/pass/UserLevelUp@pass@");
+					}
+				}
+			}
+			
+		}
+		
 		
 	} // UserInfo class 끝
 

@@ -8,7 +8,8 @@ public class User implements Serializable{
 	 * 서버에서만 접근한다.
 	 */
 	
-// 회원가입 입력정보
+	private static final long serialVersionUID = 6644685954737096019L;
+	// 회원가입 입력정보
 	private String id;
 	private String pw;
 	private String name;
@@ -20,6 +21,7 @@ public class User implements Serializable{
 // User 정보
 	private int level; 		// 레벨
 	private int exp; 		// Experience 경험치
+	private int maxExp;  	// 레벨 구간별 최대 경험치량
 	private int corAnswer;	// Cumulative number of correct answers (누적 정답 개수)
 	
 	public User() {	}
@@ -133,7 +135,128 @@ public class User implements Serializable{
 	public void setCorAnswer(int corAnswer) {
 		this.corAnswer = corAnswer;
 	}
-
+	
+	// 출제자 또는 정답자에게 실행되는 메소드. 경험치와 누적정답 개수를 증가시킨다.
+	public boolean expUpdate() {
+		// 경험치를 10 누적 시키고, 누적 정답개수를 1 누적시킨다.
+		exp += 10; corAnswer++;
+		
+		return levelUpCheck();
+	}
+	 
+	/* 경험치 증가에 따른 레벨업 확인을 위한 메소드
+	 * 경험치는 10으로만 주어지기 때문에, 
+	 * 현재 레벨별 최대경험치량에 도달하여 레벨업을 할 시
+	 * 잔여 경험치는 남지 않기 때문에 고려하지 않아도 된다.
+	 */
+	public boolean levelUpCheck() {
+		boolean levelUp = false; // 레벨업 체크를 위한 불린값
+		
+		switch (level) {
+		case 1:
+			maxExp = 10;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 2:
+			maxExp = 40;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 3:
+			maxExp = 80;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 4:
+			maxExp = 130;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 5:
+			maxExp = 200;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 6:
+			maxExp = 290;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 7:
+			maxExp = 400;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 8:
+			maxExp = 540;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 9:
+			maxExp = 710;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 10:
+			maxExp = 910;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 11:
+			maxExp = 1150;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 12:
+			maxExp = 1430;
+			if (exp >= maxExp) { // 만약 경험치가 최대 경험치량에 도달하였을 때
+				level++; // 레벨업
+				exp = 0; // 경험치는 0으로 초기화
+				levelUp = true;
+			}
+			break;
+		case 13:
+			//MaxLevel 이므로 레벨업 처리를 하지않는다.
+			break;
+		}
+		
+		return levelUp;
+	}
+	
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", pw=" + pw + ", name=" + name + ", dateOfBirth=" + dateOfBirth + ", eMail=" + eMail

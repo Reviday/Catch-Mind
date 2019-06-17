@@ -65,6 +65,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JLabel desID; // 그림 설명을 해주는 유저의 ID
 	private JLabel solvID; // 문제를 맞춘 유저의 ID
 	private JLabel timeReq; // 소요시간 
+	private JLabel levelUpEvent_lb; // 레벨업 이벤트용 라벨
 	
 	//메뉴바 설정용
 	private JLabel menuBar;
@@ -231,6 +232,12 @@ public class PaintEx extends JFrame implements ActionListener {
 		lastTurnID.setBounds(80, 160, 100, 30);
 		lastTurnID.setFont(font);
 		roundImg_lb.add(lastTurnID);
+		
+		// 레벨업 이벤트용 라벨
+		levelUpEvent_lb = new JLabel();
+		levelUpEvent_lb.setBounds(306, 169, 300, 350);
+		getContentPane().add(levelUpEvent_lb);
+		levelUpEvent_lb.setVisible(false);
 		
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
 		send_message("GameRoomCheck/" + id + "/" + room_No);
@@ -479,7 +486,6 @@ public class PaintEx extends JFrame implements ActionListener {
 			int uCount = Integer.parseInt(st.nextToken()); // 현재 인원 수
 			String roomCaptainID = st.nextToken();
 			
-			
 			//만약 자신이 방장이라면
 			if(mUserId.equals(roomCaptainID)) {
 				roomCaptain = true;
@@ -503,6 +509,9 @@ public class PaintEx extends JFrame implements ActionListener {
 			// 해당 객체를 Vector에 추가(유저 객체를 RooInfo 객체의 벡터에 저장한다)
 			roomInfo.addRoom_user_vc(oldUser);
 
+			// 기존 접속자의 패널을 생성
+			createUserLabel();
+			
 			// 유저 패널 업데이트
 			updateUserPanel();
 			
@@ -513,6 +522,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			}
 			// 기존 접속자의 정보를 받고 이어서 본인의 정보를 이어받으므로, 모두 받은 후에 패널 업데이트를 진행한다.
 			break;
+			
 			// 기존 접속자에게 새로운 접속자를 알린다.
 		case "NewUser":
 			// 신규 사용자의 정보를 가져와 저장한다.
@@ -526,6 +536,9 @@ public class PaintEx extends JFrame implements ActionListener {
 			// 해당 객체를 Vector에 추가(유저 객체를 RooInfo 객체의 벡터에 저장한다)
 			roomInfo.addRoom_user_vc(newUser);
 
+			// 추가로 들어온 유저의 패널을 생성
+			createUserLabel();
+			
 			// 유저 패널 업데이트
 			updateUserPanel();
 			
@@ -654,6 +667,39 @@ public class PaintEx extends JFrame implements ActionListener {
 
 			break;
 			
+		// # 경험치 업데이트
+		case "ExpUpdate" :
+			level = Integer.parseInt(st.nextToken()); // 레벨
+			exp = Integer.parseInt(st.nextToken()); // 경험치
+			corAnswer = Integer.parseInt(st.nextToken()); // 누적 정답수
+			
+			// 방 정보에서 해당 유저를 찾아 업데이트 사항을 적용시킨다.
+			for(int i=0; i<roomInfo.getRoom_user_vc().size(); i++) {
+				UserInfo u = (UserInfo)roomInfo.getRoom_user_vc().get(i);
+				if(mUserId.equals(u.getUserID())) {
+					u.setExp(exp);
+					u.setlevel(level);
+					u.setCorAnswer(corAnswer);
+				}
+			}
+			
+			updateUserPanel();
+			
+			break;
+			
+		// # 레벨업 이벤트 적용
+		case "UserLevelUp" :
+			
+			/*
+			 *   레벨업 이벤트 적용 
+			 */
+			
+			// 레벨은 ExpUpdate 프로토콜에서 처리하므로 이벤트 처리만 한다.
+			
+			updateUserPanel();
+			break;
+
+		// # 그림 그리기
 		case "GameRoomPaint" :
 			
 			String mouseState = st.nextToken();
@@ -846,10 +892,8 @@ public class PaintEx extends JFrame implements ActionListener {
 		
 	}
 	
-	
 	// 유저 패널 갱신 메소드
 	private void updateUserPanel() {
-		
 		// 모든 user_lb에 적용할 코드. 라벨 배열의 개수만큼 적용(추후 여유있으면 클릭 이벤트도 추가할 생각)
 		for (int i = 0; i < user_lb.length; i++) {
 			
@@ -859,14 +903,39 @@ public class PaintEx extends JFrame implements ActionListener {
 				// 인덱스로 넣은 순서 지키므로 따로 정렬할 필요 없음
 				UserInfo u = (UserInfo) roomInfo.getRoom_user_vc().get(i);
 
+				// 다시 변환해서 저장하고 내용을 변경한 후 재 저장한다.
+				UserLabel ul = (UserLabel)user_lb[i];
+				ul.setInGameUser(u);
+				
+				
 				// 꺼내온 유저 객체를 이용해서 UserLabel 객체를 생성해 user_lb에 저장시킨다.
-				user_lb[i] = new UserLabel(u);
+				user_lb[i]=ul;
 				user_pn[i].add(user_lb[i]);
 
+				System.out.println("유저 정보 :" + u.getExp() +", " + u.getLevel());
+				
+				// 하는 김에 경험치바도 갱신합니다.
+				printExp(u.getExp(), u.getLevel());
 			}
 			// 패널의 변경사항을 적용하기위한 메소드
 			revalidate(); // 레이아웃 변화를 재확인 시킨다.
 			repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
+		}
+	}
+	
+	// 유저 라벨 생성
+	private void createUserLabel() {
+		for (int i = 0; i < user_lb.length; i++) {
+			// 유저의 인원 수 만큼 해당 반복문을 진행시킨다.
+			if (i == roomInfo.getRoom_user_vc().size()-1) {
+				// 방 정보 객체에서 유저리스트로 접근하여 해당 유저 객체를 꺼내온다.
+				// 인덱스로 넣은 순서 지키므로 따로 정렬할 필요 없음
+				UserInfo u = (UserInfo) roomInfo.getRoom_user_vc().get(i);
+
+				// 꺼내온 유저 객체를 이용해서 UserLabel 객체를 생성해 user_lb에 저장시킨다.
+				user_lb[i] = new UserLabel(u);
+				user_pn[i].add(user_lb[i]);
+			}
 		}
 	}
 	
@@ -1000,11 +1069,14 @@ public class PaintEx extends JFrame implements ActionListener {
 		private JLabel user_Level;
 		private JLabel user_CorAnswer;
 		
+		private UserInfo inGameUser;
+		
 		// 갈색 x(190.909) y(151.695)
 		// 베이지 x(184.67) y(146.738)
 		// 좌측사각형 x(91.788) y(136.07)
 		// 우측사각형3개 x(77) y(42)
 		public UserLabel(UserInfo inGameUser) { // 유저 객체를 입력받는다.
+			this.inGameUser = inGameUser;
 			
 			Font userLabelFont = new Font("휴먼편지체", Font.PLAIN,18 ); //폰트설정
 			
@@ -1014,45 +1086,53 @@ public class PaintEx extends JFrame implements ActionListener {
 
 			/*    레벨에 따른 캐릭터 이미지를 불러오는 코드 필요      */
 			
-			user_Image = new JLabel(inGameUser.getCharImg(), SwingConstants.CENTER); // 가운데 정렬
+			user_Image = new JLabel(this.inGameUser.getCharImg(), SwingConstants.CENTER); // 가운데 정렬
 			user_Image.setBounds(8, 6, 91, 135);
 			user_Image.setBackground(new Color(0,0,0,0));
 			user_Image.setOpaque(true);
 			add(user_Image);
-			System.out.println(inGameUser.getCharImg());
+			System.out.println(this.inGameUser.getCharImg());
 			
 			
 			// user_Id 라벨
 			user_Id = new JLabel("",SwingConstants.CENTER); // 가운데 정렬
-			user_Id.setText(inGameUser.getUserID());
+			user_Id.setText(this.inGameUser.getUserID());
 			user_Id.setHorizontalTextPosition(JLabel.CENTER);
 			user_Id.setBounds(104, 7, 76, 41);
 			user_Id.setFont(userLabelFont);
 			user_Id.setBackground(new Color(0,0,0,0));
 			user_Id.setOpaque(true);
 			add(user_Id);
-			System.out.println(inGameUser.getUserID());
+			System.out.println(this.inGameUser.getUserID());
 			
 			// user_Level 라벨 (레벨에 따른 등급 이미지 삽입)
 			
 			/*    레벨에 따른 등급 이미지를 불러오는 코드 필요      */
 			
-			user_Level = new JLabel(inGameUser.getGradeImg(),SwingConstants.CENTER); // 가운데 정렬
+			user_Level = new JLabel(this.inGameUser.getGradeImg(),SwingConstants.CENTER); // 가운데 정렬
 			user_Level.setBounds(104, 53, 76, 41);
 			user_Level.setBackground(new Color(0,0,0,0));
 			user_Level.setOpaque(true);
 			add(user_Level);
-			System.out.println(inGameUser.getGradeImg());
+			System.out.println(this.inGameUser.getGradeImg());
 			
 			// user_CorAnswer
 			user_CorAnswer = new JLabel("",SwingConstants.CENTER); // 가운데 정렬
-			user_CorAnswer.setText(Integer.toString(inGameUser.getCorAnswer()));
+			user_CorAnswer.setText(Integer.toString(this.inGameUser.getCorAnswer()));
 			user_CorAnswer.setBounds(104, 99, 76, 41);
 			user_CorAnswer.setBackground(new Color(0,0,0,0));
 			user_CorAnswer.setOpaque(true);
 			user_CorAnswer.setFont(userLabelFont);
 			add(user_CorAnswer);
-			System.out.println(inGameUser.getCorAnswer());
+			System.out.println(this.inGameUser.getCorAnswer());
+		}
+		
+		public void setInGameUser(UserInfo inGameUser) {
+			this.inGameUser = inGameUser;
+			
+			// 일단 두 개만
+			user_Id.setText(this.inGameUser.getUserID());
+			user_CorAnswer.setText(Integer.toString(this.inGameUser.getCorAnswer()));
 		}
 	}
 	
@@ -1186,7 +1266,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			expBar.setMaximum(1430);
 			break;
 		case 13:
-			expBar.setMaximum(1750);
+			expBar.setMaximum(exp); // MaxLevel 이므로 항상 100%으로 표기한다.
 			break;
 		}
 	}
