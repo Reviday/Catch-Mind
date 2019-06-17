@@ -113,7 +113,6 @@ public class PaintEx extends JFrame implements ActionListener {
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
 	private RoomInfo roomInfo; // 방정보를 객체로 저장한다.
 	private boolean roomCaptain = false; // 방장인 사람에게는 true
-	private String roomCaptainID; // 방장 id
 	private Toolkit tk = Toolkit.getDefaultToolkit();
 	
 	JPanel cursorPanel = new JPanel();
@@ -153,9 +152,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		// MainView로부터 dos를 이어받아온다.
 		dos = MainView.getDos();
 
-		
+		// 초기 유저 패널을 생성한다. 
 		createUserPanel();
 
+		// 초기 채팅용 라벨을 생성한다.
 		createChattingLabel();
 
 		Font font = new Font("휴먼편지체", Font.BOLD, 17); // 폰트설정
@@ -380,7 +380,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		gameRoombackground.setBounds(0, 0, 1024, 768);
 		getContentPane().add(gameRoombackground);
 		
-		canvas.setVisible(true);
+		canvas.setVisible(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
@@ -414,7 +414,14 @@ public class PaintEx extends JFrame implements ActionListener {
 			String room_Pw = st.nextToken(); // 비밀번호
 			int fixed_User = Integer.parseInt(st.nextToken()); // 최대 인원(정원)
 			int uCount = Integer.parseInt(st.nextToken()); // 현재 인원 수
-
+			String roomCaptainID = st.nextToken();
+			
+			
+			//만약 자신이 방장이라면
+			if(mUserId.equals(roomCaptainID)) {
+				roomCaptain = true;
+			}
+			
 			// 받은 정보로 roomInfo 객체를 생성한다.
 			roomInfo = new RoomInfo(room_No, room_Name, room_Pw, uCount, fixed_User);
 			
@@ -500,6 +507,21 @@ public class PaintEx extends JFrame implements ActionListener {
 			startT.start();
 
 			break;	
+		
+		// # 자신의 턴을 진행할 때
+		case "YourTurn":
+
+			System.out.println("난 출제자야!");
+			// 출제자에게만 버튼 활성화
+			setButtonEnabled(true);
+			break;
+
+		// # 문제를 푸는 자들
+		case "Solve":
+
+			System.out.println("난 문제를 풀어!");
+
+			break;
 			
 		case "GameRoomPaint" :
 			
@@ -963,51 +985,74 @@ public class PaintEx extends JFrame implements ActionListener {
 			break;
 		}
 	}
+	   
+	// 게임 시작 및 라운드 시작에 사용될 버튼 활성/비활성 기능
+	private void setButtonEnabled(boolean flag) {
+
+		thick_Bold.setEnabled(flag);
+		thick_Sharp.setEnabled(flag);
+		eraser.setEnabled(flag);
+		color_yellow.setEnabled(flag);
+		color_red.setEnabled(flag);
+		color_blue.setEnabled(flag);
+		color_green.setEnabled(flag);
+		clear.setEnabled(flag);
+		color_black.setEnabled(flag);
+		giveUpBt.setEnabled(flag);
+	}
 	
 	//목표 인원수에 도달하면 3초뒤에 게임 자동시작하는 스레드(인원수가 차면 스레드 시작되는거 아직 구현X)
-	class StartThread extends Thread{
-		@Override
-		public void run() {
-			try {
-				System.out.println("시작");
-				sleep(3000);
-				ReadyImgThread rit = new ReadyImgThread();
-				rit.start();
-			}catch(InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	//게임 시작 후 Ready이미지 1.5초띄우고 사라지는 스레드
-	class ReadyImgThread extends Thread{
-		@Override
-		public void run() {
-			try {
-				readyImg.setVisible(true);
-				sleep(1500);
-				readyImg.setVisible(false);
-				StartImgThread sit = new StartImgThread();
-				sit.start();
-			}catch(InterruptedException e) {
-				e.printStackTrace();
-			}	
-		}
-	}
-	
-	class StartImgThread extends Thread{
-		@Override
-		public void run() {
-			try {
-				startImg.setVisible(true);
-				sleep(1000);
-				startImg.setVisible(false);
-				canvas.setVisible(true);
-			}catch(InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+	   class StartThread extends Thread{
+	      @Override
+	      public void run() {
+	         try {
+	            System.out.println("시작");
+	            setButtonEnabled(false); // 모든 그림 버튼 비활성화
+	            sleep(2000);
+	            ReadyImgThread rit = new ReadyImgThread();
+	            rit.start();
+	         }catch(InterruptedException e) {
+	            e.printStackTrace();
+	         }
+	      }
+	   }
+	   
+	   //게임 시작 후 Ready이미지 1.5초띄우고 사라지는 스레드
+	   class ReadyImgThread extends Thread{
+	      @Override
+	      public void run() {
+	         try {
+	            readyImg.setVisible(true);
+	            sleep(2500);
+	            readyImg.setVisible(false);
+	            StartImgThread sit = new StartImgThread();
+	            sit.start();
+	         }catch(InterruptedException e) {
+	            e.printStackTrace();
+	         }   
+	      }
+	   }
+	   
+	   class StartImgThread extends Thread{
+	      @Override
+	      public void run() {
+	         try {
+	            startImg.setVisible(true);
+	            sleep(1500);
+	            startImg.setVisible(false);
+	            canvas.setVisible(true);
+	            
+	            // 만약 방장이라면 
+	            if(roomCaptain) {
+	               send_message("RoundStart/"+id+"/"+room_No);
+	            }
+	            
+	         }catch(InterruptedException e) {
+	            e.printStackTrace();
+	         }
+	      }
+	   }
+	   
 	
 	
 	

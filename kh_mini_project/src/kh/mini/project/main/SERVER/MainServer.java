@@ -763,6 +763,8 @@ public class MainServer extends JFrame {
 
 				// 전달받은 정보로 RoomInfo객체를 생성하고 room_vc에 추가
 				RoomInfo new_room = new RoomInfo(roomNo, title, roomPW, fixed_User);
+				// 방을 생성한 유저이므로 방장 id를 저장시킨다.
+				new_room.roomCaptainID = mUserId;
 				room_vc.add(new_room); // 전체 채팅 방 Vector에 방을 추가
 
 				// 방이 만들어졌을때 BroadCast로 알린다.
@@ -943,15 +945,15 @@ public class MainServer extends JFrame {
 				room_No = Integer.parseInt(st.nextToken());
 
 				// 제일 처음, 방의 정보를 보내준다.
-	            for (int i = 0; i < room_vc.size(); i++) {
-	               RoomInfo r = (RoomInfo) room_vc.elementAt(i);
-	               if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
+				for (int i = 0; i < room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo) room_vc.elementAt(i);
+					if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
 
-	                  send_Message("Paint/pass/RoomInfo@" + mUserId + "@" + r.room_name + "@" + r.room_PW + "@"
-	                        + r.fixed_User + "@" + r.Room_user_vc.size());
-	                  break;
-	               }
-	            }
+						send_Message("Paint/pass/RoomInfo@" + mUserId + "@" + r.room_name + "@" + r.room_PW + "@"
+								+ r.fixed_User + "@" + r.Room_user_vc.size() + "@" + r.roomCaptainID);
+						break;
+					}
+				}
 
 //	                        // 이미 방에 접속해 있는 유저에게 자신의 정보를 보낸다.
 	            for (int i = 0; i < user_vc.size(); i++) {
@@ -1012,6 +1014,48 @@ public class MainServer extends JFrame {
 	            }
 	            
 				break;
+				
+				// # 라운드를 진행한다.
+			case "RoundStart":
+				// 라운드 진행을 요청한 게임방의 번호를 받는다.
+				room_No = Integer.parseInt(st.nextToken());
+
+				// 해당 방의 정보를 가져온다.
+				RoomInfo r = null;
+				for (int i = 0; i < room_vc.size(); i++) {
+					r = (RoomInfo) room_vc.get(i);
+					// 같은 방번호를 찾으면 저장한 후 break
+					if (r.room_No == room_No) {
+						break;
+					}
+				}
+
+				r.round++; // round 1을 가산
+				// 라운드가 12 이하면 아직 게임이 끝나지않음
+				if (r.round <= 12) {
+					// 순서를 알아내기위해 다음을 계산한다. (모든 라운드에 적용가능)
+					int index = r.Room_user_vc.size() - (12 - r.round) % r.Room_user_vc.size() - 1;
+
+					// 알아낸 인덱스 번호로 유저를 가져온다.
+					UserInfo u = (UserInfo) r.Room_user_vc.get(index);
+
+					// 해당 유저에게만 자신의 순서임을 알리고 나머지 유저들에게는 문제를 맞추도록 한다.
+					gSelectiveCast(room_No, u.userID, true, "Paint/pass/YourTurn@pass@"); // 순서인 유저에게만
+					gSelectiveCast(room_No, u.userID, false, "Paint/pass/Solve@pass@"); // 나머지 유저에게만
+
+				} else {
+
+					/* 게임이 끝났음을 알리는 코드 */
+
+				}
+				// [계산 해설]
+				// r:라운드, c:유저수, i=인덱스
+				// 1) (12-r) % c = a
+				// 2) c - a - 1 = i
+				// 합치면 i = c-(12-r)%c-1
+
+				break;
+				
 			// #사용자가 그림을 그리면
 			case "GameRoomPaint":
 				int gameRoomNo = Integer.parseInt(mUserId);
@@ -1122,31 +1166,38 @@ public class MainServer extends JFrame {
 
 	// 게임방
 	class RoomInfo {
-		private int room_No; // 게임방 번호
-		private String room_name; // 게임방 이름
-		private String room_PW; // 게임방 비밀번호(공개일 경우 null)
-		private int fixed_User; // 유저 정원
-		/*
-		 * 생성할 때 생성한 유저의 객체를 전달받아 리스트에 저장하고 입장하는 유저들의 유저 객체를 user_vc에서 제거하고 room_vc로 옮기는
-		 * 작업을 한다. 그리고 해당 방의 유저 수를 리턴해야할 때, Room_user_vc의 사이즈를 리턴한다.
-		 */
-		private Vector<UserInfo> Room_user_vc = new Vector<UserInfo>(); // 게임방 유저 Vector
+	      private int room_No; // 게임방 번호
+	      private String room_name; // 게임방 이름
+	      private String room_PW; // 게임방 비밀번호(공개일 경우 null)
+	      private int fixed_User; // 유저 정원
 
-		RoomInfo(int room_No, String room_name, String room_PW, int fixed_User) // 방번호를 기준으로!
-		{
-			this.room_No = room_No;
-			this.room_name = room_name;
-			this.room_PW = room_PW;
-			this.fixed_User = fixed_User;
-		}
+	      
+	      private String roomCaptainID; // 방장 id
+	      private String trun; // 현재 그리는 유저id
+	      private int round = 0; // 현재 게임 round(초기값 0)
+	      
+	      
+	      /*
+	       * 생성할 때 생성한 유저의 객체를 전달받아 리스트에 저장하고 입장하는 유저들의 유저 객체를 user_vc에서 제거하고 room_vc로 옮기는
+	       * 작업을 한다. 그리고 해당 방의 유저 수를 리턴해야할 때, Room_user_vc의 사이즈를 리턴한다.
+	       */
+	      private Vector<UserInfo> Room_user_vc = new Vector<UserInfo>(); // 게임방 유저 Vector
 
-		public void BroadCast_Room(String str) // 현재 방의 모든 사람에게 알린다.
-		{
-			for (int i = 0; i < Room_user_vc.size(); i++) {
-				UserInfo u = (UserInfo) Room_user_vc.elementAt(i);
-
-				u.send_Message(str); // 넘어온 문자열을 보내준다.
-			}
-		}
-	}
+	      RoomInfo(int room_No, String room_name, String room_PW, int fixed_User) // 방번호를 기준으로!
+	      {
+	         this.room_No = room_No;
+	         this.room_name = room_name;
+	         this.room_PW = room_PW;
+	         this.fixed_User = fixed_User;
+	      }
+	      
+//	      public void BroadCast_Room(String str) // 현재 방의 모든 사람에게 알린다.
+//	      {
+//	         for (int i = 0; i < Room_user_vc.size(); i++) {
+//	            UserInfo u = (UserInfo) Room_user_vc.elementAt(i);
+	//
+//	            u.send_Message(str); // 넘어온 문자열을 보내준다.
+//	         }
+//	      }
+	   }
 }
