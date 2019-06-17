@@ -55,11 +55,13 @@ public class PaintEx extends JFrame implements ActionListener {
 	Canvas canvas = new Canvas();
 	
 	// Panel, Label (유저 정보 및 채팅)
+	private JPanel cursorPanel = new JPanel();
 	private JLabel[] user_lb = new JLabel[6]; // 유저 정보를 띄울 라벨 (최대 인수 6인 기준)
 	private JLabel[] chatting_lb = new JLabel[6]; // 유저의 채팅을 말풍선으로 띄우는 라벨(최대 인원 6인 기준)
 	private JLabel[] chattingCover_lb = new JLabel[6];
 	private JPanel[] user_pn = new JPanel[6];
 	private JLabel suggest_lb; // 제시어 표시 라벨
+	private JLabel roundImg_lb; // 라운드 이미지 라벨
 	
 	//메뉴바 설정용
 	private JLabel menuBar;
@@ -77,15 +79,10 @@ public class PaintEx extends JFrame implements ActionListener {
 
 	// 도형
 	ShapeSave newshape;
-	ShapeSave mainshape;
-
 	ArrayList<Point> sketSP = new ArrayList<Point>();
 	Stack<ShapeSave> shape = new Stack<ShapeSave>();
 	
-	ArrayList<Point> subSP = new ArrayList<Point>();
-	Stack<ShapeSave> receiveshape = new Stack<ShapeSave>();
 	
-
 	// 버튼
 	private JButton thick_Bold;
 	private JButton thick_Sharp;
@@ -117,9 +114,13 @@ public class PaintEx extends JFrame implements ActionListener {
 	private RoomInfo roomInfo; // 방정보를 객체로 저장한다.
 	private boolean roomCaptain = false; // 방장인 사람에게는 true
 	private String suggest; // 현재 제시어를 저장할 변수(출제자만 저장한다.)
+	private int round = 0; // 현재 진행 라운드 저장용 변수
 	private Toolkit tk = Toolkit.getDefaultToolkit();
 	
-	JPanel cursorPanel = new JPanel();
+	
+	
+	
+	private ImageIcon roundImg = new ImageIcon();
 	
 	Image pen_black = tk.getImage(PaintEx.class.getResource("/images/pen_black.png"));
 	Image pen_red = tk.getImage(PaintEx.class.getResource("/images/pen_red.png"));
@@ -175,11 +176,17 @@ public class PaintEx extends JFrame implements ActionListener {
 		
 		// 제시어 표시 라벨
 		suggest_lb = new JLabel();
-		suggest_lb.setBounds(490, 40, 50, 30);
+		suggest_lb.setBounds(465, 40, 100, 30);
 		suggest_lb.setText("제시어");
 		suggest_lb.setFont(font);
 		suggest_lb.setVisible(false);
 		getContentPane().add(suggest_lb);
+		
+		// 라운드 이미지 라벨
+		roundImg_lb = new JLabel();
+		roundImg_lb.setBounds(306, 169, 400, 300);
+		getContentPane().add(roundImg_lb);
+		roundImg_lb.setVisible(false);
 		
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
 		send_message("GameRoomCheck/" + id + "/" + room_No);
@@ -517,11 +524,12 @@ public class PaintEx extends JFrame implements ActionListener {
 			/* 서버에서 인원이 다 찼으므로 게임 시작을 하도록 하는 코드 */
 			startT = new StartThread();
 			startT.start();
-
+			
 			break;	
 		
 		// # 라운드가 끝났음을 알림
 		case "EndRound":
+			round = Integer.parseInt(st.nextToken()); // 라운드를 받는다.
 			
 			/*
 			 * mUserId 에 정답자의 아이디가 저장됨
@@ -538,9 +546,17 @@ public class PaintEx extends JFrame implements ActionListener {
 			canvas.setVisible(false);
 			suggest_lb.setVisible(false);
 			
-			// 스타트 쓰레드를 시작할 준비를 가진다.
-			startT = new StartThread();
-			startT.start();
+			// 버튼 비활성화 상태로 돌림
+			setButtonEnabled(false);
+			
+			// 다음 라운드를 알림
+			roundImgUpdate(round);
+			
+			// 만약 방장이라면 
+            if(roomCaptain) {
+            	// 라운드 시작을 알린다.
+				send_message("RoundStart/"+id+"/"+room_No);
+            }
             
 			
 			/* 
@@ -554,6 +570,9 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 		// # 자신의 턴을 진행할 때
 		case "YourTurn":
+			round++; // 라운드를 가산한다.
+			roundImgUpdate(round);
+			
 			suggest = st.nextToken(); // 제시어 저장
 			updateSuggestLabel(suggest);
 			/*
@@ -561,17 +580,20 @@ public class PaintEx extends JFrame implements ActionListener {
 			 *  동시에 스탑워치 동작
 			 */
 			
-			clock.startClock();
+			
 			canvasUse=true;
 			System.out.println("난 출제자야!");
 			// 출제자에게만 버튼 활성화
 			setButtonEnabled(true);
+			
+			
 			break;
 
 		// # 문제를 푸는 자들
 		case "Solve":
-
-			clock.startClock();
+			round++; // 라운드를 가산한다.
+			roundImgUpdate(round);
+			
 			canvasUse=false;
 			System.out.println("난 문제를 풀어!");
 
@@ -687,11 +709,42 @@ public class PaintEx extends JFrame implements ActionListener {
 		}	
 	}
 	
+	// 라운드에 맞춰 이미지를 보이는 메소드
+	private void roundImgUpdate(int round) {
+		
+
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					// 1.5초 정도 대기 후
+					sleep(1500);
+					
+					// 이미지를 라운드에 맞게 조정하고 보이게 한다.
+					String address = "/Images/Round" + round + ".png";
+					roundImg = new ImageIcon(PaintEx.class.getResource(address));
+					roundImg_lb.setIcon(roundImg);
+					roundImg_lb.setVisible(true);
+					
+					// 3초 정도 대기 후
+					sleep(3000);
+					roundImg_lb.setVisible(false); // 보이지않게 한다.
+					canvas.setVisible(true); // 캔버스를 보이게한다.
+					clock.startClock(); // 타이머 동작
+
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
+	}
+	
+	
+	
 	// 유저 패널 갱신 메소드
 	private void updateUserPanel() {
 		
 		// 모든 user_lb에 적용할 코드. 라벨 배열의 개수만큼 적용(추후 여유있으면 클릭 이벤트도 추가할 생각)
-		System.out.println("updateUserLabel실행");
 		for (int i = 0; i < user_lb.length; i++) {
 			
 			// 유저의 인원 수 만큼 해당 반복문을 진행시킨다.
@@ -1044,7 +1097,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	         try {
 	            System.out.println("시작");
 	            setButtonEnabled(false); // 모든 그림 버튼 비활성화
-	            sleep(3000);
+	            sleep(2000);
 	            
 	            readyImg.setVisible(true);
 	            sleep(2500);
@@ -1055,6 +1108,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	            startImg.setVisible(false);
 	            
 	            canvas.setVisible(true);
+	            
 	            
 	            // 만약 방장이라면 
 	            if(roomCaptain) {
@@ -1070,7 +1124,6 @@ public class PaintEx extends JFrame implements ActionListener {
 
 
 	class MyMouseListener extends MouseAdapter implements MouseMotionListener {
-
 		
 		public void mousePressed(MouseEvent e) {
 			if(canvasUse) {

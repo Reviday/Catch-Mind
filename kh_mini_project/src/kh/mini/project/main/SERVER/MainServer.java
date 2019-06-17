@@ -949,8 +949,8 @@ public class MainServer extends JFrame {
 				
 				// 현재 게임중일 경우 제시어와 일치하는 확인한다.
 				if(r.state && r.suggest.equals(totalChattingMsg)) {
-					// 해당 방 유저들에게 정답자의 아이디를 보내면서 라운드가 끝났음을 알린다.	
-					gBroadCast(room_No, "Paint/pass/EndRound@" + mUserId + "@");
+					// 해당 방 유저들에게 정답자의 아이디를 보내면서 라운드가 끝났음을 알린다.(라운드를 같이 보냄)
+					gBroadCast(room_No, "Paint/pass/EndRound@" + mUserId + "@" + r.round);
 					r.state = false; // 라운드 종료
 				}
 				break;
