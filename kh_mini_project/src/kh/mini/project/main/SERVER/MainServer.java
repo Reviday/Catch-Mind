@@ -1058,15 +1058,14 @@ public class MainServer extends JFrame {
 				
 			// #사용자가 그림을 그리면
 			case "GameRoomPaint":
-				int gameRoomNo = Integer.parseInt(mUserId);
+				int gameRoomNo = Integer.parseInt(st.nextToken());
 				String mouseState = st.nextToken();
 				if (mouseState.equals("mousePress")) {
 					String receiveColor = st.nextToken();
-
 					System.out.println("MainServer에서 받은 방번호: " + gameRoomNo + "펜 컬러:" + receiveColor);
-					gBroadCast(gameRoomNo, "GameRoomPaint/pass/mousePress/" + receiveColor);
+					gSelectiveCast(gameRoomNo,mUserId,false,"GameRoomPaint/pass/mousePress/"+receiveColor);
 				} else if (mouseState.equals("mouseRelease"))
-					gBroadCast(gameRoomNo, "GameRoomPaint/pass/mouseRelease");
+					gSelectiveCast(gameRoomNo,mUserId,false,"GameRoomPaint/pass/mouseRelease");
 				else if (mouseState.equals("mouseDrag")) {
 					String pointX1 = st.nextToken();
 					String pointY1 = st.nextToken();
@@ -1078,10 +1077,12 @@ public class MainServer extends JFrame {
 					System.out.println("MainServer에서 받은 방번호:" + gameRoomNo + ", x1좌표:" + pointX1 + ", y1좌표:" + pointY1
 							+ ", x2좌표:" + pointX2 + ", y2좌표:" + pointY2 + ", 펜 굵기: " + receiveThick + ", 지우개 선택여부: "
 							+ receiveEraserSel);
-					gBroadCast(gameRoomNo, "GameRoomPaint/pass/mouseDrag/" + pointX1 + "/" + pointY1 + "/" + pointX2
+					gSelectiveCast(gameRoomNo, mUserId,false, "GameRoomPaint/pass/mouseDrag/" + pointX1 + "/" + pointY1 + "/" + pointX2
 							+ "/" + pointY2 + "/" + receiveThick + "/" + receiveEraserSel);
+
+					
 				} else if (mouseState.equals("canvasClear"))
-					gBroadCast(gameRoomNo, "GameRoomPaint/pass/canvasClear");
+					gSelectiveCast(gameRoomNo, mUserId, false, "GameRoomPaint/pass/canvasClear");
 				break;
 			}
 		}
