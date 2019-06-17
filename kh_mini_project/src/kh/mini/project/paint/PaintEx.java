@@ -105,6 +105,8 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JLabel readyImg;
 	private JLabel startImg;
 	
+	private boolean canvasUse = false;
+	
 	Point maindrow=new Point();
 	Point subdrow=new Point();
 
@@ -523,7 +525,9 @@ public class PaintEx extends JFrame implements ActionListener {
 			 * 이를 통해 라운드가 끝났음을 알리는 코드르 띄운다. 
 			 * 
 			 */
-			
+			canvas.repaint();
+			while (!shape.isEmpty())
+				shape.pop();
 			
 			// 캔버스랑 제시어 라벨을 보이지않게
 			canvas.setVisible(false);
@@ -552,6 +556,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			 *  동시에 스탑워치 동작
 			 */
 			
+			canvasUse=true;
 			System.out.println("난 출제자야!");
 			// 출제자에게만 버튼 활성화
 			setButtonEnabled(true);
@@ -560,6 +565,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		// # 문제를 푸는 자들
 		case "Solve":
 
+			canvasUse=false;
 			System.out.println("난 문제를 풀어!");
 
 			break;
@@ -607,6 +613,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					newshape.setThick(receiveThick);
 				}	
 				
+				thick=receiveThick;
 				//좌표테스트
 				System.out.println("받은 좌표 : " + pointX1 + ", " + pointY1 + ", " + pointX2 + ", " + pointY2);
 				//전송받은 좌표 대입
@@ -1053,84 +1060,51 @@ public class PaintEx extends JFrame implements ActionListener {
 	      }
 	   }
 	   
-//	   //게임 시작 후 Ready이미지 1.5초띄우고 사라지는 스레드
-//	   class ReadyImgThread extends Thread{
-//	      @Override
-//	      public void run() {
-//	         try {
-//	            readyImg.setVisible(true);
-//	            sleep(2500);
-//	            readyImg.setVisible(false);
-//	            StartImgThread sit = new StartImgThread();
-//	            sit.start();
-//	         }catch(InterruptedException e) {
-//	            e.printStackTrace();
-//	         }   
-//	      }
-//	   }
-//	   
-//	   class StartImgThread extends Thread{
-//	      @Override
-//	      public void run() {
-//	         try {
-//	            startImg.setVisible(true);
-//	            sleep(1500);
-//	            startImg.setVisible(false);
-//	            canvas.setVisible(true);
-//	            
-//	            // 만약 방장이라면 
-//	            if(roomCaptain) {
-//	               send_message("RoundStart/"+id+"/"+room_No);
-//	            }
-//	            
-//	         }catch(InterruptedException e) {
-//	            e.printStackTrace();
-//	         }
-//	      }
-//	   }
-	   
-	
-	
-	
+
 
 	class MyMouseListener extends MouseAdapter implements MouseMotionListener {
 
 		
 		public void mousePressed(MouseEvent e) {
-			newshape = new ShapeSave();
-			newshape.mypencolor = mypencolor;
+			if(canvasUse) {
+				newshape = new ShapeSave();
+				newshape.mypencolor = mypencolor;
 
-			send_message("GameRoomPaint/"+id+"/"+ room_No+"/"+"mousePress" +"/"+colorCode);
-
+				send_message("GameRoomPaint/" + id + "/" + room_No + "/" + "mousePress" + "/" + colorCode);
+			}
 		}
 
 		public void mouseReleased(MouseEvent e) {
-			shape.add(newshape);
-			sketSP.clear();
+			if(canvasUse) {
+				shape.add(newshape);
+				sketSP.clear();
 
-			send_message("GameRoomPaint/"+id+"/"+room_No+"/"+"mouseRelease");
+				send_message("GameRoomPaint/" + id + "/" + room_No + "/" + "mouseRelease");
 
-			repaint();
+				repaint();
+			}
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			if (eraser_Sel)
-				newshape.setThick(eraserThick);
-			else
-				newshape.setThick(thick);
-			
-			newshape.sketchSP.add(e.getPoint());
-			sketSP.add(e.getPoint());
-			
-			
-			//System.out.println("현재 그림그리는 좌표 x좌표:"+sketSP.get(sketSP.size()-1).x+", y좌표:"+sketSP.get(sketSP.size()-1).y);
-			
-			send_message("GameRoomPaint/"+id+"/"+room_No+"/"+"mouseDrag/"+e.getPoint().x+"/"+e.getPoint().y
-					+"/"+e.getPoint().x+"/"+e.getPoint().y+"/"+thick+"/"+eraser_Sel);
-			
-			
-			repaint();
+			if(canvasUse) {
+				if (eraser_Sel)
+					newshape.setThick(eraserThick);
+				else
+					newshape.setThick(thick);
+
+				newshape.sketchSP.add(e.getPoint());
+				sketSP.add(e.getPoint());
+
+				// System.out.println("현재 그림그리는 좌표 x좌표:"+sketSP.get(sketSP.size()-1).x+",
+				// y좌표:"+sketSP.get(sketSP.size()-1).y);
+
+				send_message("GameRoomPaint/" + id + "/" + room_No + "/" + "mouseDrag/" + e.getPoint().x + "/"
+						+ e.getPoint().y + "/" + e.getPoint().x + "/" + e.getPoint().y + "/" + thick + "/"
+						+ eraser_Sel);
+
+				repaint();
+			}
 		}
 
 		@Override
