@@ -28,6 +28,11 @@ public class StopWatch extends JPanel{
 	private JLabel mSecLb;
 	private Image viewImage; // 이미지 저장용 변수
 	private Graphics viewGraphics;
+	
+	//임시 저장용 변수(소요시간 반환을 위한 변수)
+	private String tempMinute;
+	private String temSec;
+	private String tempMSec;
 
 	Image background = new ImageIcon(Main.class.getResource("/images/stopwatchBackground.png")).getImage();
 	
@@ -105,7 +110,7 @@ public class StopWatch extends JPanel{
 	}
 
 	public String getTime() {
-		return String.valueOf(minute) + String.valueOf(sec);
+		return tempMinute + ":" + temSec + "." + tempMSec;
 	}
 
 	//스탑워치 start 메소드
@@ -120,6 +125,12 @@ public class StopWatch extends JPanel{
 		if(timeT.isAlive()) {
 			timeT.interrupt();
 			currentTime=0l;
+			
+			// 소요시간 반환을 위해 해당 값을 임시로 저장한다.
+			tempMinute = String.valueOf(minute);
+			temSec = String.valueOf(sec);
+			tempMSec = String.valueOf(mSec);
+			
 			printTime(currentTime); //스탑워치 멈추면 다시 0으로 설정
 		}
 	}

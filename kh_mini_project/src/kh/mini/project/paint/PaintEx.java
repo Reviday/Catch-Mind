@@ -62,6 +62,9 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JLabel nowTurnID; // 라운드 라벨에 띄울 현재 턴 유저ID
 	private JLabel nextTurnID; // 라운드 라벨에 띄울 다음 턴 유저ID
 	private JLabel lastTurnID; // 마지막 턴 유저ID
+	private JLabel desID; // 그림 설명을 해주는 유저의 ID
+	private JLabel solvID; // 문제를 맞춘 유저의 ID
+	private JLabel timeReq; // 소요시간 
 	
 	//메뉴바 설정용
 	private JLabel menuBar;
@@ -188,6 +191,21 @@ public class PaintEx extends JFrame implements ActionListener {
 		getContentPane().add(resultImage_lb);
 		resultImage_lb.setVisible(false);
 		
+		// 라운드 결과 이미지에 ID와 소요시간을 표시할 라벨
+		desID = new JLabel();
+		desID.setBounds(185, 140, 100, 30);
+		desID.setFont(font);
+		resultImage_lb.add(desID);
+		solvID = new JLabel();
+		solvID.setBounds(180, 185, 100, 30);
+		solvID.setFont(font);
+		resultImage_lb.add(solvID); 
+		timeReq = new JLabel();
+		timeReq.setBounds(230, 240, 120, 30);
+		timeReq.setFont(font);
+		resultImage_lb.add(timeReq);
+		
+		
 		// 게임 종료 알림 라벨
 		endGameImage_lb = new JLabel(endGameImage);
 		endGameImage_lb.setBounds(306, 169, 400, 300);
@@ -202,15 +220,15 @@ public class PaintEx extends JFrame implements ActionListener {
 		
 		// 라운드 이미지 유저 ID 표시할 라벨
 		nowTurnID = new JLabel();
-		nowTurnID.setBounds(80, 140, 100, 20);
+		nowTurnID.setBounds(90, 130, 100, 30);
 		nowTurnID.setFont(font);
 		roundImg_lb.add(nowTurnID);
 		nextTurnID = new JLabel();
-		nextTurnID.setBounds(80, 200, 100, 20);
+		nextTurnID.setBounds(80, 190, 100, 30);
 		nextTurnID.setFont(font);
 		roundImg_lb.add(nextTurnID);
 		lastTurnID = new JLabel();
-		lastTurnID.setBounds(80, 170, 100, 20);
+		lastTurnID.setBounds(80, 160, 100, 30);
 		lastTurnID.setFont(font);
 		roundImg_lb.add(lastTurnID);
 		
@@ -555,6 +573,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		
 		// # 라운드가 끝났음을 알림
 		case "EndRound":
+			String descriptor = st.nextToken(); // 문제 설명자 ID
 			round = Integer.parseInt(st.nextToken()); // 라운드를 받는다.
 			
 			/*
@@ -575,11 +594,8 @@ public class PaintEx extends JFrame implements ActionListener {
 			// 버튼 비활성화 상태로 돌림
 			setButtonEnabled(false);
 			
-			// 만약 방장이라면 
-            if(roomCaptain) {
-            	// 라운드 시작을 알린다.
-				send_message("RoundStart/"+id+"/"+room_No);
-            }
+			// 라운드 결과 페이지를 띄운다.
+			roundresult(mUserId, descriptor);
             
 			// 변수 초기화
 			mypencolor = Color.black;
@@ -596,7 +612,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			 *  정답자와 출제자의 정보 갱신이 생기므로 
 			 *  해당 유저들만 서버에 갱신요청을 알리는 메소드를 보낸다.
 			 *  서버는 이를 받고, 라벨 표기에 변경사항이 생기는 유저가 있을 시 
-			 *  전체 유저에게 갱신을 알려리는 메시지를 보낸다.
+			 *  전체 유저에게 갱신을 알리는 메시지를 보낸다.
 			 *  
 			 */
 			break;
@@ -750,7 +766,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	// 라운드에 맞춰 이미지를 보이는 메소드
 	private void roundImgUpdate(int round, String nowTurn, String nextTurn) {
-		Font font = new Font("휴먼편지체", Font.BOLD, 20);
+		Font font = new Font("휴먼편지체", Font.BOLD, 25);
 
 		new Thread() {
 			@Override
@@ -794,6 +810,40 @@ public class PaintEx extends JFrame implements ActionListener {
 		// 패널의 변경사항을 적용하기위한 메소드
 		revalidate(); // 레이아웃 변화를 재확인 시킨다.
 		repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
+	}
+	
+	// 라운드 종료시에 이미지를 보이는 메소드
+	private void roundresult(String descriptor , String solver) { // 문제를 설명해주는 사람과 정답자를 인수로 받는다.
+		Font font = new Font("휴먼편지체", Font.BOLD, 25);
+	
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					// 1.5초 정도 대기 후
+					sleep(1500);
+					
+					resultImage_lb.setVisible(true); // 결과 페이지를 보이게한다.
+					desID.setText(descriptor); 
+					solvID.setText(solver);
+					timeReq.setText(clock.getTime());
+					
+					sleep(3000);
+					
+					resultImage_lb.setVisible(false); // 다시 보이지 않게 한다.
+					
+					// 만약 방장이라면 
+		            if(roomCaptain) {
+		            	// 라운드 시작을 알린다.
+						send_message("RoundStart/"+id+"/"+room_No);
+		            }
+					
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
+		
 	}
 	
 	

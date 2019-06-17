@@ -950,8 +950,10 @@ public class MainServer extends JFrame {
 				// 현재 게임중일 경우 제시어와 일치하는 확인한다.
 				if(r.state && r.suggest.equals(totalChattingMsg)) {
 					// 해당 방 유저들에게 정답자의 아이디를 보내면서 라운드가 끝났음을 알린다.(라운드를 같이 보냄)
-					gBroadCast(room_No, "Paint/pass/EndRound@" + mUserId + "@" + r.round);
+					gBroadCast(room_No, "Paint/pass/EndRound@" + mUserId + "@" + r.descriptor + "@" + r.round);
 					r.state = false; // 라운드 종료
+					
+					// 출제자와 정답자에게 경험치 10을 증가시키고, 누적 정답 개수 하나를 증가시킨다.
 				}
 				break;
 
@@ -1066,6 +1068,9 @@ public class MainServer extends JFrame {
 					// 알아낸 인덱스 번호로 유저를 가져온다.
 					UserInfo u = (UserInfo) r.Room_user_vc.get(index);
 					
+					// 해당 유저가 descriptor라는 것을 저장한다.
+					r.descriptor = u.userID;
+					
 					if(r.round != 12) {
 						// 다음 유저 정보를 보내기 위함.
 						int nextIndex = r.Room_user_vc.size() - (12 - r.round + 1) % r.Room_user_vc.size() - 1;
@@ -1158,8 +1163,11 @@ public class MainServer extends JFrame {
 		
 		// 인게임에서 그림을 그리는 사람, 혹은 방장 등 특별한 인원을 제외하고 혹은 그 인원만 선택적으로 할때 사용
 		/*
-		 * [메소드 설명] room_No은 해당 게임방을 찾을 때 사용하는 인수 id는 선택적인 옵션에 적용할 대상 id flag가 'true'이면
-		 * 해당 유저에게만, 'false'이면 해당유저를 제외한 나머지에게 str로 받은 메시지를 전달한다.
+		 * [메소드 설명] room_No은 해당 게임방을 찾을 때 사용하는 인수 
+		 * id는 선택적인 옵션에 적용할 대상 id 
+		 * flag가 'true'이면 해당 유저에게만, 
+		 *       'false'이면 해당유저를 제외한 나머지에게
+		 * str로 받은 메시지를 전달한다.
 		 */
 		private void gSelectiveCast(int room_No, String id, boolean flag, String str) {
 			Pointer: for (int i = 0; i < room_vc.size(); i++) // 게임방에 있는 사용자에게 전송
@@ -1202,6 +1210,7 @@ public class MainServer extends JFrame {
 			}
 
 		}
+		
 	} // UserInfo class 끝
 
 	// 게임방
@@ -1214,6 +1223,7 @@ public class MainServer extends JFrame {
 	      
 	      private Question question; // 제시어 객체 저장용 변수
 	      private String roomCaptainID; // 방장 id
+	      private String descriptor; // 문제를 설명해주는 사람
 	      private String trun; // 현재 그리는 유저id
 	      private String suggest; // 현재 제시어
 	      private int round = 0; // 현재 게임 round(초기값 0)
