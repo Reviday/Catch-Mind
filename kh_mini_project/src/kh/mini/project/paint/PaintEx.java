@@ -1193,12 +1193,13 @@ public class PaintEx extends JFrame implements ActionListener {
 				eraser.setCursor(myCursor);
 				getContentPane().setCursor(myCursor);
 			} else {
-				eraser_Sel = false;
+//				eraser_Sel = false;
 				if (e.getSource() == thick_Bold)
 					thick = 8;
 				else if (e.getSource() == thick_Sharp)
 					thick = 3;
 				else if (e.getSource() == color_black) {
+					eraser_Sel = false;
 					mypencolor = Color.black;
 					colorCode = "black";
 					myCursor=blackCursor;
@@ -1206,6 +1207,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					getContentPane().setCursor(myCursor);
 				}
 				else if (e.getSource() == color_red) {
+					eraser_Sel = false;
 					mypencolor = Color.red;
 					colorCode = "red";
 					myCursor=redCursor;
@@ -1213,6 +1215,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					getContentPane().setCursor(myCursor);
 				}
 				else if (e.getSource() == color_blue) {
+					eraser_Sel = false;
 					mypencolor = Color.blue;
 					colorCode = "blue";
 					myCursor=blueCursor;
@@ -1220,6 +1223,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					getContentPane().setCursor(myCursor);
 				}
 				else if (e.getSource() == color_green) {
+					eraser_Sel = false;
 					mypencolor = Color.green;
 					colorCode = "green";
 					myCursor=greenCursor;
@@ -1228,6 +1232,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					
 				}
 				else if (e.getSource() == color_yellow) {
+					eraser_Sel = false;
 					mypencolor = Color.yellow;
 					colorCode = "yellow";
 					myCursor=yellowCursor;
