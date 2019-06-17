@@ -338,6 +338,7 @@ public class WaitingRoom extends JFrame{
 		// #나가기 버튼
 		exitButton.setBounds(400, 36, 135, 53);
 		exitButton.setBorder(null);
+		exitButton.setContentAreaFilled(false);
 		exitButton.setBackground(new Color(0,0,0,0));
 		add(exitButton);
 		exitButton.addMouseListener(new MouseAdapter() {
@@ -370,6 +371,7 @@ public class WaitingRoom extends JFrame{
 		// #방만들기 버튼
 		createRoomButton.setBounds(260, 37, 135, 53);
 		createRoomButton.setBorder(null);
+		createRoomButton.setContentAreaFilled(false);
 		createRoomButton.setBackground(new Color(0,0,0,0));
 		add(createRoomButton);
 		createRoomButton.addMouseListener(new MouseAdapter() {

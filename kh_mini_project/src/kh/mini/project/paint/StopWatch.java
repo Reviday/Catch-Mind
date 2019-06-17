@@ -2,6 +2,9 @@ package kh.mini.project.paint;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -9,78 +12,62 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import kh.mini.project.main.view.Main;
+
 import javax.swing.ImageIcon;
 
-public class StopWatch extends JFrame implements ActionListener{
-
+public class StopWatch extends JPanel{
+	
 	private static long currentTime=0l, preTime=0l;
 	private int minute=0;
 	private int sec=0;
 	private int mSec=0;
-	private boolean stop = false;
-	private JButton startBt;
-	private JButton stopBt;
 	private JLabel minuteLb;
 	private JLabel secLb;
 	private JLabel mSecLb;
+	private Image viewImage; // 이미지 저장용 변수
+	private Graphics viewGraphics;
+
+	Image background = new ImageIcon(Main.class.getResource("/images/stopwatchBackground.png")).getImage();
 	
 	timeThread timeT;
 	
 	public StopWatch() {		
-		setBounds(100,100,400,200);
-		getContentPane().setLayout(null);
-		
-		setDefaultCloseOperation(3);
-		
-		JPanel panel = new JPanel();
-		panel.setLocation(22, 10);
-		panel.setBackground(Color.WHITE);
-		panel.setSize(335,100);
-		getContentPane().add(panel);
-		panel.setLayout(null);
+		setBounds(100,100,252,99);
+		setOpaque(true);
+		setBackground(Color.white);
+		setLayout(null);
 		
 		minuteLb = new JLabel(String.valueOf(minute));
-		minuteLb.setBounds(30, 10, 71, 80);
-		minuteLb.setFont(new Font("Times", Font.BOLD, 50));
-		panel.add(minuteLb);
+		minuteLb.setBounds(14, 10, 71, 80);
+		minuteLb.setFont(new Font("Dialog", Font.BOLD, 40));
+		add(minuteLb);
 		minuteLb.setVisible(true);
 		
 		secLb = new JLabel(String.valueOf(sec));
-		secLb.setBounds(143, 10, 71, 80);
-		panel.add(secLb);
-		secLb.setFont(new Font("Times", Font.BOLD, 50));
+		secLb.setBounds(109, 10, 71, 80);
+		add(secLb);
+		secLb.setFont(new Font("Dialog", Font.BOLD, 40));
 		secLb.setVisible(true);
 		
 		mSecLb = new JLabel(String.valueOf(mSec));
-		mSecLb.setBounds(252, 33, 50, 44);
+		mSecLb.setBounds(194, 31, 50, 44);
 		mSecLb.setFont(new Font("Times", Font.BOLD, 30));
-		panel.add(mSecLb);
+		add(mSecLb);
 		
 		JLabel label = new JLabel(":");
-		label.setBounds(65, 10, 71, 80);
-		panel.add(label);
-		label.setIcon(new ImageIcon(StopWatch.class.getResource("/images/middle.png")));
-		//label.setFont(new Font("Dialog", Font.BOLD, 30));
+		label.setFont(new Font("굴림", Font.PLAIN, 40));
+		label.setBounds(65, 18, 25, 61);
+		add(label);
 		
 		JLabel label_1 = new JLabel(".");
-		label_1.setBounds(185, 0, 71, 80);
-		panel.add(label_1);
-		label_1.setIcon(new ImageIcon(StopWatch.class.getResource("/images/end.png")));
-		//label_1.setFont(new Font("Dialog", Font.BOLD, 30));
+		label_1.setFont(new Font("굴림", Font.PLAIN, 40));
+		label_1.setBounds(160, 8, 71, 80);
+		add(label_1);
 		mSecLb.setVisible(true);
 		
-		
-		startBt = new JButton("START");
-		startBt.setBounds(70, 120, 103, 32);
-		getContentPane().add(startBt);
-		startBt.setVisible(true);
-		startBt.addActionListener(this);
-		
-		stopBt = new JButton("STOP");
-		stopBt.setBounds(209, 120, 103, 32);
-		getContentPane().add(stopBt);
-		stopBt.setVisible(true);
-		stopBt.addActionListener(this);
+
 		
 		setVisible(true);
 	}
@@ -93,9 +80,8 @@ public class StopWatch extends JFrame implements ActionListener{
 					currentTime=System.currentTimeMillis() - preTime;	
 					
 					printTime(currentTime);
+					repaint();
 				}
-				
-			
 			}catch(Exception e){
 				e.printStackTrace();
 			}
@@ -103,48 +89,53 @@ public class StopWatch extends JFrame implements ActionListener{
 			
 	}
 	
-	
 	public void printTime(long currentTime){
 		
 		mSec=(int)currentTime%1000/10;
 		sec=(int)currentTime /1000 %60;
 		minute=(int)currentTime /60000 %60;
 		
-		
 		minuteLb.setText(String.valueOf(minute));
 		secLb.setText(String.valueOf(sec));
 		mSecLb.setText(String.valueOf(mSec));
 		
-	}
-	
-	
-
-	
-	public static void main(String[] args) {
-		new StopWatch();
-	}
-
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource()==startBt) {
-			
-			preTime=System.currentTimeMillis();
-			
-			timeT = new timeThread();
-			timeT.start();
-			
-		}
-
-		else if(e.getSource()==stopBt) {
-			if(timeT.isAlive()){
-				System.out.println(minute+ "분 " + sec  + "초");
-				timeT.interrupt();
-				currentTime=0l;
-				printTime(currentTime);
-			}
-		}
+		//테스트
+		//System.out.println(minute + " : " +sec+"."+mSec);
 		
+	}
+
+	public String getTime() {
+		return String.valueOf(minute) + String.valueOf(sec);
+	}
+
+	//스탑워치 start 메소드
+	public void startClock() {
+		preTime = System.currentTimeMillis();
+		timeT= new timeThread();
+		timeT.start();
+	}
+	
+	//스탑워치 stop 메소드
+	public void stopClock() {
+		if(timeT.isAlive()) {
+			timeT.interrupt();
+			currentTime=0l;
+			printTime(currentTime); //스탑워치 멈추면 다시 0으로 설정
+		}
+	}
+	
+	@Override
+	public void paint(Graphics g) {
+		viewImage = createImage(252, 99);
+		viewGraphics = viewImage.getGraphics();
+		screenDraw(viewGraphics);
+		g.drawImage(viewImage,0,0, null);
+	}
+	
+	public void screenDraw(Graphics g) {
+		g.drawImage(background, 0, 0, null);
+		paintComponents(g);
+		this.repaint();
 	}
 }
 

@@ -49,7 +49,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	}
 
 	StartThread startT;
-
+	StopWatch clock = new StopWatch();
 
 	// 프레임 안에 있는 요소들
 	Canvas canvas = new Canvas();
@@ -166,12 +166,12 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		// 채팅 입력창
 		chatting_tf = new JTextField();
-		chatting_tf.setBounds(280, 674, 300, 25);
+		chatting_tf.setBounds(134, 730, 300, 25);
 		chatting_tf.setOpaque(true);
 		chatting_tf.setDocument(new JTextFieldLimit(20)); // 채팅 45자 제한
 		chatting_tf.setFont(font);
 		chatting_tf.addKeyListener(new keyAdapter()); // 클래스로 정의한 키 이벤트를 적용
-		add(chatting_tf);
+		getContentPane().add(chatting_tf);
 		
 		// 제시어 표시 라벨
 		suggest_lb = new JLabel();
@@ -179,7 +179,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		suggest_lb.setText("제시어");
 		suggest_lb.setFont(font);
 		suggest_lb.setVisible(false);
-		add(suggest_lb);
+		getContentPane().add(suggest_lb);
 		
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
 		send_message("GameRoomCheck/" + id + "/" + room_No);
@@ -361,7 +361,7 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		// 경험치 표시
 		expBar = new JProgressBar();
-		expBar.setBounds(276, 753, 495, 10);
+		expBar.setBounds(472, 747, 495, 10);
 		getContentPane().add(expBar);
 		expBar.setValue(50);
 		expBar.setBackground(Color.white);
@@ -384,6 +384,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		getContentPane().add(startImg);
 		startImg.setBounds(356,169,300,300);
 		startImg.setVisible(false);
+		
+		clock.setBounds(156, 620, 252, 99);
+		getContentPane().add(clock);
 		
 		JLabel gameRoombackground = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/GameRoom_Background.png")));
 		gameRoombackground.setBounds(0, 0, 1024, 768);
@@ -525,6 +528,8 @@ public class PaintEx extends JFrame implements ActionListener {
 			 * 이를 통해 라운드가 끝났음을 알리는 코드르 띄운다. 
 			 * 
 			 */
+			
+			clock.stopClock();
 			canvas.repaint();
 			while (!shape.isEmpty())
 				shape.pop();
@@ -556,6 +561,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			 *  동시에 스탑워치 동작
 			 */
 			
+			clock.startClock();
 			canvasUse=true;
 			System.out.println("난 출제자야!");
 			// 출제자에게만 버튼 활성화
@@ -565,6 +571,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		// # 문제를 푸는 자들
 		case "Solve":
 
+			clock.startClock();
 			canvasUse=false;
 			System.out.println("난 문제를 풀어!");
 
@@ -674,7 +681,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			user_pn[i].setLayout(null);
 			user_pn[i].setOpaque(true);
 			user_pn[i].setBackground(new Color(0,0,0,0)); // 투명
-			add(user_pn[i]);
+			getContentPane().add(user_pn[i]);
 			
 			
 		}	
@@ -731,7 +738,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			chattingCover_lb[i].setFont(chatlbfont);
 			
 			chatting_lb[i].add(chattingCover_lb[i]);
-			add(chatting_lb[i]);
+			getContentPane().add(chatting_lb[i]);
 			
 			// switch문으로 나누기로 함
 			switch(i) {
