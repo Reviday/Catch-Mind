@@ -62,6 +62,9 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JPanel[] user_pn = new JPanel[6];
 	private JLabel suggest_lb; // 제시어 표시 라벨
 	private JLabel roundImg_lb; // 라운드 이미지 라벨
+	private JLabel nowTurnID; // 라운드 라벨에 띄울 현재 턴 유저ID
+	private JLabel nextTurnID; // 라운드 라벨에 띄울 다음 턴 유저ID
+	private JLabel lastTurnID; // 마지막 턴 유저ID
 	
 	//메뉴바 설정용
 	private JLabel menuBar;
@@ -187,6 +190,20 @@ public class PaintEx extends JFrame implements ActionListener {
 		roundImg_lb.setBounds(306, 169, 400, 300);
 		getContentPane().add(roundImg_lb);
 		roundImg_lb.setVisible(false);
+		
+		// 라운드 이미지 유저 ID 표시할 라벨
+		nowTurnID = new JLabel();
+		nowTurnID.setBounds(80, 140, 100, 20);
+		nowTurnID.setFont(font);
+		roundImg_lb.add(nowTurnID);
+		nextTurnID = new JLabel();
+		nextTurnID.setBounds(80, 200, 100, 20);
+		nextTurnID.setFont(font);
+		roundImg_lb.add(nextTurnID);
+		lastTurnID = new JLabel();
+		lastTurnID.setBounds(80, 170, 100, 20);
+		lastTurnID.setFont(font);
+		roundImg_lb.add(lastTurnID);
 		
 		// 창을 열자마자 해당 방과 동일한 방에 입장한 사용자의 정보와 방의 정보를 순서대로 받아오기위한 메시지를 보낸다.
 		send_message("GameRoomCheck/" + id + "/" + room_No);
@@ -549,9 +566,6 @@ public class PaintEx extends JFrame implements ActionListener {
 			// 버튼 비활성화 상태로 돌림
 			setButtonEnabled(false);
 			
-			// 다음 라운드를 알림
-			roundImgUpdate(round);
-			
 			// 만약 방장이라면 
             if(roomCaptain) {
             	// 라운드 시작을 알린다.
@@ -570,11 +584,14 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 		// # 자신의 턴을 진행할 때
 		case "YourTurn":
+			String nowTurn = st.nextToken(); // 현재 턴
+			String nextTurn = st.nextToken(); // 다음 턴
+			
 			round++; // 라운드를 가산한다.
-			roundImgUpdate(round);
+			roundImgUpdate(round, nowTurn, nextTurn); // 라운드 업데이트
 			
 			suggest = st.nextToken(); // 제시어 저장
-			updateSuggestLabel(suggest);
+			updateSuggestLabel(suggest); // 제시어를 보이게한다.
 			/*
 			 *  [제시어를 화면에 띄우는 코드]
 			 *  동시에 스탑워치 동작
@@ -591,8 +608,11 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		// # 문제를 푸는 자들
 		case "Solve":
+			nowTurn = st.nextToken(); // 현재 턴
+			nextTurn = st.nextToken(); // 다음 턴
+			
 			round++; // 라운드를 가산한다.
-			roundImgUpdate(round);
+			roundImgUpdate(round, nowTurn, nextTurn); // 라운드 업데이트
 			
 			canvasUse=false;
 			System.out.println("난 문제를 풀어!");
@@ -710,8 +730,8 @@ public class PaintEx extends JFrame implements ActionListener {
 	}
 	
 	// 라운드에 맞춰 이미지를 보이는 메소드
-	private void roundImgUpdate(int round) {
-		
+	private void roundImgUpdate(int round, String nowTurn, String nextTurn) {
+		Font font = new Font("휴먼편지체", Font.BOLD, 20);
 
 		new Thread() {
 			@Override
@@ -720,11 +740,25 @@ public class PaintEx extends JFrame implements ActionListener {
 					// 1.5초 정도 대기 후
 					sleep(1500);
 					
+					System.out.println("라운드 : " +round + ", " + nowTurn + ", " + nextTurn );
+					
 					// 이미지를 라운드에 맞게 조정하고 보이게 한다.
 					String address = "/Images/Round" + round + ".png";
 					roundImg = new ImageIcon(PaintEx.class.getResource(address));
 					roundImg_lb.setIcon(roundImg);
 					roundImg_lb.setVisible(true);
+					
+					if(round != 12) {
+						// 라운드 이미지에 turn id를 띄운다.
+						nowTurnID.setText(nowTurn);
+						nextTurnID.setText(nextTurn);
+					} else {
+						nowTurnID.setVisible(false);
+						nextTurnID.setVisible(false);
+						
+						// 라운드 이미지에 turn id를 띄운다.
+						lastTurnID.setText(nowTurn);
+					}
 					
 					// 3초 정도 대기 후
 					sleep(3000);
@@ -737,8 +771,11 @@ public class PaintEx extends JFrame implements ActionListener {
 				}
 			}
 		}.start();
+
+		// 패널의 변경사항을 적용하기위한 메소드
+		revalidate(); // 레이아웃 변화를 재확인 시킨다.
+		repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
 	}
-	
 	
 	
 	// 유저 패널 갱신 메소드
@@ -753,11 +790,8 @@ public class PaintEx extends JFrame implements ActionListener {
 				// 인덱스로 넣은 순서 지키므로 따로 정렬할 필요 없음
 				UserInfo u = (UserInfo) roomInfo.getRoom_user_vc().get(i);
 
-				System.out.println(u.getUserID() + "님의 라벨 갱신");
-
 				// 꺼내온 유저 객체를 이용해서 UserLabel 객체를 생성해 user_lb에 저장시킨다.
 				user_lb[i] = new UserLabel(u);
-
 				user_pn[i].add(user_lb[i]);
 
 			}
@@ -769,9 +803,22 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	// 제시어 갱신 메소드
 	private void updateSuggestLabel(String str) {
-		// 입력받은 문자로 텍스트 갱신
-		suggest_lb.setText(str);
-		suggest_lb.setVisible(true); // 볼 수 있도록 변경
+		
+		new Thread() {
+			@Override
+			public void run() {
+					// 1.5초 정도 대기 후
+					try {
+						sleep(4500);
+						// 입력받은 문자로 텍스트 갱신
+						suggest_lb.setText(str);
+						suggest_lb.setVisible(true); // 볼 수 있도록 변경
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+			}
+		}.start();
+		
 		// 패널의 변경사항을 적용하기위한 메소드
 		revalidate(); // 레이아웃 변화를 재확인 시킨다.
 		repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
@@ -1106,9 +1153,6 @@ public class PaintEx extends JFrame implements ActionListener {
 	            startImg.setVisible(true);
 	            sleep(1500);
 	            startImg.setVisible(false);
-	            
-	            canvas.setVisible(true);
-	            
 	            
 	            // 만약 방장이라면 
 	            if(roomCaptain) {
