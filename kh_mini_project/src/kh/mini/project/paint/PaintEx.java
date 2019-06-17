@@ -570,6 +570,8 @@ public class PaintEx extends JFrame implements ActionListener {
 					newshape.setThick(receiveThick);
 				}	
 				
+				thick=receiveThick;
+				
 				//좌표테스트
 				System.out.println("받은 좌표 : " + pointX1 + ", " + pointY1 + ", " + pointX2 + ", " + pointY2);
 				//전송받은 좌표 대입
