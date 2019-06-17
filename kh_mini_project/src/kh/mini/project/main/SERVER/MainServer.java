@@ -1037,6 +1037,7 @@ public class MainServer extends JFrame {
 			case "RoundStart":
 				// 라운드 진행을 요청한 게임방의 번호를 받는다.
 				room_No = Integer.parseInt(st.nextToken());
+				UserInfo nextU = null;
 
 				// 해당 방의 정보를 가져온다.
 				r = null;
@@ -1059,27 +1060,38 @@ public class MainServer extends JFrame {
 					// 제시어로 뽑힌 문자를 저장한다. 1라운드부터 시작하므로 인수는 1
 					r.suggest = r.question.selQuestion(r.round);
 					
-					
 					// 순서를 알아내기위해 다음을 계산한다. (모든 라운드에 적용가능)
 					int index = r.Room_user_vc.size() - (12 - r.round) % r.Room_user_vc.size() - 1;
-
+					
 					// 알아낸 인덱스 번호로 유저를 가져온다.
 					UserInfo u = (UserInfo) r.Room_user_vc.get(index);
+					
+					if(r.round != 12) {
+						// 다음 유저 정보를 보내기 위함.
+						int nextIndex = r.Room_user_vc.size() - (12 - r.round + 1) % r.Room_user_vc.size() - 1;
+						nextU = (UserInfo) r.Room_user_vc.get(nextIndex);
+						
+						// 해당 유저에게만 자신의 순서임을 알리고 나머지 유저들에게는 문제를 맞추도록 한다.(문제를 내는 사람한테만 제시어를 넘김)
+						gSelectiveCast(room_No, u.userID, true,
+								"Paint/pass/YourTurn@pass@" + u.userID + "@" + nextU.userID + "@" + r.suggest); // 순서인 유저에게만
 
-					// 해당 유저에게만 자신의 순서임을 알리고 나머지 유저들에게는 문제를 맞추도록 한다.(문제를 내는 사람한테만 제시어를 넘김)
-					gSelectiveCast(room_No, u.userID, true, "Paint/pass/YourTurn@pass@"+r.suggest); // 순서인 유저에게만
-					gSelectiveCast(room_No, u.userID, false, "Paint/pass/Solve@pass@"); // 나머지 유저에게만
+						gSelectiveCast(room_No, u.userID, false,
+								"Paint/pass/Solve@pass@" + u.userID + "@" + nextU.userID); // 나머지 유저에게만
 
+					} else { // 마지막 라운드일 경우
+						gSelectiveCast(room_No, u.userID, true,
+								"Paint/pass/YourTurn@pass@" + u.userID + "@[마지막라운드]@" + r.suggest); // 순서인 유저에게만
+						gSelectiveCast(room_No, u.userID, false, "Paint/pass/Solve@pass@" + u.userID + "@[마지막라운드]"); // 나머지 유저에게만
+
+					}
+
+
+					
 				} else {
 
 					/* 게임이 끝났음을 알리는 코드 */
 
 				}
-				// [계산 해설]
-				// r:라운드, c:유저수, i=인덱스
-				// 1) (12-r) % c = a
-				// 2) c - a - 1 = i
-				// 합치면 i = c-(12-r)%c-1
 
 				break;
 				
