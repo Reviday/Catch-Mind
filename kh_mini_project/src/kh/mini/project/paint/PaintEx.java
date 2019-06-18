@@ -68,6 +68,10 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JLabel timeReq; // 소요시간 
 	private JLabel levelUpEvent_lb; // 레벨업 이벤트용 라벨
 	
+	
+	private JLabel gameRoombackground; //배경이미지 라벨
+	private JLabel expLabel; //exp라벨
+	
 	//메뉴바 설정용
 	private JLabel menuBar;
 	private int mouseX, mouseY;
@@ -426,7 +430,7 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		// 경험치 표시
 		expBar = new JProgressBar();
-		expBar.setBounds(472, 747, 495, 10);
+		expBar.setBounds(520, 742, 454, 8);
 		getContentPane().add(expBar);
 		expBar.setBackground(Color.white);
 		expBar.setForeground(Color.gray);
@@ -455,9 +459,14 @@ public class PaintEx extends JFrame implements ActionListener {
 		clock.setBounds(156, 620, 252, 99);
 		getContentPane().add(clock);
 		
-		JLabel gameRoombackground = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/GameRoom_Background.png")));
+		gameRoombackground = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/GameRoom_Background.png")));
 		gameRoombackground.setBounds(0, 0, 1024, 768);
 		getContentPane().add(gameRoombackground);
+		
+		expLabel = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/ExpLbl.png")));
+		gameRoombackground.add(expLabel);
+		expLabel.setBounds(475, 737, 50, 18);
+		expLabel.setVisible(true);
 		
 		canvas.setVisible(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
