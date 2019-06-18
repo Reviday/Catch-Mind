@@ -713,6 +713,11 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 			updateUserPanel();
 			break;
+			
+		case "GameOver"	:
+			// 게임 종료 메소드를 실행한다.
+			showGameOver();
+			break;
 
 		// # 그림 그리기
 		case "GameRoomPaint" :
@@ -1073,6 +1078,28 @@ public class PaintEx extends JFrame implements ActionListener {
 					}
 				}
 
+			}
+		}.start();
+	}
+	
+	
+	// 게임종료 이미지를 보이는 메소드
+	private void showGameOver() {
+		new Thread() {
+			public void run() {
+				try {
+					// 1.5초후 게임 종료 이미지를 띄운다
+					sleep(1500);
+					endGameImage_lb.setVisible(true);
+					
+					// 5초간 띄운후 서버에 게임 종료를 알리고 페이지를 닫는다. 유저들은 대기실로 이동된다.
+					sleep(5000);
+					send_message("GameOver/"+id+"/"+room_No+"/"+roomCaptain);
+					dispose();
+					
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}.start();
 	}

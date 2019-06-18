@@ -571,12 +571,40 @@ public class MainServer extends JFrame {
 			userID = str;
 			System.out.println(userID);
 			statusArea.append(userID + " : 사용자 접속!\n");
+			
+			// 대기실 입창 처리 메소드
+			enteredWaitingRoom();
+			
+			user_vc.add(this); // 사용자에게 알린 후 Verctor에 자신을 추가
+			// Vector는 동적으로 늘어나는 배열로 이해하면 되는데, 객체에 저장한 사용자 정보를 Vector에 저장한다.
+			wRoom_vc.add(this); // 대기실 유저 리스트에도 적용
+			statusArea.append("현재 접속된 사용자 수 : " + user_vc.size() + "\n");
+		}
 
+		// 유저가 로그아웃할 경우, 실행될 메소드로 아직 미적용
+		private void userSub(String str) {
+			// 유저가 나가게 될 경우 사용자의 닉네임을 받아들인다.
+			userID = str;
+			System.out.println(userID);
+			statusArea.append(userID + " : 사용자 접속종료!");
+
+			// 기존 사용자들에게 사용자 접속 종료 알림(broadcast)
+			BroadCast("WaitingRoom/pass/SubUser@" + userID);
+
+			// 현재 접속중인 사용자의 리스트를 자신에게 알림
+			for (int i = 0; i < user_vc.size(); i++) {
+				UserInfo u = (UserInfo) user_vc.elementAt(i);
+				// 서버가 연결된 사용자에게 보내는 부분
+				send_Message("WaitingRoom/pass/OldUser@" + u.userID);
+			}
+		}
+
+		private void enteredWaitingRoom() {
 			// 사용자 접속이 완료되면, 해당 계정의 정보를 로드해온다.
 			for (int i = 0; i < allUser_vc.size(); i++) {
 				// 모든 유저 객체를 하나 가져와서
 				User u = (User) allUser_vc.elementAt(i);
-				// 접속자의 아이디와 같은 아이디를 찾고, 로그인 상태가 false면 접속을 허용한다.
+				// 접속자의 아이디와 같은 아이디를 찾고
 				if (u.getId().equals(userID)) {
 					// 각각의 정보를 저장하고
 					level = u.getLevel();
@@ -587,7 +615,7 @@ public class MainServer extends JFrame {
 					// 자신에게 그 정보를 알린다.
 					send_Message("WaitingRoom/pass/UserInfo@" + userID + "@" + level + "@" + exp + "@" + corAnswer);
 					break; // 사용자의 정보를 찾았으므로 반복문 종료
-				} 
+				}
 			}
 
 			// 현재 접속중인 사용자의 리스트를 자신에게 알림
@@ -619,46 +647,21 @@ public class MainServer extends JFrame {
 				 */
 				String msg = "";
 				if (i == room_vc.size() - 1) {
-					msg = "WaitingRoom/pass/OldRoom@" + userID + "@" + r.pwStat + "@" + r.room_No + "@" + r.room_name + "@" + r.room_PW
-							+ "@" + r.fixed_User + "@" + r.Room_user_vc.size() + "@last";
+					msg = "WaitingRoom/pass/OldRoom@" + userID + "@" + r.room_No + "@" + r.room_name+ "@" + r.pwStat
+							+ "@" + r.room_PW + "@" + r.fixed_User + "@" + r.Room_user_vc.size() + "@last";
 				} else {
-					msg = "WaitingRoom/pass/OldRoom@" + userID + "@" + r.room_No + "@" + r.pwStat + "@" + r.room_name + "@" + r.room_PW
-							+ "@" + r.fixed_User + "@" + r.Room_user_vc.size() + "@_";
+					msg = "WaitingRoom/pass/OldRoom@" + userID + "@" + r.room_No + "@" + r.room_name+ "@" + r.pwStat
+							+ "@" + r.room_PW + "@" + r.fixed_User + "@" + r.Room_user_vc.size() + "@_";
 				}
 				send_Message(msg);
 			}
 
 			// 기존 사용자들에게 새로운 사용자 알림(broadcast)
-			BroadCast("WaitingRoom/pass/NewUser@" + userID + "@" + level + "@" + exp + "@" + corAnswer); // 기존 사용자에게 자신을
-																											// 알린다. 프로토콜
-																											// 사용 [
-																											// NewUser/사용자ID
-																											// ]
+			BroadCast("WaitingRoom/pass/NewUser@" + userID + "@" + level + "@" + exp + "@" + corAnswer); 
+			// 기존 사용자에게 자신을  알린다. 프로토콜 사용 [NewUser/사용자ID]
 
-			user_vc.add(this); // 사용자에게 알린 후 Verctor에 자신을 추가
-			// Vector는 동적으로 늘어나는 배열로 이해하면 되는데, 객체에 저장한 사용자 정보를 Vector에 저장한다.
-			wRoom_vc.add(this); // 대기실 유저 리스트에도 적용
-			statusArea.append("현재 접속된 사용자 수 : " + user_vc.size() + "\n");
 		}
-
-		// 유저가 로그아웃할 경우, 실행될 메소드로 아직 미적용
-		private void userSub(String str) {
-			// 유저가 나가게 될 경우 사용자의 닉네임을 받아들인다.
-			userID = str;
-			System.out.println(userID);
-			statusArea.append(userID + " : 사용자 접속종료!");
-
-			// 기존 사용자들에게 사용자 접속 종료 알림(broadcast)
-			BroadCast("WaitingRoom/pass/SubUser@" + userID);
-
-			// 현재 접속중인 사용자의 리스트를 자신에게 알림
-			for (int i = 0; i < user_vc.size(); i++) {
-				UserInfo u = (UserInfo) user_vc.elementAt(i);
-				// 서버가 연결된 사용자에게 보내는 부분
-				send_Message("WaitingRoom/pass/OldUser@" + u.userID);
-			}
-		}
-
+		
 		@Override
 		public void run() // Thread에서 처리할 내용
 		{
@@ -1112,11 +1115,41 @@ public class MainServer extends JFrame {
 					}
 					
 				} else {
-
-					/* 게임이 끝났음을 알리는 코드 */
-
+					// 방에 있는 유저들에게 게임이 끝났음을 알린다.
+					gBroadCast(room_No, "Paint/pass/GameOver@pass@ ");
 				}
 
+				break;
+				
+			// #게임이 끝났으므로 대기실로 이동시킨다.
+			case "GameOver" :
+				room_No = Integer.parseInt(st.nextToken());
+				String roomCaptain = st.nextToken(); // 방장인지 아닌지
+				
+				// 해당 유저를 다시 대기실 인원에 추가한다.
+				for(int i=0; i<user_vc.size(); i++) {
+					UserInfo u = (UserInfo)user_vc.get(i);
+					// 해당 유저의 대기실 입장 처리
+					u.enteredWaitingRoom();
+					// 다시 대기실 유저에 추가
+					wRoom_vc.add(u);
+				}
+				
+				// 이 프로토콜은 여러 인원에게서 들어오기 때문에 방장에게서 들어온 메시지에서만 방 제거를 실시한다.
+				if(roomCaptain.equals("true")) {
+					for(int i=0; i<room_vc.size(); i++) {
+						//방의 정보를 가져와
+						r = (RoomInfo)room_vc.get(i);
+						if(r.room_No == room_No) {
+							// 해당 방을 찾아서 삭제한다.
+							room_vc.remove(i);
+						}
+					}
+				}
+				
+				// 대기실로 보내는 기능은 "LoginOK" 프로토콜과 동일하다.
+				send_Message("LoginOK/ok");
+				
 				break;
 				
 			// #사용자가 그림을 그리면
