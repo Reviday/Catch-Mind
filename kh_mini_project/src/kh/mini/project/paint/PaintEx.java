@@ -115,6 +115,8 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	private Point maindrow=new Point();
 	private Point subdrow=new Point();
+	
+	private Music bgm;
 
 // 각종 변수
 	private String id; // 사용자의 id를 저장
@@ -480,6 +482,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		canvas.setVisible(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+		
+		bgm = new Music("gameBGM.mp3",true);
+		bgm.start();
 	}
 	
 	

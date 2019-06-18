@@ -25,11 +25,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -60,6 +57,7 @@ import kh.mini.project.main.view.Main;
 import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
+import kh.mini.project.paint.Music;
 
 public class WaitingRoom extends JFrame{
 // Frame, Panel
@@ -133,6 +131,9 @@ public class WaitingRoom extends JFrame{
 	private JButton createRoomButton = new JButton(createRoomBasicImage); // 방만들기 버튼
 	private JButton rightRButton = new JButton(rightRBasicImage); // 방 오른쪽 넘기기 버튼
 	private JButton leftRButton = new JButton(leftRBasicImage); // 방 왼쪽 넘기기 버튼
+	
+//BGM
+	private Music bgm;
 	
 	public WaitingRoom() {
 		//실행과 동시에 네트워크 자원과 id를 MainView로부터 이어받아온다.
@@ -455,6 +456,9 @@ public class WaitingRoom extends JFrame{
 		
 		//대기실 입장시, 환영하는 문구 출력
 		chattingArea.append("["+id+"]님 환영합니다! \n");
+		
+		bgm = new Music("waitingRoomBGM.mp3", true);
+		bgm.start();
 	} // WaitingRoom() 생성자 끝
 
 	private void Inmessage(String str) // 서버로부터 들어오는 모든 메세지
@@ -550,7 +554,7 @@ public class WaitingRoom extends JFrame{
 			send_message("EntryRoom/"+userInfo.getUserID());
 			// WaitingRoom 창을 종료하고 게임창을 연다. 이때, 방 제목과 방 번호를 같이 보낸다.
 			dispose();
-			
+			bgm.close();
 			break;
 		
 		// #기존에 생성된 방의 정보를 넘겨받음(초기 세팅 작업)
