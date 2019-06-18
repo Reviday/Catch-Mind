@@ -104,6 +104,8 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JButton color_black;
 	private JButton giveUpBt;
 	
+	private JButton exit;
+	
 	private JProgressBar expBar;
 	
 	private JLabel levelUpImg;
@@ -116,7 +118,10 @@ public class PaintEx extends JFrame implements ActionListener {
 	private Point maindrow=new Point();
 	private Point subdrow=new Point();
 	
+//	BGM
 	private Music bgm;
+	private Music buttonEnteredBGM;
+	private Music popUpBGM;
 
 // 각종 변수
 	private String id; // 사용자의 id를 저장
@@ -303,6 +308,13 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_black.setBorderPainted(false);
 		getContentPane().add(color_black);
 		color_black.addActionListener(this);
+		color_black.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseEntered(MouseEvent e){
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+			}
+			});
 		color_black.setVisible(true);
 
 		color_red = new JButton("red");
@@ -314,6 +326,13 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_red.setBorderPainted(false);
 		getContentPane().add(color_red);
 		color_red.addActionListener(this);
+		color_red.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseEntered(MouseEvent e){
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+			}
+			});
 		color_red.setVisible(true);
 
 		color_blue = new JButton("blue");
@@ -325,6 +344,13 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_blue.setBounds(615, 620, 122, 60);
 		getContentPane().add(color_blue);
 		color_blue.addActionListener(this);
+		color_blue.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseEntered(MouseEvent e){
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+			}
+			});
 		color_blue.setVisible(true);
 
 		color_green = new JButton("green");
@@ -336,6 +362,13 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_green.setBounds(615, 685, 122, 60);
 		getContentPane().add(color_green);
 		color_green.addActionListener(this);
+		color_green.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseEntered(MouseEvent e){
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+			}
+			});
 		color_green.setVisible(true);
 
 		color_yellow = new JButton("yellow");
@@ -344,10 +377,17 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_yellow.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_yellowCLK.png")));
 		color_yellow.setFocusPainted(false);
 		color_yellow.setBorderPainted(false);
-		color_yellow.setVisible(true);
 		color_yellow.setBounds(743, 620, 122, 60);
 		getContentPane().add(color_yellow);
 		color_yellow.addActionListener(this);
+		color_yellow.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseEntered(MouseEvent e){
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+			}
+			});
+		color_yellow.setVisible(true);
 
 		//지우개 버튼
 		eraser = new JButton(new ImageIcon(PaintEx.class.getResource("/images/eraser.png")));
@@ -358,6 +398,13 @@ public class PaintEx extends JFrame implements ActionListener {
 		eraser.setBounds(752, 693, 50, 42);
 		getContentPane().add(eraser);
 		eraser.addActionListener(this);
+		eraser.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseEntered(MouseEvent e){
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+			}
+			});
 		eraser.setVisible(true);
 
 		//클리어 버튼
@@ -369,6 +416,13 @@ public class PaintEx extends JFrame implements ActionListener {
 		clear.setBorderPainted(false);
 		clear.setBounds(810, 693, 50, 42);
 		getContentPane().add(clear);
+		clear.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseEntered(MouseEvent e){
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+			}
+			});
 		clear.addActionListener(this);
 
 		//펜 굵기 버튼
@@ -380,6 +434,13 @@ public class PaintEx extends JFrame implements ActionListener {
 		thick_Bold.setBounds(868, 628, 97, 23);
 		getContentPane().add(thick_Bold);
 		thick_Bold.addActionListener(this);
+		thick_Bold.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseEntered(MouseEvent e){
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+			}
+			});
 		thick_Bold.setVisible(true);
 
 		thick_Sharp = new JButton(new ImageIcon(PaintEx.class.getResource("/images/thick_Sharp.png")));
@@ -390,21 +451,28 @@ public class PaintEx extends JFrame implements ActionListener {
 		thick_Sharp.setBounds(868, 654, 97, 23);
 		getContentPane().add(thick_Sharp);
 		thick_Sharp.addActionListener(this);
+		thick_Sharp.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseEntered(MouseEvent e){
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+			}
+			});
 		thick_Sharp.setVisible(true);
 
-		JButton exit = new JButton(new ImageIcon(PaintEx.class.getResource("/images/gameroom_Exit.png"))); // 버튼 액션 해야됨
+		exit = new JButton(new ImageIcon(PaintEx.class.getResource("/images/gameroom_Exit.png"))); // 버튼 액션 해야됨
 		exit.setContentAreaFilled(false);
 		exit.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/gameroom_ExitCLK.png")));
-		clear.setFocusPainted(false);
-		clear.setBorderPainted(false);
 		exit.setBounds(991, 2, 19, 25);
-		getContentPane().add(exit);
+		menuBar.add(exit);
 		exit.setVisible(true);
 		exit.addMouseListener(new MouseAdapter() {
 			// 마우스를 버튼에 올려놨을 때 이벤트
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				exit.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				buttonEnteredBGM = new Music("exitBGM.mp3", false);
+				buttonEnteredBGM.start();
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -429,8 +497,15 @@ public class PaintEx extends JFrame implements ActionListener {
 		giveUpBt.setBorderPainted(false);
 		giveUpBt.setBounds(885, 700, 63, 24);
 		getContentPane().add(giveUpBt);
-		giveUpBt.setVisible(true);
 		giveUpBt.addActionListener(this);
+		giveUpBt.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start();
+			}
+		});
+		giveUpBt.setVisible(true);
 		
 
 		// 경험치 표시
@@ -892,6 +967,9 @@ public class PaintEx extends JFrame implements ActionListener {
 						lastTurnID.setText(nowTurn);
 					}
 					
+					popUpBGM = new Music("roundBGM.mp3", false);
+					popUpBGM.start();
+					
 					// 3초 정도 대기 후
 					sleep(3000);
 					roundImg_lb.setVisible(false); // 보이지않게 한다.
@@ -918,6 +996,9 @@ public class PaintEx extends JFrame implements ActionListener {
 			public void run() {
 				try {
 					// 1.5초 정도 대기 후
+					popUpBGM = new Music("correctBGM.mp3", false);
+					popUpBGM.start();
+					
 					sleep(1500);
 					
 					resultImage_lb.setVisible(true); // 결과 페이지를 보이게한다.
@@ -949,17 +1030,18 @@ public class PaintEx extends JFrame implements ActionListener {
 			@Override
 			public void run() {
 				try {
-					Music giveUpBGM = new Music("giveUpBGM.mp3",true);
-					giveUpBGM.start();
-					// 1.5초 정도 대기 후
-					sleep(1500);
+					
+					// 1초 정도 대기 후
+					sleep(1000);
 					
 					giveUpImg.setVisible(true);
+					
+					popUpBGM = new Music("giveupBGM.mp3",false);
+					popUpBGM.start();
 					
 					sleep(3000);
 					
 					giveUpImg.setVisible(false); // 다시 보이지 않게 한다.
-					giveUpBGM.close();
 					// 만약 방장이라면 
 		            if(roomCaptain) {
 		            	// 라운드 시작을 알린다.
@@ -1155,6 +1237,8 @@ public class PaintEx extends JFrame implements ActionListener {
 					sleep(1500);
 					endGameImage_lb.setVisible(true);
 					
+					popUpBGM = new Music("endgameBGM.mp3", false);
+					popUpBGM.start();
 					// 5초간 띄운후 서버에 게임 종료를 알리고 페이지를 닫는다. 유저들은 대기실로 이동된다.
 					sleep(5000);
 					send_message("GameOver/"+id+"/"+room_No+"/"+roomCaptain);
@@ -1403,10 +1487,14 @@ public class PaintEx extends JFrame implements ActionListener {
 	            sleep(2000);
 	            
 	            readyImg.setVisible(true);
+	            popUpBGM = new Music("readyBGM.mp3", false);
+	            popUpBGM.start();
 	            sleep(2500);
 	            readyImg.setVisible(false);
 	            
 	            startImg.setVisible(true);
+	            popUpBGM = new Music("goBGM.mp3", false);
+	            popUpBGM.start();
 	            sleep(1500);
 	            startImg.setVisible(false);
 	            
