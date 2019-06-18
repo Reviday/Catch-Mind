@@ -622,7 +622,7 @@ public class MainServer extends JFrame {
 			for (int i = 0; i < wRoom_vc.size(); i++) {
 				// 기존 접속자 유저 객체를 하나 가져와서
 				UserInfo u = (UserInfo) wRoom_vc.elementAt(i);
-
+				System.out.println("유저 체크 :" + u);
 				/*
 				 * 기존 사용자의 정보를 읽어온다. 서버가 연결된 사용자에게 보내는 부분
 				 */
@@ -641,6 +641,7 @@ public class MainServer extends JFrame {
 			for (int i = 0; i < room_vc.size(); i++) {
 				// 기존 개설된 방 객체를 하나 가져와서
 				RoomInfo r = (RoomInfo) room_vc.elementAt(i);
+				System.out.println("방 체크 : " + r);
 
 				/*
 				 * 기존에 개설된 방의 정보를 읽어온다. 서버가 연결된 사용자에게 보내는 부분
@@ -1114,43 +1115,81 @@ public class MainServer extends JFrame {
 
 					}
 					
-				} else {
+				} else { 
 					// 방에 있는 유저들에게 게임이 끝났음을 알린다.
-					gBroadCast(room_No, "Paint/pass/GameOver@pass@ ");
+					for (int i = 0; i < room_vc.size(); i++) {
+						RoomInfo room = (RoomInfo) room_vc.get(i);
+						if (room.room_No == room_No) {
+							for (int j = 0; j < room.Room_user_vc.size(); j++) {
+								UserInfo user = (UserInfo) room.Room_user_vc.get(j);
+								System.out.println(user);
+								
+											user.send_Message("Paint/pass/GameOver@" + user.userID);
+							
+								
+							}
+						}
+					}
 				}
 
 				break;
 				
-			// #게임이 끝났으므로 대기실로 이동시킨다.
-			case "GameOver" :
+			case "GiveUp" : 
 				room_No = Integer.parseInt(st.nextToken());
-				String roomCaptain = st.nextToken(); // 방장인지 아닌지
+				int round = Integer.parseInt(st.nextToken());
+				String giveUp_Sel = st.nextToken();
 				
-				// 해당 유저를 다시 대기실 인원에 추가한다.
-				for(int i=0; i<user_vc.size(); i++) {
-					UserInfo u = (UserInfo)user_vc.get(i);
-					// 해당 유저의 대기실 입장 처리
-					u.enteredWaitingRoom();
-					// 다시 대기실 유저에 추가
-					wRoom_vc.add(u);
-				}
+				gBroadCast(room_No, "Paint/pass/EndRound@pass@pass@"+round +"@"+giveUp_Sel);
+			break;	
 				
-				// 이 프로토콜은 여러 인원에게서 들어오기 때문에 방장에게서 들어온 메시지에서만 방 제거를 실시한다.
-				if(roomCaptain.equals("true")) {
-					for(int i=0; i<room_vc.size(); i++) {
-						//방의 정보를 가져와
-						r = (RoomInfo)room_vc.get(i);
-						if(r.room_No == room_No) {
-							// 해당 방을 찾아서 삭제한다.
-							room_vc.remove(i);
-						}
-					}
-				}
-				
-				// 대기실로 보내는 기능은 "LoginOK" 프로토콜과 동일하다.
-				send_Message("LoginOK/ok");
-				
-				break;
+				// #게임이 끝났으므로 대기실로 이동시킨다.
+	         case "GameOver" :
+	            room_No = Integer.parseInt(st.nextToken());
+	            String roomCaptain = st.nextToken(); // 방장인지 아닌지
+	            
+	            // 자꾸 정보 불러오기 실패하는데, 처음에 로그인하는 방식으로 대기실 입장시키는 방법을 사용하자.
+	            
+	            // 해당 유저의 정보를 유저목록에서 제거한다.
+	            for(int i=0; i<user_vc.size(); i++) {
+	               UserInfo u = (UserInfo)user_vc.get(i);
+	               if(u.userID.equals(mUserId)) {
+	                  // 해당 유저를 찾았으면 리스트에서 제거한다.
+	                  user_vc.remove(i);
+	                  System.out.println("유저수 : " +user_vc.size());
+	                  break;
+	               }
+	            }
+	            
+	            // 이 프로토콜은 여러 인원에게서 들어오기 때문에 방장에게서 들어온 메시지에서만 방 제거를 실시한다.
+//	            if(roomCaptain.equals("true")) {
+	               for(int i=0; i<room_vc.size(); i++) {
+	                  //방의 정보를 가져와
+	                  r = (RoomInfo)room_vc.get(i);
+	                  System.out.println(r);
+	                  if(r.room_No == room_No) {
+	                     // 해당 방을 찾아서 삭제한다.
+	                     room_vc.remove(i);
+	                     System.out.println("방 개수 :" +room_vc.size());
+	                     break;
+	                  }
+	                  //테스트 코드
+	               }
+//	            }
+	            
+	            for (int i = 0; i < allUser_vc.size(); i++) {
+	               User user = (User) allUser_vc.elementAt(i);
+	               // 해당 계정을 찾는다.
+	               System.out.println(user);
+	               System.out.println("user.getId : "  + user.getId() + ", mUserId : " + mUserId);
+	               if (user.getId().equals(mUserId))
+	               {
+	                  System.out.println(mUserId +" 체크중 !!!");
+	                  send_Message("LoginOK/ok");
+	                  userAdd(mUserId);
+	                  break;
+	               }
+	            }
+	            break;
 				
 			// #사용자가 그림을 그리면
 			case "GameRoomPaint":

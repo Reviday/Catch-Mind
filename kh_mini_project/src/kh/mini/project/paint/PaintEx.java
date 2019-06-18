@@ -109,6 +109,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JLabel levelUpImg;
 	private JLabel readyImg;
 	private JLabel startImg;
+	private JLabel giveUpImg;
 	
 	private boolean canvasUse = false;
 	
@@ -124,6 +125,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	private String suggest; // 현재 제시어를 저장할 변수(출제자만 저장한다.)
 	private int round = 0; // 현재 진행 라운드 저장용 변수
 	private Toolkit tk = Toolkit.getDefaultToolkit();
+	private boolean giveUp_Sel=false;
 	
 	
 	private ImageIcon roundImg = new ImageIcon();
@@ -426,6 +428,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		giveUpBt.setBounds(885, 700, 63, 24);
 		getContentPane().add(giveUpBt);
 		giveUpBt.setVisible(true);
+		giveUpBt.addActionListener(this);
 		
 
 		// 경험치 표시
@@ -455,6 +458,12 @@ public class PaintEx extends JFrame implements ActionListener {
 		getContentPane().add(startImg);
 		startImg.setBounds(356,169,300,300);
 		startImg.setVisible(false);
+		
+		//포기이미지
+		giveUpImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/giveupImage.png")));
+		getContentPane().add(giveUpImg);
+		giveUpImg.setBounds(306, 169, 400, 300);
+		giveUpImg.setVisible(false);
 		
 		clock.setBounds(156, 620, 252, 99);
 		getContentPane().add(clock);
@@ -613,7 +622,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		case "EndRound":
 			String descriptor = st.nextToken(); // 문제 설명자 ID
 			round = Integer.parseInt(st.nextToken()); // 라운드를 받는다.
-			
+			boolean giveUp_rec = Boolean.valueOf(st.nextToken()).booleanValue();
+			System.out.println(giveUp_rec);
+			System.out.println(giveUp_Sel);
 			/*
 			 * mUserId 에 정답자의 아이디가 저장됨
 			 * 이를 통해 라운드가 끝났음을 알리는 코드르 띄운다. 
@@ -632,8 +643,14 @@ public class PaintEx extends JFrame implements ActionListener {
 			// 버튼 비활성화 상태로 돌림
 			setButtonEnabled(false);
 			
-			// 라운드 결과 페이지를 띄운다.
-			roundresult(mUserId, descriptor);
+			if(giveUp_Sel || giveUp_rec) {
+				GiveUpImgUpdate();
+				giveUp_Sel=false;
+			}
+			else {
+				// 라운드 결과 페이지를 띄운다.
+				roundresult(mUserId, descriptor);
+			}
             
 			// 변수 초기화
 			mypencolor = Color.black;
@@ -905,6 +922,35 @@ public class PaintEx extends JFrame implements ActionListener {
 					sleep(3000);
 					
 					resultImage_lb.setVisible(false); // 다시 보이지 않게 한다.
+					
+					// 만약 방장이라면 
+		            if(roomCaptain) {
+		            	// 라운드 시작을 알린다.
+						send_message("RoundStart/"+id+"/"+room_No);
+		            }
+					
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
+		
+	}
+	
+	//포기 이미지 스레드
+	private void GiveUpImgUpdate() { 
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					// 1.5초 정도 대기 후
+					sleep(1500);
+					
+					giveUpImg.setVisible(true);
+					
+					sleep(3000);
+					
+					giveUpImg.setVisible(false); // 다시 보이지 않게 한다.
 					
 					// 만약 방장이라면 
 		            if(roomCaptain) {
@@ -1420,6 +1466,11 @@ public class PaintEx extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == giveUpBt){
+			giveUp_Sel=true;
+			send_message("GiveUp/pass/"+room_No+"/"+round+"/"+giveUp_Sel);
+		}
+			
 		if (e.getSource() == clear) {
 			canvas.repaint();
 			while (!shape.isEmpty())
