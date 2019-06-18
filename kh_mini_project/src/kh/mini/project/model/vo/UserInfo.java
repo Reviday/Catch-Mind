@@ -21,11 +21,12 @@ public class UserInfo {
 	
 	// 등급 이미지 저장
 	private static ImageIcon[] gradeImgArr = new ImageIcon[13];
+	private static ImageIcon[] charImgArr = new ImageIcon[5];
 	
 	
 	static
 	{
-		// 이미지 초기화 
+		// 등급 이미지 초기화 
 		gradeImgArr[0] = new ImageIcon(Main.class.getResource("/images/F.PNG"));
 		gradeImgArr[1] = new ImageIcon(Main.class.getResource("/images/Dm.PNG"));
 		gradeImgArr[2] = new ImageIcon(Main.class.getResource("/images/D.PNG"));
@@ -39,6 +40,13 @@ public class UserInfo {
 		gradeImgArr[10] = new ImageIcon(Main.class.getResource("/images/Am.PNG"));
 		gradeImgArr[11] = new ImageIcon(Main.class.getResource("/images/A.PNG"));
 		gradeImgArr[12] = new ImageIcon(Main.class.getResource("/images/Ap.PNG"));
+		
+		// 캐릭터 이미지 초기화
+		charImgArr[0] = new ImageIcon(Main.class.getResource("/images/character_1.PNG"));
+		charImgArr[1] = new ImageIcon(Main.class.getResource("/images/character_2.PNG"));
+		charImgArr[2] = new ImageIcon(Main.class.getResource("/images/character_3.PNG"));
+		charImgArr[3] = new ImageIcon(Main.class.getResource("/images/character_4.PNG"));
+		charImgArr[4] = new ImageIcon(Main.class.getResource("/images/character_5.PNG"));
 	}
 	
 	public UserInfo(String userID, int level, int exp, int corAnswer) {
@@ -87,7 +95,13 @@ public class UserInfo {
 
 	public void setCharImg(int level) {
 		/* 레벨에 따른 캐릭터 이미지 저장 방식 */
-		
+		switch(level) {
+		case 1 : charImg = charImgArr[0]; break;
+		case 2 : case 3 : case 4 : charImg = charImgArr[1]; break;
+		case 5 : case 6 : case 7 : charImg = charImgArr[2]; break;
+		case 8 : case 9 : case 10 : charImg = charImgArr[3]; break;
+		case 11 : case 12 : case 13 : charImg = charImgArr[4]; break;
+		}
 	}
 
 	public ImageIcon getGradeImg() {
@@ -96,11 +110,16 @@ public class UserInfo {
 
 	public void setGradeImg(int level) {
 		/* 레벨에 따른 등급 이미지 저장 방식 */
+		gradeImg = getGrade(level);
 	}
 
 	// 일정 경험치에 도달하여 레벨업을 할 시 동작을 위한 메소드
 	public void levelUp() {
 		
+		// 레벨업 시 변동이 있을 수 있으므로
+		// 레벨에 따른 이미지 저장
+		setCharImg(level);
+		setGradeImg(level);
 	}
 	
 	// 레벨에 해당하는 등급 이미지를 반환한다.

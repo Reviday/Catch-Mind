@@ -170,11 +170,11 @@ public class PaintEx extends JFrame implements ActionListener {
 		// MainView로부터 dos를 이어받아온다.
 		dos = MainView.getDos();
 
-		// 초기 유저 패널을 생성한다. 
-		createUserPanel();
-
 		// 초기 채팅용 라벨을 생성한다.
 		createChattingLabel();
+		
+		// 초기 유저 패널을 생성한다. 
+		createUserPanel();
 
 		Font font = new Font("휴먼편지체", Font.BOLD, 17); // 폰트설정
 		
