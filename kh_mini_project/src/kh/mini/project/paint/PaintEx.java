@@ -77,7 +77,6 @@ public class PaintEx extends JFrame implements ActionListener {
 	private boolean eraser_Sel = false;
 	private int thick = 8;
 	private int eraserThick = 30;
-	private boolean clear_Sel = false;
 	private String colorCode="black"; //펜 색상 전송하기위한 코드설정
 	private int receiveThick;
 	private boolean receiveEraserSel=false;
@@ -429,9 +428,11 @@ public class PaintEx extends JFrame implements ActionListener {
 		expBar = new JProgressBar();
 		expBar.setBounds(472, 747, 495, 10);
 		getContentPane().add(expBar);
-		expBar.setValue(50);
 		expBar.setBackground(Color.white);
 		expBar.setForeground(Color.gray);
+		expBar.setMinimum(0);
+		expBar.setValue(0);
+		expBar.setMaximum(100);
 		
 		//levelUp 이미지
 		levelUpImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/levelUpImg.gif")));
@@ -630,7 +631,6 @@ public class PaintEx extends JFrame implements ActionListener {
 			eraser_Sel = false;
 			thick = 8;
 			eraserThick = 30;
-			clear_Sel = false;
 			colorCode = "black";
 			receiveEraserSel = false;
 			getContentPane().setCursor(blackCursor);
@@ -777,7 +777,6 @@ public class PaintEx extends JFrame implements ActionListener {
 			}
 			else if(mouseState.equals("canvasClear")) {
 				System.out.println("canvasClear");
-				clear_Sel=true;
 				canvas.repaint();
 				while(!shape.isEmpty())
 					shape.pop();
@@ -936,6 +935,7 @@ public class PaintEx extends JFrame implements ActionListener {
 				
 				// 하는 김에 경험치바도 갱신합니다.
 				printExp(u.getExp(), u.getLevel());
+//				printExp(10,2);
 			}
 			// 패널의 변경사항을 적용하기위한 메소드
 			revalidate(); // 레이아웃 변화를 재확인 시킨다.
@@ -1230,19 +1230,16 @@ public class PaintEx extends JFrame implements ActionListener {
 			Graphics2D g2 = (Graphics2D) g;
 			
 			// 그림 그리기
-			if (clear_Sel) {
-				clear_Sel = false;
+		
+		
+			for (int i = 0; i < shape.size(); i++) {
+				g2.setStroke(new BasicStroke(shape.get(i).getThick(), BasicStroke.CAP_ROUND, 0));
+				g2.setPaint(shape.get(i).mypencolor);
+				for (int j = 1; j < shape.get(i).sketchSP.size(); j++)
+					g2.drawLine(shape.get(i).sketchSP.get(j - 1).x, shape.get(i).sketchSP.get(j - 1).y,
+							shape.get(i).sketchSP.get(j).x, shape.get(i).sketchSP.get(j).y);
 			}
-
-			else {
-				for (int i = 0; i < shape.size(); i++) {
-					g2.setStroke(new BasicStroke(shape.get(i).getThick(), BasicStroke.CAP_ROUND, 0));
-					g2.setPaint(shape.get(i).mypencolor);
-					for (int j = 1; j < shape.get(i).sketchSP.size(); j++)
-						g2.drawLine(shape.get(i).sketchSP.get(j - 1).x, shape.get(i).sketchSP.get(j - 1).y,
-								shape.get(i).sketchSP.get(j).x, shape.get(i).sketchSP.get(j).y);
-				}
-			}
+			
 
 			// 잔상 그리기
 			if (eraser_Sel || receiveEraserSel) {
@@ -1272,43 +1269,47 @@ public class PaintEx extends JFrame implements ActionListener {
 	public void printExp(int exp, int level) {
 		switch (level) {
 		case 1:
-			expBar.setMaximum(10);
+			expBar.setValue((exp/10)*100);
 			break;
 		case 2:
-			expBar.setMaximum(40);
+			expBar.setValue((exp/40)*100);
 			break;
 		case 3:
-			expBar.setMaximum(80);
+			expBar.setValue((exp/80)*100);
 			break;
 		case 4:
-			expBar.setMaximum(130);
+			expBar.setValue((exp/130)*100);
 			break;
 		case 5:
-			expBar.setMaximum(200);
+			expBar.setValue((exp/200)*100);
 			break;
 		case 6:
-			expBar.setMaximum(290);
+			expBar.setValue((exp/290)*100);
 			break;
 		case 7:
-			expBar.setMaximum(400);
+			expBar.setValue((exp/400)*100);
 			break;
 		case 8:
-			expBar.setMaximum(540);
+			expBar.setValue((exp/540)*100);
 			break;
 		case 9:
-			expBar.setMaximum(710);
+			expBar.setValue((exp/710)*100);
 			break;
 		case 10:
-			expBar.setMaximum(910);
+			expBar.setValue((exp/910)*100);
 			break;
 		case 11:
-			expBar.setMaximum(1150);
+			expBar.setValue((exp/1150)*100);
 			break;
 		case 12:
-			expBar.setMaximum(1430);
+			expBar.setValue((exp/1430)*100);
 			break;
 		case 13:
-			expBar.setMaximum(exp); // MaxLevel 이므로 항상 100%으로 표기한다.
+			if(exp<=1750)
+				expBar.setValue((exp/1750)*100); // MaxLevel 이므로 항상 100%으로 표기한다.
+			else {
+				expBar.setValue(100);
+			}
 			break;
 		}
 	}
@@ -1411,7 +1412,6 @@ public class PaintEx extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == clear) {
-			clear_Sel = true;
 			canvas.repaint();
 			while (!shape.isEmpty())
 				shape.pop();
