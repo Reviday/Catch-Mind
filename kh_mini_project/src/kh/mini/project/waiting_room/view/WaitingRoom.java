@@ -476,12 +476,25 @@ public class WaitingRoom extends JFrame{
 			int level = Integer.parseInt(st.nextToken()); //레벨
 			int exp = Integer.parseInt(st.nextToken()); //경험치
 			int corAnswer = Integer.parseInt(st.nextToken()); //누적 정답수
+			boolean checkID = true;
 			
 			// 가져온 정보로 객체를 생성
 			UserInfo u = new UserInfo(mUserId, level, exp, corAnswer);
+			// 중복이 있을경우 추가하지않음.(해결 못해서 넣은 코드..)
+			for (int i = 0; i < user_list.size(); i++) {
+				UserInfo checkUser = (UserInfo) user_list.get(i);
+				if (checkUser.getUserID().equals(mUserId)) {
+					// 중복이 있을경우 false
+					checkID = false;
+					break;
+				}
+			}
+
+			if (checkID) {
+				// 해당 객체를 Vector에 추가
+				user_list.add(u);
+			}
 			
-			// 해당 객체를 Vector에 추가
-			user_list.add(u);
 			updateUserInfo();  	// 유저리스트 갱신
 			break;
 		
@@ -491,12 +504,44 @@ public class WaitingRoom extends JFrame{
 			level = Integer.parseInt(st.nextToken()); //레벨
 			exp = Integer.parseInt(st.nextToken()); //경험치
 			corAnswer = Integer.parseInt(st.nextToken()); //누적 정답수
+			checkID = true;
+			
+			//테스트 코드
+			System.out.println("====UserInfo 전 테스트합니다.=====");
+			for(int i=0; i<user_list.size(); i++) {
+				UserInfo checkUser = (UserInfo)user_list.get(i);
+				System.out.println("유저정보 : " +checkUser);
+				
+			}
+			System.out.println("==========테스트 끝===========");
+			
 			
 			// 가져온 정보로 객체를 생성
 			userInfo = new UserInfo(mUserId, level, exp, corAnswer);
 			
-			// 해당 객체를 Vector에 추가
-			user_list.add(userInfo);
+			// 중복이 있을경우 추가하지않음.(해결 못해서 넣은 코드..)
+			for(int i=0; i<user_list.size(); i++) {
+				UserInfo checkUser = (UserInfo)user_list.get(i);
+				if(checkUser.getUserID().equals(mUserId)) {
+					// 중복이 있을경우 false
+					checkID = false;
+					break;
+				}
+			}
+			
+			if(checkID) {
+				// 해당 객체를 Vector에 추가
+				user_list.add(userInfo);
+			}
+			
+			//테스트 코드
+			System.out.println("====UserInfo 후 테스트합니다.=====");
+			for(int i=0; i<user_list.size(); i++) {
+				UserInfo checkUser = (UserInfo)user_list.get(i);
+				System.out.println("유저정보 : " +checkUser);
+			}
+			System.out.println("==========테스트 끝===========");
+			
 			updateUserInfo(); 	// 유저리스트 갱신
 			break;
 		
@@ -507,12 +552,45 @@ public class WaitingRoom extends JFrame{
 			level = Integer.parseInt(st.nextToken()); //레벨
 			exp = Integer.parseInt(st.nextToken()); //경험치
 			corAnswer = Integer.parseInt(st.nextToken()); //누적 정답수
+			checkID = true;
+			
+			//테스트 코드
+			System.out.println("====OldUser 전 테스트합니다.=====");
+			for(int i=0; i<user_list.size(); i++) {
+				UserInfo checkUser = (UserInfo)user_list.get(i);
+				System.out.println("유저정보 : " +checkUser);
+				
+			}
+			System.out.println("==========테스트 끝===========");
+			
 			
 			// 가져온 정보로 객체를 생성
 			u = new UserInfo(mUserId, level, exp, corAnswer);
 			
-			// 해당 객체를 Vector에 추가
-			user_list.add(u);
+			// 중복이 있을경우 추가하지않음.(해결 못해서 넣은 코드..)
+			for (int i = 0; i < user_list.size(); i++) {
+				UserInfo checkUser = (UserInfo) user_list.get(i);
+				if (checkUser.getUserID().equals(mUserId)) {
+					// 중복이 있을경우 false
+					checkID = false;
+					break;
+				}
+			}
+			
+			if(checkID) {
+				// 해당 객체를 Vector에 추가
+				user_list.add(u);
+			}
+			
+			//테스트 코드
+			System.out.println("====OldUser 후 테스트합니다.=====");
+			for(int i=0; i<user_list.size(); i++) {
+				UserInfo checkUser = (UserInfo)user_list.get(i);
+				System.out.println("유저정보 : " +checkUser);
+				
+			}
+			System.out.println("==========테스트 끝===========");
+			
 
 			// 마지막 토큰이 last일 경우 리스트를 갱신한다.
 			String lastCheck = st.nextToken();
@@ -568,6 +646,7 @@ public class WaitingRoom extends JFrame{
 			//넘겨 받은 정보로 객체를 생성
 			RoomInfo oldRoom = new RoomInfo(room_No, room_name, state, room_PW, room_UCount, fixed_User);
 			//해당 객체를 room_list에 추가
+			
 			room_list.add(oldRoom);
 			
 			// 마지막 토큰이 last일 경우 방 패널을 갱신한다.

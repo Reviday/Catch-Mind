@@ -41,6 +41,7 @@ import javax.swing.table.DefaultTableModel;
 import kh.mini.project.db.UserController;
 import kh.mini.project.main.view.Main;
 import kh.mini.project.model.vo.User;
+import kh.mini.project.model.vo.UserInfo;
 import kh.mini.project.paint.Question;
 
 public class MainServer extends JFrame {
@@ -567,6 +568,7 @@ public class MainServer extends JFrame {
 
 		// 유저가 접속했을 때, 기존 사용자들에게 알리고 리스트를 추가하기 위한 메소드
 		private void userAdd(String str) {
+			boolean checkID = true;
 			// 연결 설정 후에 사용자의 닉네임을 받아들인다.
 			userID = str;
 			System.out.println(userID);
@@ -577,7 +579,21 @@ public class MainServer extends JFrame {
 			
 			user_vc.add(this); // 사용자에게 알린 후 Verctor에 자신을 추가
 			// Vector는 동적으로 늘어나는 배열로 이해하면 되는데, 객체에 저장한 사용자 정보를 Vector에 저장한다.
-			wRoom_vc.add(this); // 대기실 유저 리스트에도 적용
+			// 중복이 있을경우 추가하지않음.(해결 못해서 넣은 코드..)
+			for (int i = 0; i < wRoom_vc.size(); i++) {
+				UserInfo checkUser = (UserInfo) wRoom_vc.get(i);
+				if (checkUser.getUserID().equals(userID)) {
+					// 중복이 있을경우 false
+					checkID = false;
+					break;
+				}
+			}
+
+			if (checkID) {
+				// 해당 객체를 Vector에 추가
+				wRoom_vc.add(this);
+			}
+			
 			statusArea.append("현재 접속된 사용자 수 : " + user_vc.size() + "\n");
 		}
 
@@ -1156,7 +1172,6 @@ public class MainServer extends JFrame {
 	                  // 해당 유저를 찾았으면 리스트에서 제거한다.
 	                  user_vc.remove(i);
 	                  System.out.println("유저수 : " +user_vc.size());
-	                  break;
 	               }
 	            }
 	            
@@ -1170,7 +1185,6 @@ public class MainServer extends JFrame {
 	                     // 해당 방을 찾아서 삭제한다.
 	                     room_vc.remove(i);
 	                     System.out.println("방 개수 :" +room_vc.size());
-	                     break;
 	                  }
 	                  //테스트 코드
 	               }

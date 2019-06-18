@@ -647,6 +647,7 @@ public class PaintEx extends JFrame implements ActionListener {
 				GiveUpImgUpdate();
 				giveUp_Sel=false;
 			}
+			
 			else {
 				// 라운드 결과 페이지를 띄운다.
 				roundresult(mUserId, descriptor);
