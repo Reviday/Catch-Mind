@@ -1155,6 +1155,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					// 5초간 띄운후 서버에 게임 종료를 알리고 페이지를 닫는다. 유저들은 대기실로 이동된다.
 					sleep(5000);
 					send_message("GameOver/"+id+"/"+room_No+"/"+roomCaptain);
+					bgm.close();
 					dispose();
 					
 				} catch (InterruptedException e) {
