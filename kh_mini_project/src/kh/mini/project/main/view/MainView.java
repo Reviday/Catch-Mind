@@ -32,6 +32,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import kh.mini.project.paint.Music;
 import kh.mini.project.paint.PaintEx;
 import kh.mini.project.waiting_room.view.WaitingRoom;
 
@@ -95,7 +96,13 @@ public class MainView extends JFrame{
 	private JButton loginButton = new JButton(loginBasicImage); // 로그인 버튼
 	private JButton joinButton = new JButton(joinBasicImage); // 회원가입 버튼
 	
+//BGM
+	private Music bgm;
+	
 	MainView() {
+	//BGM		
+		bgm = new Music("loginBGM.mp3", true);
+		bgm.start();
 	// JFrame mainView
 		setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함)
 		setTitle("Catch Mind"); // 프레임 타이틀 바 이름(타이틀 바를 없앨 예정이기 때문에 없어도 되는 코드)
@@ -183,6 +190,8 @@ public class MainView extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				exitButton.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				Music buttonEnteredMusic = new Music("buttonEnteredMusic.mp3", false);
+				buttonEnteredMusic.start(); 
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -462,6 +471,7 @@ public class MainView extends JFrame{
 		case "LoginOK":
 			setVisible(false);
 			wr =new WaitingRoom(); // WaitingRoom을 실행한다. 
+			bgm.close();
 			break;
 			
 		// #현재 로그인중임을 알림

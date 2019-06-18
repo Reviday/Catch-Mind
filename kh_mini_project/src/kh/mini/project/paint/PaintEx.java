@@ -115,6 +115,8 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	private Point maindrow=new Point();
 	private Point subdrow=new Point();
+	
+	private Music bgm;
 
 // 각종 변수
 	private String id; // 사용자의 id를 저장
@@ -480,6 +482,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		canvas.setVisible(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+		
+		bgm = new Music("gameBGM.mp3",true);
+		bgm.start();
 	}
 	
 	
@@ -1151,6 +1156,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					// 5초간 띄운후 서버에 게임 종료를 알리고 페이지를 닫는다. 유저들은 대기실로 이동된다.
 					sleep(5000);
 					send_message("GameOver/"+id+"/"+room_No+"/"+roomCaptain);
+					bgm.close();
 					dispose();
 					
 				} catch (InterruptedException e) {
