@@ -537,6 +537,7 @@ public class MainServer extends JFrame {
 		private int exp; // 경험치
 		private int corAnswer; // 누적 정답 개수
 		private int room_No; // 게임방 번호
+		private boolean loginState = false; // 로그인 상태
 
 		private boolean RoomCh = true;
 
@@ -575,16 +576,18 @@ public class MainServer extends JFrame {
 			for (int i = 0; i < allUser_vc.size(); i++) {
 				// 모든 유저 객체를 하나 가져와서
 				User u = (User) allUser_vc.elementAt(i);
-				// 접속자의 아이디와 같은 아이디를 찾으면
+				// 접속자의 아이디와 같은 아이디를 찾고, 로그인 상태가 false면 접속을 허용한다.
 				if (u.getId().equals(userID)) {
 					// 각각의 정보를 저장하고
 					level = u.getLevel();
 					exp = u.getExp();
 					corAnswer = u.getCorAnswer();
+					// 로그인 상태로 전환
+					loginState = true;
 					// 자신에게 그 정보를 알린다.
 					send_Message("WaitingRoom/pass/UserInfo@" + userID + "@" + level + "@" + exp + "@" + corAnswer);
 					break; // 사용자의 정보를 찾았으므로 반복문 종료
-				}
+				} 
 			}
 
 			// 현재 접속중인 사용자의 리스트를 자신에게 알림
@@ -705,14 +708,24 @@ public class MainServer extends JFrame {
 				boolean findID = false; // 일치하는 계정이 있는지 체크하는 변수
 				for (int i = 0; i < allUser_vc.size(); i++) {
 					User user = (User) allUser_vc.elementAt(i);
-					if (user.getId().equals(mUserId) && user.getPw().equals(pw)) // ID와 PW가 일치하는지 확인한다.
+					 // ID와 PW와 일치하고 현재 로그인 상태가 아닌지를 확인한다
+					if (user.getId().equals(mUserId) && user.getPw().equals(pw) && !user.isLoginState())
 					{
 						userID = mUserId;
 						connectCk = false;
 						findID = true;
+						
+						// 로그인 상태로 전환
+						user.setLoginState(true);
+						
 						send_Message("LoginOK/ok");
 						userAdd(userID);
 						UserNetwork();
+					// 만약 현재 로그인 상태라면 
+					} else if (user.getId().equals(mUserId) && user.getPw().equals(pw) && user.isLoginState()) {
+						findID = true;
+						// 현재 로그인 중이라는 메시지를 보낸다.
+						send_Message("SigningIn/"+userID);
 					}
 				}
 				if (!findID)
@@ -883,6 +896,14 @@ public class MainServer extends JFrame {
 					}
 
 				}
+				
+				// 끝으로 alluser에서 해당 계정을 로그아웃 처리한다.
+				for(int i=0; i<allUser_vc.size(); i++) {
+					User user = (User) allUser_vc.elementAt(i);
+					// 현재 상태를 로그아웃 상태로 바꾼다.
+					user.setLoginState(false);
+				}
+				
 				// 해당 유저를 리스트에서 제거하라는 브로드캐스트를 보낸다.
 				BroadCast("WaitingRoom/pass/RemoveUser@" + mUserId);
 				break;

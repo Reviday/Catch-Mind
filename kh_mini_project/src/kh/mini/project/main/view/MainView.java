@@ -464,6 +464,12 @@ public class MainView extends JFrame{
 			wr =new WaitingRoom(); // WaitingRoom을 실행한다. 
 			break;
 			
+		// #현재 로그인중임을 알림
+		case "SigningIn" :
+			JOptionPane.showMessageDialog(null, 
+					"현재 로그인 중입니다.","알림",JOptionPane.ERROR_MESSAGE);
+			break;
+			
 		// #로그인 실패 알림
 		case "LoginFail":
 			JOptionPane.showMessageDialog(null, 

@@ -24,6 +24,9 @@ public class User implements Serializable{
 	private int maxExp;  	// 레벨 구간별 최대 경험치량
 	private int corAnswer;	// Cumulative number of correct answers (누적 정답 개수)
 	
+	private boolean loginState = false; // 로그인 상태
+	
+	
 	public User() {	}
 	
 	//회원 가입용 매개변수 생성자
@@ -135,6 +138,15 @@ public class User implements Serializable{
 	public void setCorAnswer(int corAnswer) {
 		this.corAnswer = corAnswer;
 	}
+	
+	public boolean isLoginState() {
+		return loginState;
+	}
+
+	public void setLoginState(boolean loginState) {
+		this.loginState = loginState;
+	}
+
 	
 	// 출제자 또는 정답자에게 실행되는 메소드. 경험치와 누적정답 개수를 증가시킨다.
 	public boolean expUpdate() {
