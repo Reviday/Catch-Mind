@@ -98,7 +98,7 @@ public class MainView extends JFrame{
 	
 //BGM
 	private Music bgm;
-	Music buttonEnteredBGM;
+	private Music buttonEnteredBGM;
 	
 	MainView() {
 	//BGM		

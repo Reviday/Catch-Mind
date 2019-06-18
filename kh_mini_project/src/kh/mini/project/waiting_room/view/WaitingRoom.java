@@ -134,6 +134,7 @@ public class WaitingRoom extends JFrame{
 	
 //BGM
 	private Music bgm;
+	private Music buttonEnteredBGM;
 	
 	public WaitingRoom() {
 		//실행과 동시에 네트워크 자원과 id를 MainView로부터 이어받아온다.
@@ -349,6 +350,9 @@ public class WaitingRoom extends JFrame{
 				exitButton.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				exitButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 //				exitButton.setCursor(myCursor);
+				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -381,6 +385,9 @@ public class WaitingRoom extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				createRoomButton.setIcon(createRoomEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				createRoomButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
+				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+
 			}
 
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -409,6 +416,8 @@ public class WaitingRoom extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				rightRButton.setIcon(rightREnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				rightRButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
+				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start();
 			}
 
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -437,6 +446,8 @@ public class WaitingRoom extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				leftRButton.setIcon(leftREnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				leftRButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
+				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start();
 			}
 
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -780,6 +791,8 @@ public class WaitingRoom extends JFrame{
 					public void mouseEntered(MouseEvent e) {
 						grp.setGRImage(gamgeRoomEnteredImage.getImage()); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 						grp.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
+						buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+						buttonEnteredBGM.start();
 					}
 					
 					// 마우스를 버튼에서 떼었을때 이벤트
@@ -1097,6 +1110,8 @@ public class WaitingRoom extends JFrame{
 				public void mouseEntered(MouseEvent e) {
 					cancelButton.setIcon(crCancelEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 					cancelButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start();
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
@@ -1122,6 +1137,8 @@ public class WaitingRoom extends JFrame{
 				public void mouseEntered(MouseEvent e) {
 					createButton.setIcon(createEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 					createButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start();
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
@@ -1233,6 +1250,8 @@ public class WaitingRoom extends JFrame{
 				@Override
 				public void mouseEntered(MouseEvent e) {
 					inputPW_bt.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start();
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
@@ -1279,6 +1298,8 @@ public class WaitingRoom extends JFrame{
 				@Override
 				public void mouseEntered(MouseEvent e) {
 					cancel_bt.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start();
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
