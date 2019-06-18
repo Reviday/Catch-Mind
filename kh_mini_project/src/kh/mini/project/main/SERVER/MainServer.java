@@ -1007,7 +1007,7 @@ public class MainServer extends JFrame {
 	               if (mUserId.equals(u.userID)) {
 	                  // 해당 유저의 정보를 그 방에 있는 모두에게 보낸다.
 	                  gBroadCast(room_No,
-	                        "Paint/pass/NewUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + u.corAnswer);
+	                        "Paint/pass/NewUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + 0); // 정답의 갯수는 0으로 세팅하고 게임 시작한다. 
 	               }
 	            }
 
@@ -1035,7 +1035,7 @@ public class MainServer extends JFrame {
 	                  for (int j = 0; j < r.Room_user_vc.size(); j++) {
 	                     UserInfo u = (UserInfo) r.Room_user_vc.get(j);
 	                     send_Message(
-	                           "Paint/pass/OldUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + u.corAnswer);
+	                           "Paint/pass/OldUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + 0); // 정답의 갯수는 0으로 세팅하고 게임 시작한다.
 
 	                     // 테스트 코드
 	                     System.out.println("최대 :" + r.fixed_User + ", 현재 : " + r.Room_user_vc.size());
@@ -1342,7 +1342,7 @@ public class MainServer extends JFrame {
 						//해당 유저를 찾아서
 						if(userID.equals(ui.userID)) {
 							//경험치가 증가되었음을 알린다.(DB랑 연관있는 벡터로부터 가져온다. 유사 DB)
-							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+user.getLevel()+"@"+user.getExp()+"@"+user.getCorAnswer());
+							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+user.getLevel()+"@"+user.getExp()+"@"+1); // 정답자는 정답갯수 1증가
 						}
 					}
 					
@@ -1352,7 +1352,7 @@ public class MainServer extends JFrame {
 						//해당 유저를 찾아서
 						if(descriptor.equals(ui.userID)) {
 							//경험치가 증가되었음을 알린다.(DB랑 연관있는 벡터로부터 가져온다. 유사 DB)
-							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+desUser.getLevel()+"@"+desUser.getExp()+"@"+desUser.getCorAnswer());
+							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+desUser.getLevel()+"@"+desUser.getExp()+"@"+0); // 출제자는 정답개수 0 증가
 							// 레벨업을 하였을 경우
 							
 						}
