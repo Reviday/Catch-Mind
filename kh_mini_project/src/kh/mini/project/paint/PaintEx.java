@@ -949,6 +949,8 @@ public class PaintEx extends JFrame implements ActionListener {
 			@Override
 			public void run() {
 				try {
+					Music giveUpBGM = new Music("giveUpBGM.mp3",true);
+					giveUpBGM.start();
 					// 1.5초 정도 대기 후
 					sleep(1500);
 					
@@ -957,7 +959,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					sleep(3000);
 					
 					giveUpImg.setVisible(false); // 다시 보이지 않게 한다.
-					
+					giveUpBGM.close();
 					// 만약 방장이라면 
 		            if(roomCaptain) {
 		            	// 라운드 시작을 알린다.

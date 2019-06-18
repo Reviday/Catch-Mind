@@ -98,6 +98,7 @@ public class MainView extends JFrame{
 	
 //BGM
 	private Music bgm;
+	Music buttonEnteredBGM;
 	
 	MainView() {
 	//BGM		
@@ -190,8 +191,9 @@ public class MainView extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				exitButton.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
-				Music buttonEnteredMusic = new Music("buttonEnteredMusic.mp3", false);
-				buttonEnteredMusic.start(); 
+				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
+				
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -199,6 +201,8 @@ public class MainView extends JFrame{
 			public void mouseExited(MouseEvent e) {
 				exitButton.setIcon(exitBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
 				exitButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				
+				
 			}
 			
 			// 마우스로 버튼을 눌렀을 때 이벤트
@@ -220,6 +224,8 @@ public class MainView extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				connetButton.setIcon(connectEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				connetButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -273,6 +279,8 @@ public class MainView extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				loginButton.setIcon(loginEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -301,6 +309,7 @@ public class MainView extends JFrame{
 				} else { // 
 					JOptionPane.showMessageDialog(null, 
 							"로그인 실패!\n아이디와 패스워드를 다시 확인해주세요.","알림",JOptionPane.ERROR_MESSAGE);
+
 				}
 			}
 			
@@ -318,6 +327,8 @@ public class MainView extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				joinButton.setIcon(joinEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				joinButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+				buttonEnteredBGM.start(); 
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -335,6 +346,7 @@ public class MainView extends JFrame{
 				} else {
 					JOptionPane.showMessageDialog(null, 
 							"서버와 연결 설정 후에 시도하시기 바랍니다.","알림",JOptionPane.ERROR_MESSAGE);
+
 				}
 			}
 			
