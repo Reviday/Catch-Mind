@@ -619,10 +619,10 @@ public class MainServer extends JFrame {
 				 */
 				String msg = "";
 				if (i == room_vc.size() - 1) {
-					msg = "WaitingRoom/pass/OldRoom@" + userID + "@" + r.room_No + "@" + r.room_name + "@" + r.room_PW
+					msg = "WaitingRoom/pass/OldRoom@" + userID + "@" + r.pwStat + "@" + r.room_No + "@" + r.room_name + "@" + r.room_PW
 							+ "@" + r.fixed_User + "@" + r.Room_user_vc.size() + "@last";
 				} else {
-					msg = "WaitingRoom/pass/OldRoom@" + userID + "@" + r.room_No + "@" + r.room_name + "@" + r.room_PW
+					msg = "WaitingRoom/pass/OldRoom@" + userID + "@" + r.room_No + "@" + r.pwStat + "@" + r.room_name + "@" + r.room_PW
 							+ "@" + r.fixed_User + "@" + r.Room_user_vc.size() + "@_";
 				}
 				send_Message(msg);
@@ -776,13 +776,13 @@ public class MainServer extends JFrame {
 				}
 
 				// 전달받은 정보로 RoomInfo객체를 생성하고 room_vc에 추가
-				RoomInfo new_room = new RoomInfo(roomNo, title, roomPW, fixed_User);
+				RoomInfo new_room = new RoomInfo(roomNo, title, state, roomPW, fixed_User);
 				// 방을 생성한 유저이므로 방장 id를 저장시킨다.
 				new_room.roomCaptainID = mUserId;
 				room_vc.add(new_room); // 전체 채팅 방 Vector에 방을 추가
 
 				// 방이 만들어졌을때 BroadCast로 알린다.
-				BroadCast("WaitingRoom/pass/NewRoom@" + mUserId + "@" + roomNo + "@" + title + "@" + roomPW + "@"
+				BroadCast("WaitingRoom/pass/NewRoom@" + mUserId + "@" + roomNo + "@" + title + "@" + state + "@" + roomPW + "@"
 						+ fixed_User + "@" + new_room.Room_user_vc.size() + "@");
 				// 방을 생성한 유저에게 방 개설이 가능함을 알리고 할당한 방 번호를 넘겨준다.
 				send_Message("WaitingRoom/pass/CreateRoom@" + mUserId + "@" + roomNo);
@@ -990,8 +990,7 @@ public class MainServer extends JFrame {
 				for (int i = 0; i < room_vc.size(); i++) {
 					r = (RoomInfo) room_vc.elementAt(i);
 					if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
-
-						send_Message("Paint/pass/RoomInfo@" + mUserId + "@" + r.room_name + "@" + r.room_PW + "@"
+						send_Message("Paint/pass/RoomInfo@" + mUserId + "@" + r.room_name + "@" + r.pwStat + "@" + r.room_PW + "@"
 								+ r.fixed_User + "@" + r.Room_user_vc.size() + "@" + r.roomCaptainID);
 						break;
 					}
@@ -1303,9 +1302,9 @@ public class MainServer extends JFrame {
 	class RoomInfo {
 	      private int room_No; // 게임방 번호
 	      private String room_name; // 게임방 이름
+	      private String pwStat; // 공개/ 비공개
 	      private String room_PW; // 게임방 비밀번호(공개일 경우 null)
 	      private int fixed_User; // 유저 정원
-
 	      
 	      private Question question; // 제시어 객체 저장용 변수
 	      private String roomCaptainID; // 방장 id
@@ -1322,10 +1321,11 @@ public class MainServer extends JFrame {
 	       */
 	      private Vector<UserInfo> Room_user_vc = new Vector<UserInfo>(); // 게임방 유저 Vector
 
-	      RoomInfo(int room_No, String room_name, String room_PW, int fixed_User) // 방번호를 기준으로!
+	      RoomInfo(int room_No, String room_name, String pwStat, String room_PW, int fixed_User) // 방번호를 기준으로!
 	      {
 	         this.room_No = room_No;
 	         this.room_name = room_name;
+	         this.pwStat = pwStat;
 	         this.room_PW = room_PW;
 	         this.fixed_User = fixed_User;
 	      }

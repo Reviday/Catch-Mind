@@ -8,6 +8,7 @@ public class RoomInfo {
    
    private int room_No; // 게임방 번호
    private String room_name; // 게임방 이름
+   private String state; // 비밀번호 유무
    private String room_PW; // 게임방 비밀번호(공개일 경우 null)
    private int fixed_User; // 유저 정원
    // 유저수를 Room_user_vc의 사이즈로 가져오는 방법을 고안중
@@ -19,9 +20,10 @@ public class RoomInfo {
    
    /* 유저의 초기 세팅 작업에서는 기존 게임방에 들어가있는 모든 유저의 정보까지는 필요없으므로
     * 인원수만 전달받아서 방을 표시하는 작업을 위해 아래 생성자가 필요하다 판단.*/
-   public RoomInfo(int room_No, String room_name, String room_PW, int room_UCount, int fixed_User) {
+   public RoomInfo(int room_No, String room_name, String state, String room_PW, int room_UCount, int fixed_User) {
       this.room_No = room_No;
       this.room_name = room_name;
+      this.state = state;
       this.room_PW = room_PW;
       this.room_UCount = room_UCount;
       this.fixed_User = fixed_User;

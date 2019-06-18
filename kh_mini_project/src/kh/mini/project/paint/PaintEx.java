@@ -55,6 +55,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JLabel[] chatting_lb = new JLabel[6]; // 유저의 채팅을 말풍선으로 띄우는 라벨(최대 인원 6인 기준)
 	private JLabel[] chattingCover_lb = new JLabel[6];
 	private JPanel[] user_pn = new JPanel[6];
+	private JLabel roomTitle_lb; // 방제목 표시 라벨
 	private JLabel resultImage_lb; // 라운드 결과 표시 이미지용 라벨
 	private JLabel endGameImage_lb; // 게임이 끝났을 때 표시할 이미지용 라벨
 	private JLabel suggest_lb; // 제시어 표시 라벨
@@ -169,6 +170,13 @@ public class PaintEx extends JFrame implements ActionListener {
 		createChattingLabel();
 
 		Font font = new Font("휴먼편지체", Font.BOLD, 17); // 폰트설정
+		
+		// 방 제목 표시 라벨
+		roomTitle_lb = new JLabel("", SwingConstants.CENTER);
+		roomTitle_lb.setBounds(312, 0, 400, 30);
+		roomTitle_lb.setHorizontalTextPosition(SwingConstants.CENTER);
+		roomTitle_lb.setFont(font);
+		getContentPane().add(roomTitle_lb);
 
 		// 채팅 입력창
 		chatting_tf = new JTextField();
@@ -481,6 +489,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		// #제일 처음에 받아오는 방 정보
 		case "RoomInfo":
 			String room_Name = st.nextToken(); // 방제목
+			String state = st.nextToken(); // 상태
 			String room_Pw = st.nextToken(); // 비밀번호
 			int fixed_User = Integer.parseInt(st.nextToken()); // 최대 인원(정원)
 			int uCount = Integer.parseInt(st.nextToken()); // 현재 인원 수
@@ -492,7 +501,13 @@ public class PaintEx extends JFrame implements ActionListener {
 			}
 			
 			// 받은 정보로 roomInfo 객체를 생성한다.
-			roomInfo = new RoomInfo(room_No, room_Name, room_Pw, uCount, fixed_User);
+			roomInfo = new RoomInfo(room_No, room_Name, state, room_Pw, uCount, fixed_User);
+			
+			if(state.equals("공개")) {
+				roomTitle_lb.setText("[ " + room_Name + " ]");
+			} else if(state.equals("비공개")) {
+				roomTitle_lb.setText("[ " + room_Name + " ] ( PW : " + room_Pw + " )");
+			}
 			
 			break;
 

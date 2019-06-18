@@ -559,13 +559,14 @@ public class WaitingRoom extends JFrame{
 			// 이전에 개설된 모든 방의 정보를 가져온다.
 			room_No = Integer.parseInt(st.nextToken()); // 방 번호
 			String room_name = st.nextToken(); // 방 이름
+			String state = st.nextToken(); // 비밀번호 유무
 			String room_PW = st.nextToken(); // 방 비밀번호
 			int fixed_User = Integer.parseInt(st.nextToken()); // 유저 정원
 			// 게임방에 들어가있는 유저 객체의 정보까진 필요없으므로 인원 수만 받는다.
 			int room_UCount = Integer.parseInt(st.nextToken()); // 현재 유저수
 			
 			//넘겨 받은 정보로 객체를 생성
-			RoomInfo oldRoom = new RoomInfo(room_No, room_name, room_PW, room_UCount, fixed_User);
+			RoomInfo oldRoom = new RoomInfo(room_No, room_name, state, room_PW, room_UCount, fixed_User);
 			//해당 객체를 room_list에 추가
 			room_list.add(oldRoom);
 			
@@ -579,13 +580,14 @@ public class WaitingRoom extends JFrame{
 		case "NewRoom":
 			room_No = Integer.parseInt(st.nextToken()); // 방 번호
 			room_name = st.nextToken(); // 방 이름
+			state = st.nextToken(); // 비밀번호 유무
 			room_PW = st.nextToken(); // 방 비밀번호
 			fixed_User = Integer.parseInt(st.nextToken()); // 유저 정원
 			// 게임방에 들어가있는 유저 객체의 정보까진 필요없으므로 인원 수만 받는다.
 			room_UCount = Integer.parseInt(st.nextToken()); // 현재 유저수
 			
 			//넘겨 받은 정보로 객체를 생성
-			RoomInfo NewRoom = new RoomInfo(room_No, room_name, room_PW, room_UCount, fixed_User);
+			RoomInfo NewRoom = new RoomInfo(room_No, room_name, state, room_PW, room_UCount, fixed_User);
 			//해당 객체를 room_list에 추가
 			room_list.add(NewRoom);
 			
