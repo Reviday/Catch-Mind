@@ -975,7 +975,7 @@ public class MainServer extends JFrame {
 				// 현재 게임중일 경우 제시어와 일치하는 확인한다.
 				if(r.state && r.suggest.equals(totalChattingMsg)) {
 					// 해당 방 유저들에게 정답자의 아이디를 보내면서 라운드가 끝났음을 알린다.(라운드를 같이 보냄)
-					gBroadCast(room_No, "Paint/pass/EndRound@" + mUserId + "@" + r.descriptor + "@" + r.round);
+					gBroadCast(room_No, "Paint/pass/EndRound@" + mUserId + "@" + r.descriptor + "@" + r.round + "@false");
 					r.state = false; // 라운드 종료
 					
 					// 출제자와 정답자에게 경험치 10을 증가시키고, 누적 정답 개수 하나를 증가시킨다.
