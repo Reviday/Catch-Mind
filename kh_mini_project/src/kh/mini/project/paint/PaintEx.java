@@ -703,8 +703,6 @@ public class PaintEx extends JFrame implements ActionListener {
 			String descriptor = st.nextToken(); // 문제 설명자 ID
 			round = Integer.parseInt(st.nextToken()); // 라운드를 받는다.
 			boolean giveUp_rec = Boolean.valueOf(st.nextToken()).booleanValue();
-			System.out.println(giveUp_rec);
-			System.out.println(giveUp_Sel);
 			/*
 			 * mUserId 에 정답자의 아이디가 저장됨
 			 * 이를 통해 라운드가 끝났음을 알리는 코드르 띄운다. 
@@ -722,6 +720,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 			// 버튼 비활성화 상태로 돌림
 			setButtonEnabled(false);
+			chatting_tf.setEnabled(true);
 			
 			if(giveUp_Sel || giveUp_rec) {
 				GiveUpImgUpdate();
@@ -758,7 +757,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			String nextTurn = st.nextToken(); // 다음 턴
 			
 			round++; // 라운드를 가산한다.
-			roundImgUpdate(round, nowTurn, nextTurn); // 라운드 업데이트
+			roundImgUpdate(round, nowTurn, nextTurn, protocol); // 라운드 업데이트
 			
 			suggest = st.nextToken(); // 제시어 저장
 			updateSuggestLabel(suggest); // 제시어를 보이게한다.
@@ -770,8 +769,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 			canvasUse=true;
 			System.out.println("난 출제자야!");
-			// 출제자에게만 버튼 활성화
-			setButtonEnabled(true);
+			
 			
 			
 			break;
@@ -782,7 +780,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			nextTurn = st.nextToken(); // 다음 턴
 			
 			round++; // 라운드를 가산한다.
-			roundImgUpdate(round, nowTurn, nextTurn); // 라운드 업데이트
+			roundImgUpdate(round, nowTurn, nextTurn, protocol); // 라운드 업데이트
 			
 			canvasUse=false;
 			System.out.println("난 문제를 풀어!");
@@ -937,7 +935,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	}
 	
 	// 라운드에 맞춰 이미지를 보이는 메소드
-	private void roundImgUpdate(int round, String nowTurn, String nextTurn) {
+	private void roundImgUpdate(int round, String nowTurn, String nextTurn, String protocol) {
 		Font font = new Font("휴먼편지체", Font.BOLD, 25);
 
 		new Thread() {
@@ -976,6 +974,13 @@ public class PaintEx extends JFrame implements ActionListener {
 					canvas.setVisible(true); // 캔버스를 보이게한다.
 					clock.startClock(); // 타이머 동작
 
+					if(protocol.equals("YourTurn")) {
+						// 출제자에게만 버튼 활성화
+						setButtonEnabled(true);
+						chatting_tf.setEnabled(false);
+					}
+					
+					
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
