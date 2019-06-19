@@ -693,6 +693,7 @@ public class WaitingRoom extends JFrame{
 		case "EntryRoom":
 			// 해당 창을 종료한다. 방에 대한 정보는 이어서 MainView로 받는다.
 			dispose();
+			bgm.close();
 			break;
 			
 		// #비밀번호 입력 요청

@@ -67,6 +67,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JLabel solvID; // 문제를 맞춘 유저의 ID
 	private JLabel timeReq; // 소요시간 
 	private JLabel levelUpEvent_lb; // 레벨업 이벤트용 라벨
+	private JLabel suggest_Background;
 	
 	
 	private JLabel gameRoombackground; //배경이미지 라벨
@@ -201,10 +202,17 @@ public class PaintEx extends JFrame implements ActionListener {
 		
 		// 제시어 표시 라벨
 		suggest_lb = new JLabel();
-		suggest_lb.setBounds(465, 40, 100, 30);
+		suggest_lb.setBounds(470, 34, 100, 30);
 		suggest_lb.setFont(font);
 		suggest_lb.setVisible(false);
 		getContentPane().add(suggest_lb);
+		
+		suggest_Background = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/suggest_Background.png")));
+		suggest_Background.setBounds(430,32,148,35);
+		getContentPane().add(suggest_Background);
+		suggest_Background.setVisible(false);
+		
+		
 		
 		// 라운드 결과 라벨
 		resultImage_lb = new JLabel(resultImage);
@@ -411,6 +419,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		clear = new JButton("clear");
 		clear.setIcon(new ImageIcon(PaintEx.class.getResource("/images/clear.png")));
 		clear.setContentAreaFilled(false);
+		clear.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/clearCLK.png")));
 		clear.setBackground(Color.lightGray);
 		clear.setFocusPainted(false);
 		clear.setBorderPainted(false);
@@ -717,13 +726,14 @@ public class PaintEx extends JFrame implements ActionListener {
 			// 캔버스랑 제시어 라벨을 보이지않게
 			canvas.setVisible(false);
 			suggest_lb.setVisible(false);
+			suggest_Background.setVisible(false);
 			
 			// 버튼 비활성화 상태로 돌림
 			setButtonEnabled(false);
 			chatting_tf.setEnabled(true);
 			
 			if(giveUp_Sel || giveUp_rec) {
-				GiveUpImgUpdate();
+				giveUpImgUpdate();
 				giveUp_Sel=false;
 			}
 			
@@ -817,6 +827,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			/*
 			 *   레벨업 이벤트 적용 
 			 */
+			levelUpImgUpdate();
 			
 			// 레벨은 ExpUpdate 프로토콜에서 처리하므로 이벤트 처리만 한다.
 			
@@ -1004,10 +1015,11 @@ public class PaintEx extends JFrame implements ActionListener {
 			@Override
 			public void run() {
 				try {
-					// 1.5초 정도 대기 후
+					
 					popUpBGM = new Music("correctBGM.mp3", false);
 					popUpBGM.start();
 					
+					// 1.5초 정도 대기 후
 					sleep(1500);
 					
 					resultImage_lb.setVisible(true); // 결과 페이지를 보이게한다.
@@ -1034,7 +1046,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	}
 	
 	//포기 이미지 스레드
-	private void GiveUpImgUpdate() { 
+	private void giveUpImgUpdate() { 
 		new Thread() {
 			@Override
 			public void run() {
@@ -1064,6 +1076,39 @@ public class PaintEx extends JFrame implements ActionListener {
 		}.start();
 		
 	}
+	
+	//레벨업 이미지 스레드
+		private void levelUpImgUpdate() { 
+			new Thread() {
+				@Override
+				public void run() {
+					try {
+						
+						// 1초 정도 대기 후
+						sleep(4500);
+						
+						levelUpImg.setVisible(true);
+						
+						popUpBGM = new Music("levelupBGM.mp3",false);
+						popUpBGM.start();
+						
+						sleep(3000);
+						
+						levelUpImg.setVisible(false); // 다시 보이지 않게 한다.
+						
+						// 만약 방장이라면 
+			            if(roomCaptain) {
+			            	// 라운드 시작을 알린다.
+							send_message("RoundStart/"+id+"/"+room_No);
+			            }
+						
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}.start();
+			
+		}
 	
 	// 유저 패널 갱신 메소드
 	private void updateUserPanel() {
@@ -1125,6 +1170,7 @@ public class PaintEx extends JFrame implements ActionListener {
 						// 입력받은 문자로 텍스트 갱신
 						suggest_lb.setText(str);
 						suggest_lb.setVisible(true); // 볼 수 있도록 변경
+						suggest_Background.setVisible(true);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
