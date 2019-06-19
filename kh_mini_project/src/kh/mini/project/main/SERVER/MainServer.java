@@ -757,7 +757,26 @@ public class MainServer extends JFrame {
 				if (!findID)
 					send_Message("LoginFail/fail"); // 찾지 못하였으면 해당 메시지를 보낸다.
 				break;
+				
+			// # 회원가입 요청이 들어왔을 때
+			case "JoinRequest":
+				pw = st.nextToken();
+				String name = st.nextToken();
+				String dateOfBirth = st.nextToken();
+				String email = st.nextToken();
+				char gender = st.nextToken().charAt(0);
 
+				// 받은 정보로 객체를 생성
+				User us = new User(mUserId, pw, name, dateOfBirth, email, gender);
+
+				// 생성한 객체를 allUser_vc에 저장
+				allUser_vc.add(us);
+
+				// db에 저장.
+				new UserController().dataSaveAll(allUser_vc);
+
+				break;
+				
 			// #쪽지 보내기 요청이 들어왔을 떄
 			case "Note":
 				// protocol = Note
