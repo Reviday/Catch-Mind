@@ -71,7 +71,6 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	
 	private JLabel gameRoombackground; //배경이미지 라벨
-	private JLabel expLabel; //exp라벨
 	
 	//메뉴바 설정용
 	private JLabel menuBar;
@@ -106,8 +105,6 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JButton giveUpBt;
 	
 	private JButton exit;
-	
-	private JProgressBar expBar;
 	
 	private JLabel levelUpImg;
 	private JLabel readyImg;
@@ -516,16 +513,6 @@ public class PaintEx extends JFrame implements ActionListener {
 		});
 		giveUpBt.setVisible(true);
 		
-
-		// 경험치 표시
-		expBar = new JProgressBar();
-		expBar.setBounds(520, 742, 454, 8);
-		getContentPane().add(expBar);
-		expBar.setBackground(Color.white);
-		expBar.setForeground(Color.gray);
-		expBar.setMinimum(0);
-		expBar.setValue(0);
-		expBar.setMaximum(100);
 		
 		//levelUp 이미지
 		levelUpImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/levelUpImg.gif")));
@@ -557,11 +544,6 @@ public class PaintEx extends JFrame implements ActionListener {
 		gameRoombackground = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/GameRoom_Background.png")));
 		gameRoombackground.setBounds(0, 0, 1024, 768);
 		getContentPane().add(gameRoombackground);
-		
-		expLabel = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/ExpLbl.png")));
-		gameRoombackground.add(expLabel);
-		expLabel.setBounds(475, 737, 50, 18);
-		expLabel.setVisible(true);
 		
 		canvas.setVisible(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -970,8 +952,12 @@ public class PaintEx extends JFrame implements ActionListener {
 					popUpBGM = new Music("roundBGM.mp3", false);
 					popUpBGM.start();
 					
+					
 					// 3초 정도 대기 후
 					sleep(3000);
+					canvas.repaint();
+					while (!shape.isEmpty())
+						shape.pop();
 					roundImg_lb.setVisible(false); // 보이지않게 한다.
 					canvas.setVisible(true); // 캔버스를 보이게한다.
 					clock.startClock(); // 타이머 동작
@@ -1122,9 +1108,6 @@ public class PaintEx extends JFrame implements ActionListener {
 
 				System.out.println(i+1 + "번 유저 정보 :" + u.getUserID() +", " + u.getExp() +", " + u.getLevel());
 				
-				// 하는 김에 경험치바도 갱신합니다.
-				printExp(u.getExp(), u.getLevel());
-//				printExp(10,2);
 			}
 			// 패널의 변경사항을 적용하기위한 메소드
 			revalidate(); // 레이아웃 변화를 재확인 시킨다.
@@ -1455,57 +1438,6 @@ public class PaintEx extends JFrame implements ActionListener {
 
 			
 		
-	}
-
-
-	
-	//레벨별 비율 계산해서 경험치 바에 값 설정
-	public void printExp(int exp, int level) {
-		switch (level) {
-		case 1:
-			expBar.setValue((exp/10)*100);
-			break;
-		case 2:
-			expBar.setValue((exp/40)*100);
-			break;
-		case 3:
-			expBar.setValue((exp/80)*100);
-			break;
-		case 4:
-			expBar.setValue((exp/130)*100);
-			break;
-		case 5:
-			expBar.setValue((exp/200)*100);
-			break;
-		case 6:
-			expBar.setValue((exp/290)*100);
-			break;
-		case 7:
-			expBar.setValue((exp/400)*100);
-			break;
-		case 8:
-			expBar.setValue((exp/540)*100);
-			break;
-		case 9:
-			expBar.setValue((exp/710)*100);
-			break;
-		case 10:
-			expBar.setValue((exp/910)*100);
-			break;
-		case 11:
-			expBar.setValue((exp/1150)*100);
-			break;
-		case 12:
-			expBar.setValue((exp/1430)*100);
-			break;
-		case 13:
-			if(exp<=1750)
-				expBar.setValue((exp/1750)*100); // MaxLevel 이므로 항상 100%으로 표기한다.
-			else {
-				expBar.setValue(100);
-			}
-			break;
-		}
 	}
 	   
 	// 게임 시작 및 라운드 시작에 사용될 버튼 활성/비활성 기능
