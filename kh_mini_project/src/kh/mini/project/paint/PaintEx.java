@@ -991,7 +991,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	}
 	
 	// 라운드 종료시에 이미지를 보이는 메소드
-	private void roundresult(String descriptor , String solver, boolean levelUpCheck) { // 문제를 설명해주는 사람과 정답자를 인수로 받는다.
+	private void roundresult(String solver , String descriptor, boolean levelUpCheck) { // 문제를 설명해주는 사람과 정답자를 인수로 받는다.
 		Font font = new Font("휴먼편지체", Font.BOLD, 25);
 	
 		new Thread() {
