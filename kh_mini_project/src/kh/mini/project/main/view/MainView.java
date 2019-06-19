@@ -71,8 +71,11 @@ public class MainView extends JFrame{
 	private WaitingRoom wr; // WaitingRoom 클래스 객체
 	private PaintEx paint; // Paint 클래스 객체
 	private Toolkit tk = Toolkit.getDefaultToolkit();
-	Image img = tk.getImage(Main.class.getResource("/images/cursorBasic.png"));
-	Cursor myCursor = tk.createCustomCursor(img, new Point(10,10), "WaterDrop");
+	//커서
+	private Image cursorBasic = tk.getImage(Main.class.getResource("/images/pencilCursor.png"));
+	private Image cursorClicked = tk.getImage(Main.class.getResource("/images/pencilCursorClicked.png"));
+	private Cursor myCursor = tk.createCustomCursor(cursorBasic, new Point(10,10), "Pencil Cursor");
+	private Cursor myCursorClicked = tk.createCustomCursor(cursorClicked, new Point(10,10), "Pencil Cursor Clicked");
 	
 //Image	
 	// #MainView 배경
@@ -190,7 +193,7 @@ public class MainView extends JFrame{
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				exitButton.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-				exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				exitButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
 				
@@ -200,7 +203,7 @@ public class MainView extends JFrame{
 			@Override  
 			public void mouseExited(MouseEvent e) {
 				exitButton.setIcon(exitBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-				exitButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				exitButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 				
 				
 			}
@@ -223,7 +226,7 @@ public class MainView extends JFrame{
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				connetButton.setIcon(connectEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-				connetButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				connetButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
 			}
@@ -232,7 +235,7 @@ public class MainView extends JFrame{
 			@Override  
 			public void mouseExited(MouseEvent e) {
 				connetButton.setIcon(conncetBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-				connetButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				connetButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 			}
 			
 			// 마우스로 버튼을 눌렀을 때 이벤트
@@ -278,7 +281,7 @@ public class MainView extends JFrame{
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				loginButton.setIcon(loginEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-				loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				loginButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
 			}
@@ -287,7 +290,7 @@ public class MainView extends JFrame{
 			@Override  
 			public void mouseExited(MouseEvent e) {
 				loginButton.setIcon(loginBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-				loginButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				loginButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 			}
 			
 			// 마우스로 버튼을 눌렀을 때 이벤트
@@ -326,7 +329,7 @@ public class MainView extends JFrame{
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				joinButton.setIcon(joinEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
-				joinButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				joinButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
 			}
@@ -335,7 +338,7 @@ public class MainView extends JFrame{
 			@Override  
 			public void mouseExited(MouseEvent e) {
 				joinButton.setIcon(joinBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
-				joinButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
+				joinButton.setCursor(myCursor); // 마우스 커서를 기본 커서로 변경
 			}
 			
 			// 마우스로 버튼을 눌렀을 때 이벤트
