@@ -923,7 +923,9 @@ public class MainServer extends JFrame {
 				RoomInfo new_room = new RoomInfo(roomNo, title, state, roomPW, fixed_User);
 				// 방을 생성한 유저이므로 방장 id를 저장시킨다.
 				new_room.roomCaptainID = mUserId;
+				
 				room_vc.add(new_room); // 전체 채팅 방 Vector에 방을 추가
+				
 
 				// 방이 만들어졌을때 BroadCast로 알린다.
 				BroadCast("WaitingRoom/pass/NewRoom@" + mUserId + "@" + roomNo + "@" + title + "@" + state + "@"
@@ -1148,7 +1150,7 @@ public class MainServer extends JFrame {
 					}
 				}
 
-//	                        // 이미 방에 접속해 있는 유저에게 자신의 정보를 보낸다.
+				// 이미 방에 접속해 있는 유저에게 자신의 정보를 보낸다.
 				for (int i = 0; i < user_vc.size(); i++) {
 					UserInfo u = (UserInfo) user_vc.elementAt(i);
 					// 사용자의 아이디와 같은 아이디를 찾아
@@ -1171,7 +1173,6 @@ public class MainServer extends JFrame {
 						// 해당 아이디를 찾으면
 						if (mUserId.equals(u.getUserID())) {
 							// 해당 유저를 방 유저 리스트에 추가한다.
-							System.out.println("asdasdsadsadas");
 							r.Room_user_vc.add(u);
 							break Pointer;
 						}
@@ -1185,12 +1186,8 @@ public class MainServer extends JFrame {
 						// 해당 방에 있는 유저들의 정보를 보낸다.
 						for (int j = 0; j < r.Room_user_vc.size(); j++) {
 							UserInfo u = (UserInfo) r.Room_user_vc.get(j);
-							send_Message("Paint/pass/OldUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + 0); // 정답의
-																													// 갯수는
-																													// 0으로
-																													// 세팅하고
-																													// 게임
-																													// 시작한다.
+							// 정답의 개수는 0으로 세팅한다.
+							send_Message("Paint/pass/OldUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + 0); 
 
 							// 테스트 코드
 							System.out.println("최대 :" + r.fixed_User + ", 현재 : " + r.Room_user_vc.size());
@@ -1209,7 +1206,7 @@ public class MainServer extends JFrame {
 					r = (RoomInfo) room_vc.elementAt(i);
 					if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
 						// 해당 브로드 캐스트를 받는거 만으로 게임방 패널을 갱신한다.
-						BroadCast("WaitingRoom/pass/RoomInfoUpdate@pass");
+						BroadCast("WaitingRoom/pass/RoomInfoUpdate@pass@"+r.room_No+"@");
 					}
 				}
 
