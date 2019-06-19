@@ -712,6 +712,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			String descriptor = st.nextToken(); // 문제 설명자 ID
 			round = Integer.parseInt(st.nextToken()); // 라운드를 받는다.
 			boolean giveUp_rec = Boolean.valueOf(st.nextToken()).booleanValue();
+			boolean levelUpCheck = Boolean.valueOf(st.nextToken()).booleanValue();
 			/*
 			 * mUserId 에 정답자의 아이디가 저장됨
 			 * 이를 통해 라운드가 끝났음을 알리는 코드르 띄운다. 
@@ -736,10 +737,9 @@ public class PaintEx extends JFrame implements ActionListener {
 				giveUpImgUpdate();
 				giveUp_Sel=false;
 			}
-			
 			else {
 				// 라운드 결과 페이지를 띄운다.
-				roundresult(mUserId, descriptor);
+				roundresult(mUserId, descriptor, levelUpCheck);
 			}
             
 			// 변수 초기화
@@ -820,20 +820,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 			break;
 			
-		// # 레벨업 이벤트 적용
-		case "UserLevelUp" :
-			
-			System.out.println(mUserId +"님 레벨업!");
-			/*
-			 *   레벨업 이벤트 적용 
-			 */
-			levelUpImgUpdate();
-			
-			// 레벨은 ExpUpdate 프로토콜에서 처리하므로 이벤트 처리만 한다.
-			
-			updateUserPanel();
-			break;
-			
+		// # 게임 종료
 		case "GameOver"	:
 			// 게임 종료 메소드를 실행한다.
 			showGameOver();
@@ -1008,7 +995,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	}
 	
 	// 라운드 종료시에 이미지를 보이는 메소드
-	private void roundresult(String descriptor , String solver) { // 문제를 설명해주는 사람과 정답자를 인수로 받는다.
+	private void roundresult(String descriptor , String solver, boolean levelUpCheck) { // 문제를 설명해주는 사람과 정답자를 인수로 받는다.
 		Font font = new Font("휴먼편지체", Font.BOLD, 25);
 	
 		new Thread() {
@@ -1030,6 +1017,19 @@ public class PaintEx extends JFrame implements ActionListener {
 					sleep(3000);
 					
 					resultImage_lb.setVisible(false); // 다시 보이지 않게 한다.
+					
+					
+					// 만약 레벨업 한 유저가 있다면
+					if(levelUpCheck) {
+						// 레벨업 알림 이미지
+						levelUpImgUpdate();
+						
+						sleep(5000);
+						
+						// 레벨은 ExpUpdate 프로토콜에서 처리하므로 이벤트 처리만 한다.
+						updateUserPanel();
+					}
+					
 					
 					// 만약 방장이라면 
 		            if(roomCaptain) {
@@ -1083,10 +1083,6 @@ public class PaintEx extends JFrame implements ActionListener {
 				@Override
 				public void run() {
 					try {
-						
-						// 1초 정도 대기 후
-						sleep(4500);
-						
 						levelUpImg.setVisible(true);
 						
 						popUpBGM = new Music("levelupBGM.mp3",false);
@@ -1095,12 +1091,6 @@ public class PaintEx extends JFrame implements ActionListener {
 						sleep(3000);
 						
 						levelUpImg.setVisible(false); // 다시 보이지 않게 한다.
-						
-						// 만약 방장이라면 
-			            if(roomCaptain) {
-			            	// 라운드 시작을 알린다.
-							send_message("RoundStart/"+id+"/"+room_No);
-			            }
 						
 					} catch (InterruptedException e) {
 						e.printStackTrace();
