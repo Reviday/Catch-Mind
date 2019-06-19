@@ -1328,8 +1328,11 @@ public class MainServer extends JFrame {
 				//해당 유저를 찾아서
 				if(userID.equals(user.getId())){
 					// 레벨업을 확인한다. 
-					levelUp = user.expUpdate();
+					System.out.println(user.getId()+"님, 처리 전 레벨 : " + user.getLevel() + ", 경험치 : " + user.getExp() +", 누적 정답수 :" + user.getCorAnswer());
+					levelUp = user.expUpdate(true);
+					System.out.println(user.getId()+"님, 처리 후 레벨 : " + user.getLevel() + ", 경험치 : " + user.getExp() +", 누적 정답수 :" + user.getCorAnswer());
 					allUser_vc.set(i, user); // 적용
+					break;
 				}
 			}
 			for(int i=0; i<allUser_vc.size(); i++) {
@@ -1337,8 +1340,11 @@ public class MainServer extends JFrame {
 				//해당 유저를 찾아서
 				if(descriptor.equals(desUser.getId())){
 					// 레벨업을 확인한다. 
-					levelUp = desUser.expUpdate();
+					System.out.println(desUser.getId()+"님, 처리 전 레벨 : " + desUser.getLevel() + ", 경험치 : " + desUser.getExp() +", 누적 정답수 :" + desUser.getCorAnswer());
+					levelUp = desUser.expUpdate(false);
+					System.out.println(desUser.getId()+"님, 처리 후 레벨 : " + desUser.getLevel() + ", 경험치 : " + desUser.getExp() +", 누적 정답수 :" + desUser.getCorAnswer());
 					allUser_vc.set(i, desUser); // 적용
+					break;
 				}
 			}
 			// 둘중 한 명이라도 레벨업을 할 시, 레벨업 이벤트를 진행
@@ -1356,7 +1362,9 @@ public class MainServer extends JFrame {
 						//해당 유저를 찾아서
 						if(userID.equals(ui.userID)) {
 							//경험치가 증가되었음을 알린다.(DB랑 연관있는 벡터로부터 가져온다. 유사 DB)
-							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+user.getLevel()+"@"+user.getExp()+"@"+1); // 정답자는 정답갯수 1증가
+							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+user.getLevel()+"@"+user.getExp()+"@"+user.getCorAnswer()+"@1"); // 정답자는 정답갯수 1증가
+							System.out.println(user.getId()+"님, 메시지 체크 레벨 : " + user.getLevel() + ", 경험치 : " + user.getExp() +", 누적 정답수 :" + user.getCorAnswer());
+							
 						}
 					}
 					
@@ -1366,14 +1374,15 @@ public class MainServer extends JFrame {
 						//해당 유저를 찾아서
 						if(descriptor.equals(ui.userID)) {
 							//경험치가 증가되었음을 알린다.(DB랑 연관있는 벡터로부터 가져온다. 유사 DB)
-							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+desUser.getLevel()+"@"+desUser.getExp()+"@"+0); // 출제자는 정답개수 0 증가
+							gBroadCast(room_No, "Paint/pass/ExpUpdate@"+ui.userID+"@"+desUser.getLevel()+"@"+desUser.getExp()+"@"+user.getCorAnswer()+"@0"); // 출제자는 정답개수 0 증가
 							// 레벨업을 하였을 경우
-							
+							System.out.println(desUser.getId()+"님, 메시지 체크 레벨 : " + desUser.getLevel() + ", 경험치 : " + desUser.getExp() +", 누적 정답수 :" + desUser.getCorAnswer());
 						}
 					}
 					
 					// 레벨업을 하였을 경우
 					if(levelUp) {
+						System.out.println("누군가 레벨업을 하였습니다");
 						gBroadCast(room_No, "Paint/pass/UserLevelUp@pass@");
 					}
 				}

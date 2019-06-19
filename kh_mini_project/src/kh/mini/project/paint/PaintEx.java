@@ -791,7 +791,8 @@ public class PaintEx extends JFrame implements ActionListener {
 		case "ExpUpdate" :
 			level = Integer.parseInt(st.nextToken()); // 레벨
 			exp = Integer.parseInt(st.nextToken()); // 경험치
-			corAnswer = Integer.parseInt(st.nextToken()); // 누적 정답수
+			corAnswer = Integer.parseInt(st.nextToken()); // 누적 정답수 
+			int answer = Integer.parseInt(st.nextToken()); // 추가용 정답 
 			
 			// 방 정보에서 해당 유저를 찾아 업데이트 사항을 적용시킨다.
 			for(int i=0; i<roomInfo.getRoom_user_vc().size(); i++) {
@@ -799,7 +800,9 @@ public class PaintEx extends JFrame implements ActionListener {
 				if(mUserId.equals(u.getUserID())) {
 					u.setExp(exp);
 					u.setlevel(level);
+					System.out.println("경험치 : " + exp +" 증가, 현재 레벨 : " + level);
 					u.setCorAnswer(corAnswer);
+					u.setNowAnswer(u.getNowAnswer()+answer);
 				}
 			}
 			
@@ -810,6 +813,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		// # 레벨업 이벤트 적용
 		case "UserLevelUp" :
 			
+			System.out.println(mUserId +"님 레벨업!");
 			/*
 			 *   레벨업 이벤트 적용 
 			 */
@@ -1081,7 +1085,7 @@ public class PaintEx extends JFrame implements ActionListener {
 				user_lb[i]=ul;
 				user_pn[i].add(user_lb[i]);
 
-				System.out.println("유저 정보 :" + u.getExp() +", " + u.getLevel());
+				System.out.println(i+1 + "번 유저 정보 :" + u.getUserID() +", " + u.getExp() +", " + u.getLevel());
 				
 				// 하는 김에 경험치바도 갱신합니다.
 				printExp(u.getExp(), u.getLevel());
@@ -1262,7 +1266,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		private JLabel user_Image;
 		private JLabel user_Id;
 		private JLabel user_Level;
-		private JLabel user_CorAnswer;
+		private JLabel user_nowAnswer;
 		
 		private UserInfo inGameUser;
 		
@@ -1312,14 +1316,14 @@ public class PaintEx extends JFrame implements ActionListener {
 			System.out.println(this.inGameUser.getGradeImg());
 			
 			// user_CorAnswer
-			user_CorAnswer = new JLabel("",SwingConstants.CENTER); // 가운데 정렬
-			user_CorAnswer.setText(Integer.toString(this.inGameUser.getCorAnswer()));
-			user_CorAnswer.setBounds(104, 99, 76, 41);
-			user_CorAnswer.setBackground(new Color(0,0,0,0));
-			user_CorAnswer.setOpaque(true);
-			user_CorAnswer.setFont(userLabelFont);
-			add(user_CorAnswer);
-			System.out.println(this.inGameUser.getCorAnswer());
+			user_nowAnswer = new JLabel("",SwingConstants.CENTER); // 가운데 정렬
+			user_nowAnswer.setText(Integer.toString(this.inGameUser.getNowAnswer()));
+			user_nowAnswer.setBounds(104, 99, 76, 41);
+			user_nowAnswer.setBackground(new Color(0,0,0,0));
+			user_nowAnswer.setOpaque(true);
+			user_nowAnswer.setFont(userLabelFont);
+			add(user_nowAnswer);
+			System.out.println(this.inGameUser.getNowAnswer());
 		}
 		
 		public void setInGameUser(UserInfo inGameUser) {
@@ -1327,7 +1331,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 			// 일단 두 개만
 			user_Id.setText(this.inGameUser.getUserID());
-			user_CorAnswer.setText(Integer.toString(this.inGameUser.getCorAnswer()));
+			user_nowAnswer.setText(Integer.toString(this.inGameUser.getNowAnswer()));
 		}
 	}
 	

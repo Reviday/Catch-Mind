@@ -15,6 +15,7 @@ public class UserInfo {
 	private int level; // 레벨
 	private int exp; // 경험치
 	private int corAnswer; // 누적 정답 개수
+	private int nowAnswer=0; // 현재 정답 개수
 	
 	private ImageIcon charImg; // 레벨에 따른 캐릭터 이미지
 	private ImageIcon gradeImg; // 레벨에 따른 등급 이미지
@@ -87,6 +88,14 @@ public class UserInfo {
 
 	public void setCorAnswer(int corAnswer) {
 		this.corAnswer += corAnswer;
+	}
+	
+	public int getNowAnswer() {
+		return nowAnswer;
+	}
+
+	public void setNowAnswer(int nowAnswer) {
+		this.nowAnswer = nowAnswer;
 	}
 	
 	public ImageIcon getCharImg() {

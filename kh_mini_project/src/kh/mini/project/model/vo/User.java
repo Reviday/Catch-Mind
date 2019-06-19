@@ -149,10 +149,14 @@ public class User implements Serializable{
 
 	
 	// 출제자 또는 정답자에게 실행되는 메소드. 경험치와 누적정답 개수를 증가시킨다.
-	public boolean expUpdate() {
+	public boolean expUpdate(boolean descriptor) {
 		// 경험치를 10 누적 시키고, 누적 정답개수를 1 누적시킨다.
-		exp += 10; corAnswer++;
-		
+		System.out.println(id+"님, 처리 전 레벨 : " + level + ", 경험치 : " + exp +", 누적 정답수 :" + corAnswer );
+		exp += 10; 
+		if(!descriptor) { // 만약 출제자가 아닌 정답자일 경우 누적 정답수를 올린다.
+			corAnswer++;
+		}
+		System.out.println(id+"님, 처리 후 레벨 : " + level + ", 경험치 : " + exp +", 누적 정답수 :" + corAnswer );
 		return levelUpCheck();
 	}
 	 
