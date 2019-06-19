@@ -1196,7 +1196,7 @@ public class MainServer extends JFrame {
 				int round = Integer.parseInt(st.nextToken());
 				String giveUp_Sel = st.nextToken();
 
-				gBroadCast(room_No, "Paint/pass/EndRound@pass@pass@" + round + "@" + giveUp_Sel);
+				gBroadCast(room_No, "Paint/pass/EndRound@pass@pass@" + round + "@" + giveUp_Sel + "@false");
 				break;
 
 			// #게임이 끝났으므로 대기실로 이동시킨다.
