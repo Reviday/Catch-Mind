@@ -706,6 +706,15 @@ public class PaintEx extends JFrame implements ActionListener {
 			while (!shape.isEmpty())
 				shape.pop();
 			
+			// 변수 초기화
+			mypencolor = Color.black;
+			eraser_Sel = false;
+			thick = 8;
+			eraserThick = 30;
+			colorCode = "black";
+			receiveEraserSel = false;
+			getContentPane().setCursor(blackCursor);
+			
 			// 캔버스랑 제시어 라벨을 보이지않게
 			canvas.setVisible(false);
 			suggest_lb.setVisible(false);
@@ -723,16 +732,6 @@ public class PaintEx extends JFrame implements ActionListener {
 				// 라운드 결과 페이지를 띄운다.
 				roundresult(mUserId, descriptor, levelUpCheck);
 			}
-            
-			// 변수 초기화
-			mypencolor = Color.black;
-			eraser_Sel = false;
-			thick = 8;
-			eraserThick = 30;
-			colorCode = "black";
-			receiveEraserSel = false;
-			getContentPane().setCursor(blackCursor);
-            
 			
 			/* 
 			 *  정답자와 출제자의 정보 갱신이 생기므로 
@@ -952,6 +951,15 @@ public class PaintEx extends JFrame implements ActionListener {
 					popUpBGM = new Music("roundBGM.mp3", false);
 					popUpBGM.start();
 					
+					// 변수 초기화
+					mypencolor = Color.black;
+					eraser_Sel = false;
+					thick = 8;
+					eraserThick = 30;
+					colorCode = "black";
+					receiveEraserSel = false;
+					getContentPane().setCursor(blackCursor);
+					
 					
 					// 3초 정도 대기 후
 					sleep(3000);
@@ -967,6 +975,8 @@ public class PaintEx extends JFrame implements ActionListener {
 						setButtonEnabled(true);
 						chatting_tf.setEnabled(false);
 					}
+					
+					
 					
 					
 				} catch (InterruptedException e) {

@@ -1253,7 +1253,7 @@ public class MainServer extends JFrame {
 
 					if (r.round != 12) {
 						// 다음 유저 정보를 보내기 위함.
-						int nextIndex = r.Room_user_vc.size() - (12 - r.round + 1) % r.Room_user_vc.size() - 1;
+						int nextIndex = r.Room_user_vc.size() - (12 - (r.round + 1)) % r.Room_user_vc.size() - 1;
 						nextU = (UserInfo) r.Room_user_vc.get(nextIndex);
 
 						// 해당 유저에게만 자신의 순서임을 알리고 나머지 유저들에게는 문제를 맞추도록 한다.(문제를 내는 사람한테만 제시어를 넘김)
