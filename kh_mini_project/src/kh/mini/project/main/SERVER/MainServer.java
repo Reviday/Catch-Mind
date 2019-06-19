@@ -105,6 +105,12 @@ public class MainServer extends JFrame {
 	private void main_View() { // 서버 메인 화면
 		// 모든 회원의 정보를 로드해온다.
 		allUser_vc = new UserController().dataLoadAll();
+		
+		// 서버의 종료/중지 기능을 만들지 않았기에 임시로 넣음.
+		for(int i=0; i<allUser_vc.size(); i++) {
+			User u = (User)allUser_vc.get(i);
+			u.setLoginState(false);
+		}
 
 		// JFrame mainView
 		setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
@@ -1191,8 +1197,6 @@ public class MainServer extends JFrame {
 					}
 				}
 
-				// 이 프로토콜은 여러 인원에게서 들어오기 때문에 방장에게서 들어온 메시지에서만 방 제거를 실시한다.
-//	            if(roomCaptain.equals("true")) {
 				for (int i = 0; i < room_vc.size(); i++) {
 					// 방의 정보를 가져와
 					r = (RoomInfo) room_vc.get(i);
@@ -1202,9 +1206,7 @@ public class MainServer extends JFrame {
 						room_vc.remove(i);
 						System.out.println("방 개수 :" + room_vc.size());
 					}
-					// 테스트 코드
 				}
-//	            }
 
 				for (int i = 0; i < allUser_vc.size(); i++) {
 					User user = (User) allUser_vc.elementAt(i);

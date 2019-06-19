@@ -26,6 +26,10 @@ public class User implements Serializable{
 	
 	private boolean loginState = false; // 로그인 상태
 	
+	static {
+		
+	}
+	
 	
 	public User() {	}
 	
