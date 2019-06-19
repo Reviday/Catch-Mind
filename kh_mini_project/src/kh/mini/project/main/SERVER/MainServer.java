@@ -2,10 +2,16 @@ package kh.mini.project.main.SERVER;
 
 // Github 푸쉬할때 자동으로 대문자로 바뀌어서 그냥 대문자로 놓음..
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseAdapter;
@@ -28,6 +34,7 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -36,18 +43,20 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.ScrollPaneLayout;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.DefaultTableModel;
 
 import kh.mini.project.db.UserController;
 import kh.mini.project.main.view.Main;
 import kh.mini.project.model.vo.User;
-import kh.mini.project.model.vo.UserInfo;
 import kh.mini.project.paint.Question;
 
 public class MainServer extends JFrame {
 	private static final long serialVersionUID = 1216070372320522836L;
 // Frame, Panel
-	private JScrollPane statusView = new JScrollPane(); // 포트로 받은 상태 수신창 스크롤팬
+	private JScrollPane statusView; // 포트로 받은 상태 수신창 스크롤팬
 	private JTextArea statusArea = new JTextArea(); // statusView에 넣을 텍스트 에어리어
 	private JTextArea userListArea = new JTextArea(); // userListView에 넣을 텍스트 에어리어
 	private JScrollPane allUserListView; // 모든 유저 리스트를 보이게 할 스크롤팬
@@ -329,14 +338,104 @@ public class MainServer extends JFrame {
 			setLayout(null);
 
 			// ScrollPane
-			statusView.setBounds(10, 20, 260, 330);
-			statusView.setBackground(new Color(0, 0, 0, 0));
-			statusView.getVerticalScrollBar().setValue(statusView.getVerticalScrollBar().getMaximum());
 			statusArea.setBackground(new Color(80, 80, 80, 0));
 			statusArea.setFont(font);
 			statusArea.setForeground(Color.white);
 			statusArea.setLineWrap(true); // 자동 줄바꿈
+			statusView = new JScrollPane(statusView, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			statusView.setBounds(10, 20, 260, 330);
+			statusView.setBackground(new Color(0, 0, 0, 0));
+			statusView.getVerticalScrollBar().setValue(statusView.getVerticalScrollBar().getMaximum());
+			statusView.setComponentZOrder(statusView.getVerticalScrollBar(), 0);
+			statusView.setComponentZOrder(statusView.getViewport(), 1);
+			statusView.getVerticalScrollBar().setOpaque(false);
 			statusView.setViewportView(statusArea);
+			statusView.setLayout(new ScrollPaneLayout() {
+				@Override
+				public void layoutContainer(Container parent) {
+					JScrollPane scrollPane = (JScrollPane) parent;
+
+					Rectangle availR = scrollPane.getBounds();
+					availR.x = availR.y = 0;
+
+					Insets insets = parent.getInsets();
+					availR.x = insets.left;
+					availR.y = insets.top;
+					availR.width -= insets.left + insets.right;
+					availR.height -= insets.top + insets.bottom;
+
+					Rectangle vsbR = new Rectangle();
+					vsbR.width = 12;
+					vsbR.height = availR.height;
+					vsbR.x = availR.x + availR.width - vsbR.width;
+					vsbR.y = availR.y;
+
+					if (viewport != null) {
+						viewport.setBounds(availR);
+					}
+					if (vsb != null) {
+						vsb.setVisible(true);
+						vsb.setBounds(vsbR);
+					}
+				}
+			});
+			statusView.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+				private final Dimension d = new Dimension();
+
+				@Override
+				protected JButton createDecreaseButton(int orientation) {
+					return new JButton() {
+						@Override
+						public Dimension getPreferredSize() {
+							return d;
+						}
+					};
+				}
+
+				@Override
+				protected JButton createIncreaseButton(int orientation) {
+					return new JButton() {
+						@Override
+						public Dimension getPreferredSize() {
+							return d;
+						}
+					};
+				}
+
+				@Override
+				protected void paintTrack(Graphics g, JComponent c, Rectangle r) {
+				}
+
+				@Override
+				protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
+					Graphics2D g2 = (Graphics2D) g.create();
+					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					Color color = null;
+					JScrollBar sb = (JScrollBar) c;
+					if (!sb.isEnabled() || r.width > r.height) {
+						return;
+					} else if (isDragging) {
+						color = new Color(200, 200, 100, 200);
+					} else if (isThumbRollover()) {
+						color = new Color(255, 255, 100, 200);
+					} else {
+						color = new Color(220, 220, 200, 200);
+					}
+					g2.setPaint(color);
+					g2.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
+					g2.setPaint(Color.WHITE);
+					g2.drawRoundRect(r.x, r.y, r.width, r.height, 10, 10);
+					g2.dispose();
+				}
+
+				@Override
+				protected void setThumbBounds(int x, int y, int width, int height) {
+					super.setThumbBounds(x, y, width, height);
+					scrollbar.repaint();
+				}
+			});
+			
 			/* 이하 코드는 쓰레드 환경에서도 자동 스크롤이 되게하려는 메소드이다. */
 			statusView.addMouseWheelListener(new MouseWheelListener() {
 				public void mouseWheelMoved(MouseWheelEvent e) {
