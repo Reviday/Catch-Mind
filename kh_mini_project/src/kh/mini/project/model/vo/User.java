@@ -39,7 +39,7 @@ public class User implements Serializable{
 		this.gender = gender;
 		age = calcAge(dateOfBirth); // 한국나이계산
 		//회원가입 상태이므로 나머지 설정값은 초기값으로
-		level = 0;
+		level = 1;
 		exp = 0;
 		corAnswer = 0;
 	}
@@ -175,6 +175,7 @@ public class User implements Serializable{
 				level++; // 레벨업
 				exp = 0; // 경험치는 0으로 초기화
 				levelUp = true;
+				System.out.println(id+ " 레벨업!!");
 			}
 			break;
 		case 2:

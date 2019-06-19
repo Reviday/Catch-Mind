@@ -1329,7 +1329,8 @@ public class PaintEx extends JFrame implements ActionListener {
 		public void setInGameUser(UserInfo inGameUser) {
 			this.inGameUser = inGameUser;
 			
-			// 일단 두 개만
+			user_Image.setIcon(this.inGameUser.getCharImg());
+			user_Level.setIcon(this.inGameUser.getGradeImg());
 			user_Id.setText(this.inGameUser.getUserID());
 			user_nowAnswer.setText(Integer.toString(this.inGameUser.getNowAnswer()));
 		}

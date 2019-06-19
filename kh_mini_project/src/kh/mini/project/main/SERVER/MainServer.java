@@ -1318,7 +1318,8 @@ public class MainServer extends JFrame {
 		
 		// 출제자와 정답자의 경험치와 정답 개수를 늘려주기 위한 메소드
 		private void userExpUpdate(String descriptor, String userID, int room_No) {
-			boolean levelUp = false;
+			boolean dLevelUp = false;
+			boolean uLevelUp = false;
 			User desUser = null;
 			User user = null;
 			
@@ -1329,7 +1330,7 @@ public class MainServer extends JFrame {
 				if(userID.equals(user.getId())){
 					// 레벨업을 확인한다. 
 					System.out.println(user.getId()+"님, 처리 전 레벨 : " + user.getLevel() + ", 경험치 : " + user.getExp() +", 누적 정답수 :" + user.getCorAnswer());
-					levelUp = user.expUpdate(true);
+					dLevelUp = user.expUpdate(true);
 					System.out.println(user.getId()+"님, 처리 후 레벨 : " + user.getLevel() + ", 경험치 : " + user.getExp() +", 누적 정답수 :" + user.getCorAnswer());
 					allUser_vc.set(i, user); // 적용
 					break;
@@ -1341,7 +1342,7 @@ public class MainServer extends JFrame {
 				if(descriptor.equals(desUser.getId())){
 					// 레벨업을 확인한다. 
 					System.out.println(desUser.getId()+"님, 처리 전 레벨 : " + desUser.getLevel() + ", 경험치 : " + desUser.getExp() +", 누적 정답수 :" + desUser.getCorAnswer());
-					levelUp = desUser.expUpdate(false);
+					uLevelUp = desUser.expUpdate(false);
 					System.out.println(desUser.getId()+"님, 처리 후 레벨 : " + desUser.getLevel() + ", 경험치 : " + desUser.getExp() +", 누적 정답수 :" + desUser.getCorAnswer());
 					allUser_vc.set(i, desUser); // 적용
 					break;
@@ -1381,7 +1382,7 @@ public class MainServer extends JFrame {
 					}
 					
 					// 레벨업을 하였을 경우
-					if(levelUp) {
+					if(uLevelUp || dLevelUp) {
 						System.out.println("누군가 레벨업을 하였습니다");
 						gBroadCast(room_No, "Paint/pass/UserLevelUp@pass@");
 					}

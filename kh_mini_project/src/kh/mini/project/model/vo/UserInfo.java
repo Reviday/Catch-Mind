@@ -99,6 +99,7 @@ public class UserInfo {
 	}
 	
 	public ImageIcon getCharImg() {
+		setCharImg(level);
 		return charImg;
 	}
 
@@ -114,6 +115,7 @@ public class UserInfo {
 	}
 
 	public ImageIcon getGradeImg() {
+		setGradeImg(level);
 		return gradeImg;
 	}
 
