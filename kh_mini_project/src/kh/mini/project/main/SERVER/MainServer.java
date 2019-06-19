@@ -1218,6 +1218,10 @@ public class MainServer extends JFrame {
 						break;
 					}
 				}
+				
+				// 게임 종료 후 유저들의 정보를 db에 저장한다.
+				new UserController().dataSaveAll(allUser_vc);
+				
 				break;
 
 			// #사용자가 그림을 그리면

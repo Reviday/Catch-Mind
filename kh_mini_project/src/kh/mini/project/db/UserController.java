@@ -71,20 +71,18 @@ public class UserController {
 		
 		return users;
 	}
-	// 어드민 추가 테스트
-//	public static void main(String[] args) {
-//		try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("userDB.dat"))){
-//			User admin = new User("admin", "admin", "admin", "900101", "null", 0, ' ', 13, 999999, 99999);
-//			User test = new User("test","test","test","900101","null",0,' ',1,0,10);
-//			User test1 = new User("test1","test1","test1","900101","null",0,' ',2,0,20);
-//			User test2 = new User("test2","test2","test2","900101","null",0,' ',3,0,30);
-//			
-//			oos.writeObject(admin);
-//			oos.writeObject(test);
-//			oos.writeObject(test1);
-//			oos.writeObject(test2);
-//			System.out.println("어드민 저장완료!");
-//		} catch (Exception e) {
-//		}
-//	}
+	
+	public static void main(String[] args) {
+		// db 정보 읽어오기 테스트
+		Vector<User> v =  new UserController().dataLoadAll();
+		User[] u = new User[v.size()];
+		
+		for(int i=0; i<v.size(); i++) {
+			u[i] = (User)v.get(i);
+		}
+		
+		for(User user : u) {
+			System.out.println(user);
+		}
+	}
 }
