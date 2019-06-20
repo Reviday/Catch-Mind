@@ -514,8 +514,10 @@ public class PaintEx extends JFrame implements ActionListener {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getButton()==1) {
-//					dispose();
-					System.exit(0); // 테스트 중이여서 종료 처리
+					// 서버에 방을 나갔음을 알리고 
+					send_message("GameRoomOut/"+id+"/"+room_No);
+					// 창을 닫는다.
+					dispose();
 				}
 			}
 		});
@@ -862,7 +864,27 @@ public class PaintEx extends JFrame implements ActionListener {
 			updateUserPanel();
 			
 			break;
-			
+		      // # 게임 시작 전에 유저가 나갔음을 알린다.
+		case "UserOut":
+			Vector<UserInfo> v = new Vector<UserInfo>(); // 벡터를 임의로 생성하고
+			for (int i = 0; i < roomInfo.getRoom_user_vc().size(); i++) {
+				// 해당 유저를 목록에서 찾아
+				UserInfo u = (UserInfo) roomInfo.getRoom_user_vc().get(i);
+				// 아이디가 일치하지 않은 유저만 추가한다.
+				if (!u.getUserID().equals(mUserId)) {
+					v.add(u);
+				}
+				// 마지막 인덱스에서
+				if (i == roomInfo.getRoom_user_vc().size() - 1) {
+					// 임시 벡터를 저장한다.
+					roomInfo.setRoom_user_vc(v);
+				}
+			}
+
+			// 유저 패널 업데이트
+			updateUserPanel();
+
+			break;
 		// # 게임 종료
 		case "GameOver"	:
 			// 게임 종료 메소드를 실행한다.

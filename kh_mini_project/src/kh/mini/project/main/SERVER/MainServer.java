@@ -39,6 +39,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -112,6 +113,7 @@ public class MainServer extends JPanel {
    private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
    private boolean scrollpanemove = false; // 스크롤 패인에 사용되는 변수(스크롤 허용 관련)
    private Intro intro;
+   private MainServer main_Server;
    
 //Image   
    // #MainView 배경
@@ -365,33 +367,36 @@ public class MainServer extends JPanel {
       }
    }
 
-   private void Connection() {
-      // 1가지의 스레드에서는 1가지의 일만 처리할 수 있다.
-      Thread th = new Thread(new Runnable() {
-         @Override
-         public void run() { // 스레드에서 처리할 일을 기재한다.
+	private void Connection() {
+		// 1가지의 스레드에서는 1가지의 일만 처리할 수 있다.
+		Thread th = new Thread(new Runnable() {
+			@Override
+			public void run() { // 스레드에서 처리할 일을 기재한다.
 
-            while (true) {
-               try { // 마찬가지로 try-catch
-                  statusArea.append("사용자 접속 대기중(설정 포트번호 : " + port + ")\n");
-                  socket = server_Socket.accept(); // 사용자 접속 무한 대기 => 때문에 다른 기능들이 동작하지 않고 죽어버린다. => 멀티 스레드로 해결!
-                  statusArea.append("사용자 연결 설정 완료!\n");
-                  connectCk = true; // 로그인을 위해 사용될 변수
+				while (true) {
+					try { // 마찬가지로 try-catch
+						statusArea.append("사용자 접속 대기중(설정 포트번호 : " + port + ")\n");
+						socket = server_Socket.accept(); // 사용자 접속 무한 대기 => 때문에 다른 기능들이 동작하지 않고 죽어버린다. => 멀티 스레드로 해결!
+						statusArea.append("사용자 연결 설정 완료!\n");
+						connectCk = true; // 로그인을 위해 사용될 변수
 
-                  // 사용자가 accept로 접속을 하게되면 UserInfo 객체를 생성하게 된다.
-                  // UserInfo 생성자는 매개변수로 넘어온 socket을 받아주고 UserNetwork()를 실행하여 연결설정을 하게된다.
-                  UserInfo user = new UserInfo(socket);
+						// 사용자가 accept로 접속을 하게되면 UserInfo 객체를 생성하게 된다.
+						// UserInfo 생성자는 매개변수로 넘어온 socket을 받아주고 UserNetwork()를 실행하여 연결설정을 하게된다.
+						UserInfo user = new UserInfo(socket);
 
-                  user.start(); // 객체의 스레드를 각각 실행
-               } catch (IOException e) {
-               }
-            } // while문 끝
+						user.start(); // 객체의 스레드를 각각 실행
+					} catch (IOException e) {
+						
+						JOptionPane.showMessageDialog(null, "연결 에러가 발생했습니다.", "알림", JOptionPane.ERROR_MESSAGE);
+						break; // 서버가 중지될 시 run 메소드를 중지한다.
+					}
+				} // while문 끝
 
-         }
-      });
+			}
+		});
 
-      th.start();
-   }
+		th.start();
+	}
 
    public static void main(String[] args) {
       new MainServer();
@@ -449,31 +454,12 @@ public class MainServer extends JPanel {
 		} catch(NullPointerException e) {
 			System.out.println("로드 완료");
 		}
-		
-		
 	}
-	
-	// 모든 유저 테이블 업데이트 메소드
-	public void allUserTableUpdate(Vector vc) {
-		
 
+	// 서버 중지 시 해당 창의 컴포넌트를 삭제한다.(테이블)
+	private void removeMainView() {
+		this.removeAll();
 	}
-	
-	// 접속 유저 테이블 업데이트 메소드
-	public void loginUserTableUpdate(Vector vc) {
-		
-	}
-      
-   // 모든 유저 테이블에 적용되는 텍스트 필드 셋팅 메소드
-   private void setTextFieldAU() {
-		
-   }
-      
-	// 접속 유저 테이블에 적용되는 텍스트 필드 셋팅 메소드
-	private void setTextFieldLU() {
-		
-	}
-   
 
    // 인트로 화면용 내부 클래스
    class Intro extends JFrame {
@@ -705,7 +691,37 @@ public class MainServer extends JPanel {
 				// 마우스로 버튼을 눌렀을 때 이벤트
 				@Override
 				public void mousePressed(MouseEvent e) {
-					state = true; // 서버 실행이 가능한 상태로 변경
+					state = true; // 서버 실행이 가능한 상태로 변경 => 누가한거?
+					
+					try {
+						//서버 소켓을 닫기 전에 접속중인 모든 유저들에게 서버가 중지됨을 알린다.
+				         for (int i = 0; i < user_vc.size(); i++) // 현재 접속된 사용자에게 전송
+				         {
+				            UserInfo u = (UserInfo) user_vc.elementAt(i); // i번쨰에 있는 사용자에게 메세지를 전송
+				            u.send_Message("ServerStop/pass");
+				         }
+						
+						// 서버 소켓을 닫는다.
+						server_Socket.close();
+						
+						// 벡터의 모든 요소들을 제거한다.
+						allUser_vc.removeAllElements();
+						user_vc.removeAllElements();
+						wRoom_vc.removeAllElements();
+						room_vc.removeAllElements();
+						
+						// 메인 뷰의 테이블을 삭제한다.
+						removeMainView();
+						
+						
+						
+						
+						statusArea.append("서버가 중지되었습니다.\n");
+						
+						
+					} catch (IOException e1) {
+					}
+					
 					System.out.println("서버 스탑 버튼 클릭");
 				}
 			});
@@ -981,6 +997,8 @@ public class MainServer extends JPanel {
                }
                Inmessage(msg);
             } catch (IOException e) {
+//            	JOptionPane.showMessageDialog(null, "연결 에러가 발생했습니다.","알림",JOptionPane.ERROR_MESSAGE);
+//            	break; // 서버가 중지될 시 run 메소드를 중지한다.
             }
          }
       } // run 메소드 끝
@@ -1082,6 +1100,37 @@ public class MainServer extends JPanel {
                }
             }
             break;
+			// # 게임방 나가기
+			case "GameRoomOut":
+				room_No = Integer.parseInt(st.nextToken());
+
+				// 해당 유저의 정보를 유저목록에서 제거한다.
+				for (int i = 0; i < user_vc.size(); i++) {
+					UserInfo u = (UserInfo) user_vc.get(i);
+					if (u.userID.equals(mUserId)) {
+						// 해당 유저를 찾았으면 리스트에서 제거한다.
+						user_vc.remove(i);
+						System.out.println("유저수 : " + user_vc.size());
+					}
+				}
+
+				for (int i = 0; i < allUser_vc.size(); i++) {
+					User user = (User) allUser_vc.elementAt(i);
+					// 해당 계정을 찾는다.
+					System.out.println(user);
+					System.out.println("user.getId : " + user.getId() + ", mUserId : " + mUserId);
+					if (user.getId().equals(mUserId)) {
+						System.out.println(mUserId + " 체크중 !!!");
+						send_Message("LoginOK/ok");
+						userAdd(mUserId);
+						break;
+					}
+				}
+
+				// 해당 방에 유저가 나갔음을 알린다.
+				gBroadCast(room_No, "Paint/pass/UserOut@" + mUserId);
+
+				break;
 
          // #방 생성 요청이 들어왔을 때
          case "CreateRoom":
@@ -1670,7 +1719,8 @@ public class MainServer extends JPanel {
          }
 
       }
-
+      
+      
       // 출제자와 정답자의 경험치와 정답 개수를 늘려주기 위한 메소드
       private boolean userExpUpdate(String descriptor, String userID, int room_No) {
          boolean dLevelUp = false;

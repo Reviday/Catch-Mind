@@ -549,6 +549,13 @@ public class MainView extends JFrame{
 					"로그인 실패!\n 아이디/패스워드를 다시 확인하시기 바랍니다.","알림",JOptionPane.ERROR_MESSAGE);
 			break;
 			
+		// #서버가 중지됨을 알림
+		case "ServerStop":
+			JOptionPane.showMessageDialog(null, 
+					"서버와의 연결이 끊어졌습니다.","알림",JOptionPane.ERROR_MESSAGE);
+			System.exit(0); // 프로그램 종료
+			break;
+			
 		// #게임방 입장
 		case "EntryGameRoom":
 			// 방 번호를 넘겨 받는다.

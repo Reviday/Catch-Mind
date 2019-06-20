@@ -51,9 +51,9 @@ public class RoomInfo {
       this.roomCaptainID = roomCaptainID;
    }
 
-   public String getTrun() {
-      return trun;
-   }
+	public String getTrun() {
+		return trun;
+	}
 
    public void setTrun(String trun) {
       this.trun = trun;
@@ -103,6 +103,10 @@ public class RoomInfo {
    public void setFixed_User(int fixed_User) {
       this.fixed_User = fixed_User;
    }
+
+	public void setRoom_user_vc(Vector<UserInfo> room_user_vc) {
+		Room_user_vc = room_user_vc;
+	}
    
    public void addRoom_user_vc(UserInfo u) {
       Room_user_vc.add(u);
