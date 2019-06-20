@@ -553,7 +553,13 @@ public class MainView extends JFrame{
 		case "ServerStop":
 			JOptionPane.showMessageDialog(null, 
 					"서버와의 연결이 끊어졌습니다.","알림",JOptionPane.ERROR_MESSAGE);
-			System.exit(0); // 프로그램 종료
+			// 소켓을 닫은 후에 
+			try {
+				socket.close();
+			} catch (IOException e) {
+			}
+			// 프로그램을 종료한다.
+			System.exit(0); 
 			break;
 			
 		// #게임방 입장

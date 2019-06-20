@@ -387,7 +387,7 @@ public class MainServer extends JPanel {
 						user.start(); // 객체의 스레드를 각각 실행
 					} catch (IOException e) {
 						
-						JOptionPane.showMessageDialog(null, "연결 에러가 발생했습니다.", "알림", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "서버가 중지되었습니다.", "알림", JOptionPane.ERROR_MESSAGE);
 						break; // 서버가 중지될 시 run 메소드를 중지한다.
 					}
 				} // while문 끝
@@ -692,36 +692,39 @@ public class MainServer extends JPanel {
 				@Override
 				public void mousePressed(MouseEvent e) {
 					state = true; // 서버 실행이 가능한 상태로 변경 => 누가한거?
-					
+
 					try {
-						//서버 소켓을 닫기 전에 접속중인 모든 유저들에게 서버가 중지됨을 알린다.
-				         for (int i = 0; i < user_vc.size(); i++) // 현재 접속된 사용자에게 전송
-				         {
-				            UserInfo u = (UserInfo) user_vc.elementAt(i); // i번쨰에 있는 사용자에게 메세지를 전송
-				            u.send_Message("ServerStop/pass");
-				         }
+						// 서버 소켓을 닫기 전에 접속중인 모든 유저들에게 서버가 중지됨을 알린다.
+						for (int i = 0; i < user_vc.size(); i++) // 현재 접속된 사용자에게 전송
+						{
+							UserInfo u = (UserInfo) user_vc.elementAt(i); // i번쨰에 있는 사용자에게 메세지를 전송
+							u.send_Message("ServerStop/pass");
+						}
+						
+						// 소켓을 닫기 전, 0.5초의 유예시간을 둔다.
+						try {
+							Thread.sleep(500); // 0.5초뒤 종료
+						} catch (InterruptedException ex) {
+							ex.printStackTrace();
+						}
 						
 						// 서버 소켓을 닫는다.
 						server_Socket.close();
-						
+
 						// 벡터의 모든 요소들을 제거한다.
 						allUser_vc.removeAllElements();
 						user_vc.removeAllElements();
 						wRoom_vc.removeAllElements();
 						room_vc.removeAllElements();
-						
+
 						// 메인 뷰의 테이블을 삭제한다.
 						removeMainView();
-						
-						
-						
-						
+
 						statusArea.append("서버가 중지되었습니다.\n");
-						
-						
+
 					} catch (IOException e1) {
 					}
-					
+
 					System.out.println("서버 스탑 버튼 클릭");
 				}
 			});
@@ -1103,7 +1106,39 @@ public class MainServer extends JPanel {
 			// # 게임방 나가기
 			case "GameRoomOut":
 				room_No = Integer.parseInt(st.nextToken());
-
+				// 패널 다시 그리기가 어렵다. 시간도 없어서 방을 다시 입장시키는 편법을 쓰기로 함.
+				Vector<UserInfo> tempUser = new Vector<UserInfo>();
+				
+				// 해당 유저를  게임방 유저에서 제거한다.
+				for (int i = 0; i < room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo) room_vc.get(i);
+					// 방 번호가 일치하면
+					if (r.room_No == room_No) {
+						// 방의 유저 목록에서 해당 유저를 제거한다.
+						for (int j = 0; j < r.Room_user_vc.size() ; j++) {
+							UserInfo u = (UserInfo)r.Room_user_vc.get(j);
+							if(u.userID.equals(mUserId)) {
+								r.Room_user_vc.remove(j);
+							}
+						}
+						// 임시 벡터에 유저리스트를 저장한다.(유저 제거 후)
+						tempUser = r.Room_user_vc;
+						// 임시 방 객체를 생성한다.
+						RoomInfo tempRoom = new RoomInfo(r.room_No, r.room_name, r.pwStat, r.room_PW, r.fixed_User);
+						// 기존의 방을 제거한다.
+						room_vc.remove(i);
+						// 임시 방 객체를 추가한다.
+						room_vc.add(tempRoom);
+					}
+				}
+				
+				// 해당 방에 유저가 나갔음을 알린다.(이 메시지로 유저는 방을 닫는다.)
+				for(int i=0; i<tempUser.size(); i++) {
+					UserInfo u = (UserInfo)tempUser.get(i);
+					u.send_Message("Paint/pass/UserOut@pass");
+					u.send_Message("EntryGameRoom/"+u.userID+"/"+room_No);
+				}
+				
 				// 해당 유저의 정보를 유저목록에서 제거한다.
 				for (int i = 0; i < user_vc.size(); i++) {
 					UserInfo u = (UserInfo) user_vc.get(i);
@@ -1127,8 +1162,7 @@ public class MainServer extends JPanel {
 					}
 				}
 
-				// 해당 방에 유저가 나갔음을 알린다.
-				gBroadCast(room_No, "Paint/pass/UserOut@" + mUserId);
+				
 
 				break;
 
@@ -1428,12 +1462,8 @@ public class MainServer extends JPanel {
                // 사용자의 아이디와 같은 아이디를 찾아
                if (mUserId.equals(u.userID)) {
                   // 해당 유저의 정보를 그 방에 있는 모두에게 보낸다.
-                  gBroadCast(room_No, "Paint/pass/NewUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + 0); // 정답의
-                                                                                          // 갯수는
-                                                                                          // 0으로
-                                                                                          // 세팅하고
-                                                                                          // 게임
-                                                                                          // 시작한다.
+                  gBroadCast(room_No, "Paint/pass/NewUser@" + u.userID + "@" + u.level + "@" + u.exp + "@" + 0); 
+                  // 정답의 개수는 0으로 설정
                }
             }
 

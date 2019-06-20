@@ -514,6 +514,11 @@ public class PaintEx extends JFrame implements ActionListener {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getButton()==1) {
+					// BGM 종료
+					soundOn(true);
+					// 모든 테이블과 정보를 지운다.
+					roomInfo = null;
+					System.out.println("나가기전에 내 아이디를 확인합니다." + id);
 					// 서버에 방을 나갔음을 알리고 
 					send_message("GameRoomOut/"+id+"/"+room_No);
 					// 창을 닫는다.
@@ -864,25 +869,54 @@ public class PaintEx extends JFrame implements ActionListener {
 			updateUserPanel();
 			
 			break;
-		      // # 게임 시작 전에 유저가 나갔음을 알린다.
+		// # 방을 나가도 된다고 허락함.
+		case "GrantOut" :
+			
+			
+			break;
+			
+			
+		// # 게임 시작 전에 유저가 나갔음을 알린다.
 		case "UserOut":
-			Vector<UserInfo> v = new Vector<UserInfo>(); // 벡터를 임의로 생성하고
-			for (int i = 0; i < roomInfo.getRoom_user_vc().size(); i++) {
-				// 해당 유저를 목록에서 찾아
-				UserInfo u = (UserInfo) roomInfo.getRoom_user_vc().get(i);
-				// 아이디가 일치하지 않은 유저만 추가한다.
-				if (!u.getUserID().equals(mUserId)) {
-					v.add(u);
-				}
-				// 마지막 인덱스에서
-				if (i == roomInfo.getRoom_user_vc().size() - 1) {
-					// 임시 벡터를 저장한다.
-					roomInfo.setRoom_user_vc(v);
-				}
-			}
-
-			// 유저 패널 업데이트
-			updateUserPanel();
+			
+			// BGM 종료
+			soundOn(true);
+			// 모든 테이블과 정보를 지운다.
+			roomInfo = null;
+			System.out.println("나가기전에 내 아이디를 확인합니다." + id);
+			// 창을 닫는다.
+			dispose();
+			
+			
+//			Vector<UserInfo> v = new Vector<UserInfo>(); // 벡터를 임의로 생성하고
+//			System.out.println(roomInfo.getRoom_user_vc().size());
+//			for (int i = 0; i < roomInfo.getRoom_user_vc().size(); i++) {
+//				// 해당 유저를 목록에서 찾아
+//				UserInfo u = (UserInfo) roomInfo.getRoom_user_vc().get(i);
+//				if (u.getUserID().equals(mUserId)) {
+//					roomInfo.getRoom_user_vc().remove(i); // 해당 유저 제거
+//				}
+//			}
+//
+//			
+//			
+//			
+//			for (int i = 0; i < roomInfo.getRoom_user_vc().size(); i++) {
+//				// 해당 유저를 목록에서 찾아
+//				UserInfo u = (UserInfo) roomInfo.getRoom_user_vc().get(i);
+//				// 아이디가 일치하지 않은 유저만 추가한다.
+//				System.out.println("테스트 "+i+"번 : " + u);
+//			}
+//			
+////			// 기존 유저 패널 삭제
+////			removeUserPanel();
+//			
+//			
+//			// 유저 패널 재생성
+//			createUserPanel();
+//			
+//			// 유저 패널 업데이트
+//			updateUserPanel();
 
 			break;
 		// # 게임 종료
@@ -964,6 +998,14 @@ public class PaintEx extends JFrame implements ActionListener {
 		Inmessage(str);
 	}
 
+	
+	public void removeUserPanel() {
+		for(int i=0; i<user_pn.length; i++) {
+			remove(user_pn[i]);
+		}
+	}
+	
+	
 	// 유저 정보 갱신이 있을때마다 유저 라벨을 새로 만들어준다.
 	private void createUserPanel() {
 		
@@ -1210,10 +1252,10 @@ public class PaintEx extends JFrame implements ActionListener {
 				System.out.println(i+1 + "번 유저 정보 :" + u.getUserID() +", " + u.getExp() +", " + u.getLevel());
 				
 			}
-			// 패널의 변경사항을 적용하기위한 메소드
-			revalidate(); // 레이아웃 변화를 재확인 시킨다.
-			repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
 		}
+		// 패널의 변경사항을 적용하기위한 메소드
+		revalidate(); // 레이아웃 변화를 재확인 시킨다.
+		repaint(); // removeAll()에 의해 제거 된 오래된 자식의 이미지를 지우는 데 필요하다.
 	}
 	
 	// 유저 라벨 생성
