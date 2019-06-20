@@ -98,6 +98,9 @@ public class MainView extends JFrame{
 	private JButton connetButton = new JButton(conncetBasicImage); // 연결 버튼
 	private JButton loginButton = new JButton(loginBasicImage); // 로그인 버튼
 	private JButton joinButton = new JButton(joinBasicImage); // 회원가입 버튼
+	private JButton mute = new JButton();
+	
+	boolean muteSel=false;
 	
 //BGM
 	private Music bgm;
@@ -194,8 +197,10 @@ public class MainView extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				exitButton.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				exitButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-				buttonEnteredBGM.start(); 
+				if(!muteSel) {
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start(); 
+				}
 				
 			}
 			
@@ -227,8 +232,10 @@ public class MainView extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				connetButton.setIcon(connectEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				connetButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-				buttonEnteredBGM.start(); 
+				if(!muteSel) {
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start(); 
+				}
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -282,8 +289,10 @@ public class MainView extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				loginButton.setIcon(loginEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				loginButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-				buttonEnteredBGM.start(); 
+				if(!muteSel) {
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start(); 
+				}
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -330,8 +339,10 @@ public class MainView extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				joinButton.setIcon(joinEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				joinButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-				buttonEnteredBGM.start(); 
+				if(!muteSel) {
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start(); 
+				}
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -356,6 +367,43 @@ public class MainView extends JFrame{
 		});
 		
 		connetionChecked(connectionPortCheck);
+		
+		mute.setBounds(960,730,30,30);
+		mute.setIcon(new ImageIcon(WaitingRoom.class.getResource("/images/YsoundOn.png")));
+		mute.setRolloverIcon(new ImageIcon(WaitingRoom.class.getResource("/images/YsoundOnCLK.png")));	
+		mute.setContentAreaFilled(false);
+		mute.setFocusPainted(false);
+		mute.setBorderPainted(false);
+		mute.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(muteSel) {
+					muteSel=false;
+					mute.setIcon(new ImageIcon(WaitingRoom.class.getResource("/images/YsoundOn.png")));
+					mute.setRolloverIcon(new ImageIcon(WaitingRoom.class.getResource("/images/YsoundOnCLK.png")));	
+					
+				}
+				else {
+					muteSel=true;
+					mute.setIcon(new ImageIcon(WaitingRoom.class.getResource("/images/YsoundOff.png")));
+					mute.setRolloverIcon(new ImageIcon(WaitingRoom.class.getResource("/images/YsoundOffCLK.png")));
+				}
+				soundOn(muteSel);
+			}
+		});
+		add(mute);
+		mute.setVisible(true);
+	}
+	
+	public void soundOn(boolean muteSel) {
+		if(muteSel) {
+			bgm.close();
+		}
+		else
+		{
+			bgm = new Music("loginBGM.mp3", true);
+			bgm.start();
+		}
 	}
 	
 	// #연결설정이 완료되면 로그인 버튼으로 바뀐다.

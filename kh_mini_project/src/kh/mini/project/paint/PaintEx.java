@@ -41,6 +41,7 @@ import javax.swing.text.PlainDocument;
 import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
+import kh.mini.project.waiting_room.view.WaitingRoom;
 
 public class PaintEx extends JFrame implements ActionListener {
 
@@ -105,6 +106,9 @@ public class PaintEx extends JFrame implements ActionListener {
 	private JButton giveUpBt;
 	
 	private JButton exit;
+	
+	private JButton mute=new JButton();
+	private boolean muteSel=false;
 	
 	private JLabel levelUpImg;
 	private JLabel readyImg;
@@ -316,8 +320,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_black.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(MouseEvent e){
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
+				}
 			}
 			});
 		color_black.setVisible(true);
@@ -334,8 +340,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_red.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(MouseEvent e){
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
+				}
 			}
 			});
 		color_red.setVisible(true);
@@ -352,8 +360,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_blue.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(MouseEvent e){
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
+				}
 			}
 			});
 		color_blue.setVisible(true);
@@ -370,8 +380,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_green.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(MouseEvent e){
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
+				}
 			}
 			});
 		color_green.setVisible(true);
@@ -388,8 +400,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_yellow.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(MouseEvent e){
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
+				}
 			}
 			});
 		color_yellow.setVisible(true);
@@ -406,8 +420,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		eraser.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(MouseEvent e){
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
+				}
 			}
 			});
 		eraser.setVisible(true);
@@ -425,8 +441,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		clear.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(MouseEvent e){
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-				buttonEnteredBGM.start(); 
+				buttonEnteredBGM.start();
+				}
 			}
 			});
 		clear.addActionListener(this);
@@ -443,8 +461,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		thick_Bold.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(MouseEvent e){
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
+				}
 			}
 			});
 		thick_Bold.setVisible(true);
@@ -460,8 +480,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		thick_Sharp.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseEntered(MouseEvent e){
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start(); 
+				}
 			}
 			});
 		thick_Sharp.setVisible(true);
@@ -477,8 +499,10 @@ public class PaintEx extends JFrame implements ActionListener {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				exit.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+				if(!muteSel) {
 				buttonEnteredBGM = new Music("exitBGM.mp3", false);
 				buttonEnteredBGM.start();
+				}
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -507,11 +531,39 @@ public class PaintEx extends JFrame implements ActionListener {
 		giveUpBt.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
+				if(!muteSel) {
 				Music buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
 				buttonEnteredBGM.start();
+				}
 			}
 		});
 		giveUpBt.setVisible(true);
+		
+		mute.setBounds(30,730,30,30);
+		mute.setIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOn.png")));
+		mute.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOnCLK.png")));	
+		mute.setContentAreaFilled(false);
+		mute.setFocusPainted(false);
+		mute.setBorderPainted(false);
+		mute.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(muteSel) {
+					muteSel=false;
+					mute.setIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOn.png")));
+					mute.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOnCLK.png")));	
+					
+				}
+				else {
+					muteSel=true;
+					mute.setIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOff.png")));
+					mute.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOffCLK.png")));
+				}
+				soundOn(muteSel);
+			}
+		});
+		add(mute);
+		mute.setVisible(true);
 		
 		
 		//levelUp 이미지
@@ -553,6 +605,16 @@ public class PaintEx extends JFrame implements ActionListener {
 		bgm.start();
 	}
 	
+	public void soundOn(boolean muteSel) {
+		if(muteSel) {
+			bgm.close();
+		}
+		else
+		{
+			bgm = new Music("gameBGM.mp3", true);
+			bgm.start();
+		}
+	}
 	
 	// 서버에게 메시지를 보내는 부분
 	private void send_message(String str) {
@@ -947,9 +1009,10 @@ public class PaintEx extends JFrame implements ActionListener {
 						// 라운드 이미지에 turn id를 띄운다.
 						lastTurnID.setText(nowTurn);
 					}
-					
-					popUpBGM = new Music("roundBGM.mp3", false);
-					popUpBGM.start();
+					if(!muteSel) {
+						popUpBGM = new Music("roundBGM.mp3", false);
+						popUpBGM.start();
+					}
 					
 					// 변수 초기화
 					mypencolor = Color.black;
@@ -999,8 +1062,10 @@ public class PaintEx extends JFrame implements ActionListener {
 			public void run() {
 				try {
 					
+					if(!muteSel) {
 					popUpBGM = new Music("correctBGM.mp3", false);
 					popUpBGM.start();
+					}
 					
 					// 1.5초 정도 대기 후
 					sleep(1500);
@@ -1053,8 +1118,10 @@ public class PaintEx extends JFrame implements ActionListener {
 					
 					giveUpImg.setVisible(true);
 					
+					if(!muteSel) {
 					popUpBGM = new Music("giveupBGM.mp3",false);
 					popUpBGM.start();
+					}
 					
 					sleep(3000);
 					
@@ -1081,8 +1148,10 @@ public class PaintEx extends JFrame implements ActionListener {
 					try {
 						levelUpImg.setVisible(true);
 						
+						if(!muteSel) {
 						popUpBGM = new Music("levelupBGM.mp3",false);
 						popUpBGM.start();
+						}
 						
 						sleep(3000);
 						
@@ -1275,8 +1344,10 @@ public class PaintEx extends JFrame implements ActionListener {
 					sleep(1500);
 					endGameImage_lb.setVisible(true);
 					
+					if(!muteSel) {
 					popUpBGM = new Music("endgameBGM.mp3", false);
 					popUpBGM.start();
+					}
 					// 5초간 띄운후 서버에 게임 종료를 알리고 페이지를 닫는다. 유저들은 대기실로 이동된다.
 					sleep(5000);
 					send_message("GameOver/"+id+"/"+room_No+"/"+roomCaptain);
@@ -1475,14 +1546,18 @@ public class PaintEx extends JFrame implements ActionListener {
 	            sleep(2000);
 	            
 	            readyImg.setVisible(true);
+	            if(!muteSel) {
 	            popUpBGM = new Music("readyBGM.mp3", false);
 	            popUpBGM.start();
+	            }
 	            sleep(2500);
 	            readyImg.setVisible(false);
 	            
 	            startImg.setVisible(true);
+	            if(!muteSel) {
 	            popUpBGM = new Music("goBGM.mp3", false);
 	            popUpBGM.start();
+	            }
 	            sleep(1500);
 	            startImg.setVisible(false);
 	            

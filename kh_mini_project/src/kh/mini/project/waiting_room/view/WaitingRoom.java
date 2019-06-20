@@ -59,6 +59,7 @@ import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
 import kh.mini.project.paint.Music;
+import kh.mini.project.paint.PaintEx;
 
 public class WaitingRoom extends JFrame{
 // Frame, Panel
@@ -136,6 +137,9 @@ public class WaitingRoom extends JFrame{
 	private JButton createRoomButton = new JButton(createRoomBasicImage); // 방만들기 버튼
 	private JButton rightRButton = new JButton(rightRBasicImage); // 방 오른쪽 넘기기 버튼
 	private JButton leftRButton = new JButton(leftRBasicImage); // 방 왼쪽 넘기기 버튼
+	private JButton mute = new JButton();
+	
+	private boolean muteSel=false;
 	
 //BGM
 	private Music bgm;
@@ -369,9 +373,10 @@ public class WaitingRoom extends JFrame{
 				exitButton.setIcon(exitEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				exitButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
 //				exitButton.setCursor(myCursor);
-				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-				buttonEnteredBGM.start(); 
-
+				if(muteSel==false) {
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start();
+				}
 			}
 			
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -392,6 +397,32 @@ public class WaitingRoom extends JFrame{
 			}
 		});
 		
+		mute.setBounds(960,730,30,30);
+		mute.setIcon(new ImageIcon(WaitingRoom.class.getResource("/images/soundOn.png")));
+		mute.setRolloverIcon(new ImageIcon(WaitingRoom.class.getResource("/images/soundOnCLK.png")));	
+		mute.setContentAreaFilled(false);
+		mute.setFocusPainted(false);
+		mute.setBorderPainted(false);
+		mute.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(muteSel) {
+					muteSel=false;
+					mute.setIcon(new ImageIcon(WaitingRoom.class.getResource("/images/soundOn.png")));
+					mute.setRolloverIcon(new ImageIcon(WaitingRoom.class.getResource("/images/soundOnCLK.png")));	
+					
+				}
+				else {
+					muteSel=true;
+					mute.setIcon(new ImageIcon(WaitingRoom.class.getResource("/images/soundOff.png")));
+					mute.setRolloverIcon(new ImageIcon(WaitingRoom.class.getResource("/images/soundOffCLK.png")));
+				}
+				soundOn(muteSel);
+			}
+		});
+		add(mute);
+		mute.setVisible(true);
+		
 		// #방만들기 버튼
 		createRoomButton.setBounds(260, 37, 135, 53);
 		createRoomButton.setBorder(null);
@@ -404,9 +435,10 @@ public class WaitingRoom extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				createRoomButton.setIcon(createRoomEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				createRoomButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-				buttonEnteredBGM.start(); 
-
+				if(muteSel==false) {
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start();
+				}
 			}
 
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -435,8 +467,10 @@ public class WaitingRoom extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				rightRButton.setIcon(rightREnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				rightRButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-				buttonEnteredBGM.start();
+				if(muteSel==false) {
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start();
+				}
 			}
 
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -465,8 +499,10 @@ public class WaitingRoom extends JFrame{
 			public void mouseEntered(MouseEvent e) {
 				leftRButton.setIcon(leftREnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 				leftRButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-				buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-				buttonEnteredBGM.start();
+				if(muteSel==false) {
+					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+					buttonEnteredBGM.start();
+				}
 			}
 
 			// 마우스를 버튼에서 떼었을때 이벤트
@@ -490,6 +526,17 @@ public class WaitingRoom extends JFrame{
 		bgm = new Music("waitingRoomBGM.mp3", true);
 		bgm.start();
 	} // WaitingRoom() 생성자 끝
+	
+	public void soundOn(boolean muteSel) {
+		if(muteSel) {
+			bgm.close();
+		}
+		else
+		{
+			bgm = new Music("waitingRoomBGM.mp3", true);
+			bgm.start();
+		}
+	}
 
 	private void Inmessage(String str) // 서버로부터 들어오는 모든 메세지
 	{
@@ -832,8 +879,10 @@ public class WaitingRoom extends JFrame{
 					public void mouseEntered(MouseEvent e) {
 						grp.setGRImage(gamgeRoomEnteredImage.getImage()); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 						grp.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-						buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-						buttonEnteredBGM.start();
+						if(muteSel==false) {
+							buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+							buttonEnteredBGM.start();
+						}
 					}
 					
 					// 마우스를 버튼에서 떼었을때 이벤트
@@ -1152,8 +1201,10 @@ public class WaitingRoom extends JFrame{
 				public void mouseEntered(MouseEvent e) {
 					cancelButton.setIcon(crCancelEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 					cancelButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-					buttonEnteredBGM.start();
+					if(muteSel==false) {
+						buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+						buttonEnteredBGM.start();
+					}
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
@@ -1179,8 +1230,10 @@ public class WaitingRoom extends JFrame{
 				public void mouseEntered(MouseEvent e) {
 					createButton.setIcon(createEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 					createButton.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-					buttonEnteredBGM.start();
+					if(muteSel==false) {
+						buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+						buttonEnteredBGM.start();
+					}
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
@@ -1292,8 +1345,10 @@ public class WaitingRoom extends JFrame{
 				@Override
 				public void mouseEntered(MouseEvent e) {
 					inputPW_bt.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-					buttonEnteredBGM.start();
+					if(muteSel==false) {
+						buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+						buttonEnteredBGM.start();
+					}
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
@@ -1340,8 +1395,10 @@ public class WaitingRoom extends JFrame{
 				@Override
 				public void mouseEntered(MouseEvent e) {
 					cancel_bt.setCursor(myCursorClicked); // 마우스 커서를 손모양 커서로 변경
-					buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
-					buttonEnteredBGM.start();
+					if(muteSel==false) {
+						buttonEnteredBGM = new Music("buttonEnteredBGM.mp3", false);
+						buttonEnteredBGM.start();
+					}
 				}
 				
 				// 마우스를 버튼에서 떼었을때 이벤트
