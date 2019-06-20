@@ -38,6 +38,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -53,7 +54,7 @@ import kh.mini.project.main.view.Main;
 import kh.mini.project.model.vo.User;
 import kh.mini.project.paint.Question;
 
-public class MainServer extends JFrame {
+public class MainServer extends JPanel {
 	private static final long serialVersionUID = 1216070372320522836L;
 // Frame, Panel
 	private JScrollPane statusView; // 포트로 받은 상태 수신창 스크롤팬
@@ -96,8 +97,9 @@ public class MainServer extends JFrame {
 	private Vector<UserInfo> wRoom_vc = new Vector<UserInfo>(); // 대기실 사용자 Vector => 대기실유저/인게임 유저 나눠야하니까 구상해야함.
 	private Vector<RoomInfo> room_vc = new Vector<RoomInfo>(); // 게임방 Vector(유저 리스트 포함)
 	private StringTokenizer st; // 프로토콜 구현을 위해 필요함. 소켓으로 입력받은 메시지를 분리하는데 쓰임.
-	private boolean scrollpanemove = false; // 스크롤 패인에 사용되는 변수(스크롤 허용 관련)
-
+	private boolean scrollpanemove = false; // 스크롤 패인에 사용되는 변수(스크롤 허용 관련)	
+	private Intro intro;
+	
 //Image	
 	// #MainView 배경
 	private Image mainBackgroundImage = new ImageIcon(Main.class.getResource("/images/임시2.jpg")).getImage();
@@ -108,10 +110,12 @@ public class MainServer extends JFrame {
 	private JButton exitButton = new JButton(exitBasicImage); // 나가기 버튼
 
 	MainServer() {
-		new Intro();
+		intro = new Intro();
 	}
 
 	private void main_View() { // 서버 메인 화면
+		intro.add(this);
+		
 		// 모든 회원의 정보를 로드해온다.
 		allUser_vc = new UserController().dataLoadAll();
 		
@@ -122,12 +126,13 @@ public class MainServer extends JFrame {
 		}
 
 		// JFrame mainView
-		setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
-		setTitle("Server"); // 프레임 타이틀 바 이름(타이틀 바를 없앨 예정이기 때문에 없어도 되는 코드)
-		setSize(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT); // Main에서 고정시킨 화면 해상도를 사용
-		setResizable(false); // 프레임 크기 고정
-		setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
+//		setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
+//		setTitle("Server"); // 프레임 타이틀 바 이름(타이틀 바를 없앨 예정이기 때문에 없어도 되는 코드)
+//		setSize(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT); // Main에서 고정시킨 화면 해상도를 사용
+		setBounds(280, 0, 1024, 768);
+//		setResizable(false); // 프레임 크기 고정
+//		setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
+//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
 		setBackground(new Color(0, 0, 0, 0)); // 배경색을 투명하게 한다.(paint()메소드로 그리는 배경을 보이게 하기 위함)
 		setVisible(true); // 윈도우를 볼 수 있음.
 		setLayout(null);
@@ -159,31 +164,31 @@ public class MainServer extends JFrame {
 		add(roomListView);
 
 		// Label
-		// #메뉴바
-		mainMenuBar.setBounds(0, 0, Main.SCREEN_WIDTH, 30);
-		mainMenuBar.addMouseListener(new MouseAdapter() {
-			// 마우스를 버튼에 올려놨을 때 이벤트
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				mainMenuBar.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				mouseX = e.getX();
-				mouseY = e.getY();
-			}
-		});
-		mainMenuBar.addMouseMotionListener(new MouseMotionAdapter() {
-			// #매뉴바 드래그 시, 움직일 수 있게 한다.
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				int x = e.getXOnScreen();
-				int y = e.getYOnScreen();
-				setLocation(x - mouseX, y - mouseY);
-			}
-		});
-		add(mainMenuBar);
+//		// #메뉴바
+//		mainMenuBar.setBounds(0, 0, Main.SCREEN_WIDTH, 30);
+//		mainMenuBar.addMouseListener(new MouseAdapter() {
+//			// 마우스를 버튼에 올려놨을 때 이벤트
+//			@Override
+//			public void mouseEntered(MouseEvent e) {
+//				mainMenuBar.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
+//			}
+//
+//			@Override
+//			public void mousePressed(MouseEvent e) {
+//				mouseX = e.getX();
+//				mouseY = e.getY();
+//			}
+//		});
+//		mainMenuBar.addMouseMotionListener(new MouseMotionAdapter() {
+//			// #매뉴바 드래그 시, 움직일 수 있게 한다.
+//			@Override
+//			public void mouseDragged(MouseEvent e) {
+//				int x = e.getXOnScreen();
+//				int y = e.getYOnScreen();
+//				setLocation(x - mouseX, y - mouseY);
+//			}
+//		});
+//		add(mainMenuBar);
 
 		// #나가기 버튼
 		exitButton.setBounds(870, 690, 100, 30);
@@ -329,11 +334,12 @@ public class MainServer extends JFrame {
 			Font font = new Font("Inconsolata", Font.BOLD, 12);
 			setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
 			setTitle("Server"); // 프레임 타이틀 바 이름(타이틀 바를 없앨 예정이기 때문에 없어도 되는 코드)
-			setSize(280, 450); // Main에서 고정시킨 화면 해상도를 사용
+			setSize(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT); // Main에서 고정시킨 화면 해상도를 사용
 			setResizable(false); // 프레임 크기 고정
 			setLocationRelativeTo(null); // 윈도우를 화면 정중앙에 띄우기 위함
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 윈도우 종료시 남아있는 프로세스도 깨끗하게 종료하기 위함
 			setBackground(new Color(0, 0, 0, 0)); // 배경색을 투명하게 한다.(paint()메소드로 그리는 배경을 보이게 하기 위함)
+			setForeground(new Color(0,0,0,0));
 			setVisible(true); // 윈도우를 볼 수 있음.
 			setLayout(null);
 
@@ -568,7 +574,7 @@ public class MainServer extends JFrame {
 			port_tf.setColumns(10);
 
 			// 메뉴바
-			introMenuBar.setBounds(0, 0, 280, 30);
+			introMenuBar.setBounds(0, 0, Main.SCREEN_WIDTH, 30);
 			introMenuBar.addMouseListener(new MouseAdapter() {
 				// 마우스를 버튼에 올려놨을 때 이벤트
 				@Override
@@ -595,19 +601,27 @@ public class MainServer extends JFrame {
 
 		}
 
+
 		@Override
 		public void paint(Graphics g) {
-			viewImage = createImage(280, 450);
-			viewGraphics = viewImage.getGraphics();
-			screenDraw(viewGraphics);
-			g.drawImage(viewImage, 0, 0, null);
-		}
-
-		public void screenDraw(Graphics g) {
 			g.drawImage(introBackgroundImage, 0, 0, null);
 			this.paintComponents(g);
 			this.repaint();
 		}
+		
+//		@Override
+//		public void paint(Graphics g) {
+//			viewImage = createImage(280, 450);
+//			viewGraphics = viewImage.getGraphics();
+//			screenDraw(viewGraphics);
+//			g.drawImage(viewImage, 0, 0, null);
+//		}
+//
+//		public void screenDraw(Graphics g) {
+//			g.drawImage(introBackgroundImage, 0, 0, null);
+//			this.paintComponents(g);
+//			this.repaint();
+//		}
 
 		// 유효 포트번호 체크 메소드
 		private int portCheck(String str) {
