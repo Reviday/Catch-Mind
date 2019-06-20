@@ -115,7 +115,7 @@ public class MainServer extends JPanel {
    
 //Image   
    // #MainView 배경
-   private Image mainBackgroundImage = new ImageIcon(Main.class.getResource("/images/임시2.jpg")).getImage();
+   private Image mainBackgroundImage = new ImageIcon(Main.class.getResource("/images/ServerMainViewBackground.png")).getImage();
    private ImageIcon exitBasicImage = new ImageIcon(Main.class.getResource("/images/exit.png"));
    private ImageIcon exitEnteredImage = new ImageIcon(Main.class.getResource("/images/exite.png"));
 
@@ -165,7 +165,7 @@ public class MainServer extends JPanel {
 
 		// #모든 유저 리스트 스크롤 패인
 		allUserListView = new JScrollPane(allUserInfo_Table);
-		allUserListView.setBounds(10, 120, 724, 250);
+		allUserListView.setBounds(12, 124, 726, 250);
 		
 		allUserInfo_Table.getTableHeader().setReorderingAllowed(false); // 컬럼들 이동 불가
 		allUserInfo_Table.getTableHeader().setResizingAllowed(false); // 컬럼 크기 조절 불가
@@ -221,7 +221,9 @@ public class MainServer extends JPanel {
 
 		});
 
-		allUserSearch_tf.setBounds(110, 80, 300, 25);
+		allUserSearch_tf.setBounds(265, 84, 220, 25);
+		allUserSearch_tf.setBorder(null);
+		allUserSearch_tf.setBackground(new Color(0,0,0,0));
 		add(allUserSearch_tf);
 		
 		
@@ -248,7 +250,7 @@ public class MainServer extends JPanel {
 
 		// #모든 유저 리스트 스크롤 패인
 		loginUserListView = new JScrollPane(loginUserInfo_Table);
-		loginUserListView.setBounds(10, 500, 724, 250);
+		loginUserListView.setBounds(12, 502, 726, 250);
 
 		loginUserInfo_Table.getTableHeader().setReorderingAllowed(false); // 컬럼들 이동 불가
 		loginUserInfo_Table.getTableHeader().setResizingAllowed(false); // 컬럼 크기 조절 불가
@@ -303,7 +305,9 @@ public class MainServer extends JPanel {
 
 		});
 
-		loginUserSearch_tf.setBounds(110, 450, 300, 25);
+		loginUserSearch_tf.setBounds(265, 459, 220, 25);
+		loginUserSearch_tf.setBorder(null);
+		loginUserSearch_tf.setBackground(new Color(0,0,0,0));
 		add(loginUserSearch_tf);
 		
 		// #나가기 버튼
@@ -486,18 +490,24 @@ public class MainServer extends JPanel {
 
       // Image
       // #MainView 배경
-      private Image introBackgroundImage = new ImageIcon(Main.class.getResource("/images/gifTest.gif")).getImage();
+      private Image introBackgroundImage = new ImageIcon(Main.class.getResource("/images/ServerIntoBackground.png")).getImage();
       // #버튼 이미지
-      private ImageIcon exitButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/exit_entered.png"));
-      private ImageIcon exitButtonBasicImage = new ImageIcon(Main.class.getResource("/images/exit_basic.png"));
+      private ImageIcon exitButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/msExitButtonEntered.png"));
+      private ImageIcon exitButtonBasicImage = new ImageIcon(Main.class.getResource("/images/msExitButtonBasic.png"));
+      private ImageIcon serverStartButtonBasicImage = new ImageIcon(Main.class.getResource("/images/serverStartButtonBasic.png"));
+      private ImageIcon serverStartButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/serverStartButtonEntered.png"));
+      private ImageIcon serverStopButtonBasicImage = new ImageIcon(Main.class.getResource("/images/serverStopButtonBasic.png"));
+      private ImageIcon serverStopButtonEnteredImage = new ImageIcon(Main.class.getResource("/images/serverStopButtonEntered.png"));
+     
+      
 
       // Button
-      private JButton start_btn = new JButton("서버 실행"); // 서버 실행 버튼
-      private JButton stop_btn = new JButton("서버 중지"); // 서버 중지 버튼
+      private JButton start_btn = new JButton(serverStartButtonBasicImage); // 서버 실행 버튼
+      private JButton stop_btn = new JButton(serverStopButtonBasicImage); // 서버 중지 버튼
       private JButton exitButton = new JButton(exitButtonBasicImage); // 나가기 버튼
 
 		Intro() {
-			Font font = new Font("Inconsolata", Font.BOLD, 12);
+			Font font = new Font("휴먼편지체", Font.BOLD, 14);
 			setUndecorated(true); // 프레임 타이틀 바 제거(윈도우를 제거함) - 기능 완성 후 추가 예정
 			setTitle("Server"); // 프레임 타이틀 바 이름(타이틀 바를 없앨 예정이기 때문에 없어도 되는 코드)
 			setSize(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT); // Main에서 고정시킨 화면 해상도를 사용
@@ -517,6 +527,7 @@ public class MainServer extends JPanel {
 			statusView = new JScrollPane(statusView, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			statusView.setBounds(10, 20, 260, 330);
+			statusView.setBorder(null);
 			statusView.setBackground(new Color(0, 0, 0, 0));
 			statusView.getVerticalScrollBar().setValue(statusView.getVerticalScrollBar().getMaximum());
 			statusView.setComponentZOrder(statusView.getVerticalScrollBar(), 0);
@@ -629,8 +640,8 @@ public class MainServer extends JPanel {
 
 			// label
 			// #포트번호
-			port_lb.setBounds(10, 360, 100, 30);
-			add(port_lb);
+//			port_lb.setBounds(10, 360, 100, 30);
+//			add(port_lb);
 
 			// Button
 			// #시작 버튼
@@ -640,14 +651,14 @@ public class MainServer extends JPanel {
 				// 마우스를 버튼에 올려놨을 때 이벤트
 				@Override
 				public void mouseEntered(MouseEvent e) {
-//               start_btn.setIcon(); // 마우스를 올려놨을때 이미지 변경(Entered Image)
+					start_btn.setIcon(serverStartButtonEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 					start_btn.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
 				}
 
 				// 마우스를 버튼에서 떼었을때 이벤트
 				@Override
 				public void mouseExited(MouseEvent e) {
-//               start_btn.setIcon(); // 마우스를 떼었을때 이미지 변경(Basic Image)
+					start_btn.setIcon(serverStartButtonBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
 					start_btn.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
 				}
 
@@ -680,14 +691,14 @@ public class MainServer extends JPanel {
 				// 마우스를 버튼에 올려놨을 때 이벤트
 				@Override
 				public void mouseEntered(MouseEvent e) {
-//               stop_btn.setIcon(); // 마우스를 올려놨을때 이미지 변경(Entered Image)
+					stop_btn.setIcon(serverStopButtonEnteredImage); // 마우스를 올려놨을때 이미지 변경(Entered Image)
 					stop_btn.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 마우스 커서를 손모양 커서로 변경
 				}
 
 				// 마우스를 버튼에서 떼었을때 이벤트
 				@Override
 				public void mouseExited(MouseEvent e) {
-//               stop_btn.setIcon(); // 마우스를 떼었을때 이미지 변경(Basic Image)
+					stop_btn.setIcon(serverStopButtonBasicImage); // 마우스를 떼었을때 이미지 변경(Basic Image)
 					stop_btn.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 마우스 커서를 기본 커서로 변경
 				}
 
@@ -735,7 +746,9 @@ public class MainServer extends JPanel {
 			// TextField
 			// 포트번호 입력
 			port_tf = new JTextField("12345"); // 포트번호 기본값 12345
-			port_tf.setBounds(100, 360, 170, 30);
+			port_tf.setBounds(110, 365, 165, 30);
+			port_tf.setBorder(null);
+			port_tf.setBackground(new Color(0,0,0,0));
 			add(port_tf);
 			port_tf.setColumns(10);
 
