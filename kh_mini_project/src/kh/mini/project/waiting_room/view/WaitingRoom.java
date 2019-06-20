@@ -48,6 +48,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.ScrollPaneLayout;
+import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -62,7 +63,6 @@ import kh.mini.project.paint.Music;
 public class WaitingRoom extends JFrame{
 // Frame, Panel
 	private JScrollPane chattingView = new JScrollPane(); // 채팅을 보이게하는 스크롤 페인
-	private JPanel userInfoView = new JPanel(); // 유저 정보 패널
 	private JPanel userListView = new JPanel(); // 유저 리스트 패널
 	private JPanel gameRoomView = new JPanel(); // 게임방 패널
 	private JPanel[] gameRoom = new JPanel[6]; // 24개의 방을 개설 => 버튼으로 해볼까??
@@ -71,6 +71,11 @@ public class WaitingRoom extends JFrame{
 // Label
 	private JLabel mainMenuBar = new JLabel();
 //	private JLabel[] userID_lb = new JLabel[userList.length]; 		// 유저 ID 라벨 배열
+	private JLabel userViewLb;
+	private JLabel userGradeLb;
+	private JLabel userNameLb;
+	private JLabel userCorCount;
+	
 	
 // Textfield	
 	private JTextField chatting_tf; // 채팅 내용을 입력받기 위한 텍스트필드	
@@ -305,9 +310,23 @@ public class WaitingRoom extends JFrame{
 		add(chattingView);
 		
 		// #유저 정보(자신) 뷰
-		userInfoView.setBounds(30, 251, 190, 66);
-		userInfoView.setBackground(new Color(40,40,40,40));
-		add(userInfoView); 
+		userViewLb = new JLabel(new ImageIcon(WaitingRoom.class.getResource("/images/userInfo.png")));
+		userViewLb.setBounds(30, 251, 190, 66);
+		getContentPane().add(userViewLb);	
+		userGradeLb = new JLabel();
+		userGradeLb.setBounds(16,12,77,42);
+		userViewLb.add(userGradeLb);
+		userGradeLb.setVisible(true);
+		userNameLb = new JLabel("", SwingConstants.CENTER);
+		userNameLb.setBounds(116,5,52,32);
+		userNameLb.setFont( new Font("Times", Font.BOLD, 15));
+		userViewLb.add(userNameLb);
+		userNameLb.setVisible(true);
+		userCorCount = new JLabel("", SwingConstants.CENTER);
+		userCorCount.setBounds(116,32,52,32);
+		userCorCount.setFont( new Font("Times", Font.BOLD, 15));
+		userViewLb.add(userCorCount);
+		userCorCount.setVisible(true);
 		
 		
 		// #유저 리스트 뷰
@@ -510,7 +529,9 @@ public class WaitingRoom extends JFrame{
 				user_list.add(u);
 			}
 			
+			
 			updateUserInfo();  	// 유저리스트 갱신
+			
 			break;
 		
 		// #접속자 정보 받아오기(사용자 본인의 정보)
@@ -556,6 +577,14 @@ public class WaitingRoom extends JFrame{
 				System.out.println("유저정보 : " +checkUser);
 			}
 			System.out.println("==========테스트 끝===========");
+			
+		
+			System.out.println("테스트 : " + id + Integer.toString(userInfo.getCorAnswer()));
+			userGradeLb.setIcon(userInfo.getGrade(level));
+			userNameLb.setText(mUserId);
+			userCorCount.setText(Integer.toString(corAnswer));
+			
+			
 			
 			updateUserInfo(); 	// 유저리스트 갱신
 			break;
@@ -915,6 +944,7 @@ public class WaitingRoom extends JFrame{
 			userListView.add(userList[i]);
 		}
 	}
+	
 	
 	// #유저 리스트 업데이트 메소드 - 유저 리스트에 변동이 생기게되면 실행한다.
 	private void updateUserInfo() {
