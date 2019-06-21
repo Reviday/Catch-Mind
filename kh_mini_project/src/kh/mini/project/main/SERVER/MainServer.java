@@ -1108,16 +1108,16 @@ public class MainServer extends JPanel {
 				room_No = Integer.parseInt(st.nextToken());
 				// 패널 다시 그리기가 어렵다. 시간도 없어서 방을 다시 입장시키는 편법을 쓰기로 함.
 				Vector<UserInfo> tempUser = new Vector<UserInfo>();
-				
-				// 해당 유저를  게임방 유저에서 제거한다.
+
+				// 해당 유저를 게임방 유저에서 제거한다.
 				for (int i = 0; i < room_vc.size(); i++) {
 					RoomInfo r = (RoomInfo) room_vc.get(i);
 					// 방 번호가 일치하면
 					if (r.room_No == room_No) {
 						// 방의 유저 목록에서 해당 유저를 제거한다.
-						for (int j = 0; j < r.Room_user_vc.size() ; j++) {
-							UserInfo u = (UserInfo)r.Room_user_vc.get(j);
-							if(u.userID.equals(mUserId)) {
+						for (int j = 0; j < r.Room_user_vc.size(); j++) {
+							UserInfo u = (UserInfo) r.Room_user_vc.get(j);
+							if (u.userID.equals(mUserId)) {
 								r.Room_user_vc.remove(j);
 							}
 						}
@@ -1131,14 +1131,14 @@ public class MainServer extends JPanel {
 						room_vc.add(tempRoom);
 					}
 				}
-				
+
 				// 해당 방에 유저가 나갔음을 알린다.(이 메시지로 유저는 방을 닫는다.)
-				for(int i=0; i<tempUser.size(); i++) {
-					UserInfo u = (UserInfo)tempUser.get(i);
+				for (int i = 0; i < tempUser.size(); i++) {
+					UserInfo u = (UserInfo) tempUser.get(i);
 					u.send_Message("Paint/pass/UserOut@pass");
-					u.send_Message("EntryGameRoom/"+u.userID+"/"+room_No);
+					u.send_Message("EntryGameRoom/" + u.userID + "/" + room_No);
 				}
-				
+
 				// 해당 유저의 정보를 유저목록에서 제거한다.
 				for (int i = 0; i < user_vc.size(); i++) {
 					UserInfo u = (UserInfo) user_vc.get(i);
@@ -1162,7 +1162,7 @@ public class MainServer extends JPanel {
 					}
 				}
 
-				
+				BroadCast("WaitingRoom/pass/RoomInfoUpdate@pass@" + room_No + "@" + tempUser.size());
 
 				break;
 
@@ -1508,7 +1508,7 @@ public class MainServer extends JPanel {
                r = (RoomInfo) room_vc.elementAt(i);
                if (r.room_No == room_No) { // 같은 방 번호가 존재할 시
                   // 해당 브로드 캐스트를 받는거 만으로 게임방 패널을 갱신한다.
-                  BroadCast("WaitingRoom/pass/RoomInfoUpdate@pass@"+r.room_No+"@");
+                  BroadCast("WaitingRoom/pass/RoomInfoUpdate@pass@"+r.room_No+"@"+r.Room_user_vc.size());
                }
             }
 
