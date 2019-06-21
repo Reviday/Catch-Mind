@@ -316,7 +316,7 @@ public class JoinView extends JFrame{
 				String dateCheck = "^[0-9]*$";
 				String pwCheck = "^[a-zA-Z0-9]*$";
 				String nameCheck = "^[°¡-ÆR]*$";
-				String idCheck = "^[¤¡-¤¾°¡-ÆR]$";
+				String idCheck = "^[a-zA-Z0-9]*$";
 				
 				boolean ch = false;
 				boolean formatcheck = true;
@@ -331,6 +331,9 @@ public class JoinView extends JFrame{
 					formatcheck = false;
 				} else if (formatcheck && id.length()<6) {
 					msg = "¾ÆÀÌµð´Â 6~12ÀÚ¸¸ ³ÖÀ» ¼ö ÀÖ½À´Ï´Ù.";
+					formatcheck = false;
+				} else if (formatcheck && !id.matches(idCheck)) {
+					msg = "¾ÆÀÌµð´Â ¿µ¹® ¹× ¼ýÀÚ¸¸ ³ÖÀ» ¼ö ÀÖ½À´Ï´Ù.";
 					formatcheck = false;
 				}
 				
