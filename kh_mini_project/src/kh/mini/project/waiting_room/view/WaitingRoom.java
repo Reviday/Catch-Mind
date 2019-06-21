@@ -810,16 +810,26 @@ public class WaitingRoom extends JFrame{
 		// # 방 인원 업데이트 정보가 있을 경우
 		case "RoomInfoUpdate":
 			room_No = Integer.parseInt(st.nextToken());
-			
-			for(int i=0; i<room_list.size();i ++) {
-				RoomInfo r = (RoomInfo)room_list.get(i);
-				if(r.getRoom_No() == room_No) {
-					r.setRoom_UCount(r.getRoom_UCount()+1);
-					break;
+			int count = Integer.parseInt(st.nextToken());
+
+			if (count > 0) {
+				for (int i = 0; i < room_list.size(); i++) {
+					RoomInfo r = (RoomInfo) room_list.get(i);
+					if (r.getRoom_No() == room_No) {
+						r.setRoom_UCount(count);
+						break;
+					}
+				}
+			} else {
+				for (int i = 0; i < room_list.size(); i++) {
+					RoomInfo r = (RoomInfo) room_list.get(i);
+					if (r.getRoom_No() == room_No) {
+						room_list.remove(i);
+						break;
+					}
 				}
 			}
-				
-			
+
 			// 방 패널을 갱신해서 다시 그린다.
 			relocationRoom();
 			break;
