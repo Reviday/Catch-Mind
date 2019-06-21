@@ -151,13 +151,13 @@ public class PaintEx extends JFrame implements ActionListener {
 	private Image clearImg = tk.getImage(PaintEx.class.getResource("/images/clear.png"));
 	
 	
-	private Cursor blackCursor = tk.createCustomCursor(pen_black, new Point(10,10), "WaterDrop");
-	private Cursor redCursor = tk.createCustomCursor(pen_red, new Point(10,10), "WaterDrop");
-	private Cursor blueCursor = tk.createCustomCursor(pen_blue, new Point(10,10), "WaterDrop");
-	private Cursor greenCursor = tk.createCustomCursor(pen_green, new Point(10,10), "WaterDrop");
-	private Cursor yellowCursor = tk.createCustomCursor(pen_yellow, new Point(10,10), "WaterDrop");
-	private Cursor eraserCursor = tk.createCustomCursor(eraserImg, new Point(10,10), "WaterDrop");
-	private Cursor clearCursor = tk.createCustomCursor(clearImg, new Point(10,10), "WaterDrop");
+	private Cursor blackCursor = tk.createCustomCursor(pen_black, new Point(0,0), "WaterDrop");
+	private Cursor redCursor = tk.createCustomCursor(pen_red, new Point(0,0), "WaterDrop");
+	private Cursor blueCursor = tk.createCustomCursor(pen_blue, new Point(0,0), "WaterDrop");
+	private Cursor greenCursor = tk.createCustomCursor(pen_green, new Point(0,0), "WaterDrop");
+	private Cursor yellowCursor = tk.createCustomCursor(pen_yellow, new Point(0,0), "WaterDrop");
+	private Cursor eraserCursor = tk.createCustomCursor(eraserImg, new Point(0,0), "WaterDrop");
+	private Cursor clearCursor = tk.createCustomCursor(clearImg, new Point(0,0), "WaterDrop");
 	
 	private Cursor myCursor;
 	
@@ -967,10 +967,8 @@ public class PaintEx extends JFrame implements ActionListener {
 				else {
 					newshape.setThick(receiveThick);
 				}	
-				
 				thick=receiveThick;
-				//좌표테스트
-				System.out.println("받은 좌표 : " + pointX1 + ", " + pointY1 + ", " + pointX2 + ", " + pointY2);
+	
 				//전송받은 좌표 대입
 				maindrow.setLocation(pointX1, pointY1);
 				subdrow.setLocation(pointX2, pointY2);
@@ -1549,17 +1547,13 @@ public class PaintEx extends JFrame implements ActionListener {
 			Graphics2D g2 = (Graphics2D) g;
 			
 			// 그림 그리기
-		
-		
 			for (int i = 0; i < shape.size(); i++) {
 				g2.setStroke(new BasicStroke(shape.get(i).getThick(), BasicStroke.CAP_ROUND, 0));
 				g2.setPaint(shape.get(i).mypencolor);
 				for (int j = 1; j < shape.get(i).sketchSP.size(); j++)
 					g2.drawLine(shape.get(i).sketchSP.get(j - 1).x, shape.get(i).sketchSP.get(j - 1).y,
 							shape.get(i).sketchSP.get(j).x, shape.get(i).sketchSP.get(j).y);
-			}
-			
-
+			}	
 			// 잔상 그리기
 			if (eraser_Sel || receiveEraserSel) {
 				g2.setStroke(new BasicStroke(eraserThick, BasicStroke.CAP_ROUND, 0));
@@ -1576,10 +1570,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					g2.drawLine(sketSP.get(i - 1).x, sketSP.get(i - 1).y, sketSP.get(i).x, sketSP.get(i).y);
 				}
 			}
-		}
-
-			
-		
+		}	
 	}
 	   
 	// 게임 시작 및 라운드 시작에 사용될 버튼 활성/비활성 기능
@@ -1668,13 +1659,9 @@ public class PaintEx extends JFrame implements ActionListener {
 				newshape.sketchSP.add(e.getPoint());
 				sketSP.add(e.getPoint());
 
-				// System.out.println("현재 그림그리는 좌표 x좌표:"+sketSP.get(sketSP.size()-1).x+",
-				// y좌표:"+sketSP.get(sketSP.size()-1).y);
-
 				send_message("GameRoomPaint/" + id + "/" + room_No + "/" + "mouseDrag/" + e.getPoint().x + "/"
 						+ e.getPoint().y + "/" + e.getPoint().x + "/" + e.getPoint().y + "/" + thick + "/"
 						+ eraser_Sel);
-
 				repaint();
 			}
 		}
