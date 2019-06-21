@@ -340,7 +340,7 @@ public class JoinView extends JFrame{
 				for(char a : tempPwRe) {
 					pwRe += a;
 				}
-				if(formatcheck && pw.length()<6 && pw.matches(pwCheck) &&pw.matches(nuII)) {
+				if(formatcheck && pw.length()<6 || pw.matches(pwCheck) ||pw.matches(nuII)) {
 					msg = "패스워드는 6~12자 소/대문자, 숫자만 넣을 수 있습니다.";
 					formatcheck = false;
 				} else if(formatcheck && !pw.equals(pwRe)) {

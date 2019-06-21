@@ -89,7 +89,7 @@ public class PaintEx extends JFrame implements ActionListener {
 	// 도형
 	private ShapeSave newshape;
 	private ArrayList<Point> sketSP = new ArrayList<Point>();
-	private Stack<ShapeSave> shape = new Stack<ShapeSave>();
+	private ArrayList<ShapeSave> shape = new ArrayList<ShapeSave>();
 	
 	
 	// 버튼
@@ -772,8 +772,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 			clock.stopClock();
 			canvas.repaint();
-			while (!shape.isEmpty())
-				shape.pop();
+			shape.clear();
 			
 			// 변수 초기화
 			mypencolor = Color.black;
@@ -984,8 +983,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			else if(mouseState.equals("canvasClear")) {
 				System.out.println("canvasClear");
 				canvas.repaint();
-				while(!shape.isEmpty())
-					shape.pop();
+				shape.clear();
 			}
 		
 			break;
@@ -1091,8 +1089,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					// 3초 정도 대기 후
 					sleep(3000);
 					canvas.repaint();
-					while (!shape.isEmpty())
-						shape.pop();
+					shape.clear();
 					roundImg_lb.setVisible(false); // 보이지않게 한다.
 					canvas.setVisible(true); // 캔버스를 보이게한다.
 					clock.startClock(); // 타이머 동작
@@ -1697,8 +1694,7 @@ public class PaintEx extends JFrame implements ActionListener {
 			
 		if (e.getSource() == clear) {
 			canvas.repaint();
-			while (!shape.isEmpty())
-				shape.pop();
+			shape.clear();
 			clear.setCursor(clearCursor);
 			getContentPane().setCursor(myCursor);
 			send_message("GameRoomPaint/"+id+"/"+room_No+"/"+"canvasClear");
