@@ -311,10 +311,13 @@ public class JoinView extends JFrame{
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				String emailCheck = "^[a-zA-Z0-9]+@[a-zA-Z0-9]+.([a-zA-Z0-9])+$";
+				String emailCheck = "^[a-zA-Z0-9]+@[a-zA-Z0-9]*+.([a-zA-Z0-9])+$";
 				String nuII = "^[\\s]*$";
 				String dateCheck = "^[0-9]*$";
 				String pwCheck = "^[a-zA-Z0-9]*$";
+				String nameCheck = "^[°¡-ÆR]*$";
+				String idCheck = "^[¤¡-¤¾°¡-ÆR]$";
+				
 				boolean ch = false;
 				boolean formatcheck = true;
 				String msg = null;
@@ -340,7 +343,7 @@ public class JoinView extends JFrame{
 				for(char a : tempPwRe) {
 					pwRe += a;
 				}
-				if(formatcheck && pw.length()<6 || !pw.matches(pwCheck) || pw.matches(nuII)) {
+				if(formatcheck && (pw.length()<6 || !pw.matches(pwCheck) || pw.matches(nuII))) {
 					msg = "ÆÐ½º¿öµå´Â 6~12ÀÚ ¼Ò/´ë¹®ÀÚ, ¼ýÀÚ¸¸ ³ÖÀ» ¼ö ÀÖ½À´Ï´Ù.";
 					formatcheck = false;
 				} else if(formatcheck && !pw.equals(pwRe)) {
@@ -353,14 +356,17 @@ public class JoinView extends JFrame{
 				if(formatcheck && name.matches(nuII)) {
 					msg = "ÀÌ¸§¿¡ °ø¹éÀ» ³ÖÀ» ¼ö ¾ø½À´Ï´Ù.";
 					formatcheck = false;
-				} 
+				} else if (formatcheck && !name.matches(nameCheck)) {
+					msg = "ÀÌ¸§Àº ÇÑ±Û¸¸ »ç¿ë °¡´ÉÇÕ´Ï´Ù. (ex.È«±æµ¿)";
+					formatcheck = false;
+				}
 				
 				dateOfBirth=dateOfBirth_tf.getText();
 				if(formatcheck && dateOfBirth.matches(nuII)) {
 					msg = "»ý³â¿ùÀÏ¿¡ °ø¹éÀ» ³ÖÀ» ¼ö ¾ø½À´Ï´Ù.";
 					formatcheck = false;
 				} else if(formatcheck && !dateOfBirth.matches(dateCheck)) {
-					msg = "¼ýÀÚ Çü½ÄÀ¸·Î ÀÔ·ÂÇÏ½Ê½Ã¿À.";
+					msg = "¼ýÀÚ Çü½ÄÀ¸·Î ÀÔ·ÂÇÏ½Ê½Ã¿À. (ex.901010)";
 					formatcheck = false;
 				}
 				
