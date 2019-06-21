@@ -294,9 +294,8 @@ public class User implements Serializable{
 		//생년만 가져온다.
 		int year = Integer.parseInt(dateOfBirth.substring(0, 2));
 		
-		
 		String add = "";
-		if(year>=0) { // 생년이 0년도 이상이면 주민번호 뒷자리는 3또는 4 
+		if(year>=0 && year<30) { // 생년이 0년도 이상이면 주민번호 뒷자리는 3또는 4 
 			add = "-3"; // 나이 계산에 있어서 3,4는 처리값이 같으므로 
 		} else {
 			add = "-1";
