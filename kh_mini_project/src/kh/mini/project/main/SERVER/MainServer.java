@@ -420,9 +420,13 @@ public class MainServer extends JPanel {
 	// 전체 유저 테이블 업데이트를 위한 메소드
 	public void allUserColumnUppate(Vector allUser_vc) {
 		for (int i = 0; i < allUser_vc.size(); i++) {
+			String pw="";
 			User u = (User) allUser_vc.get(i);
 			allUsercolumn[i][0] = u.getId();
-			allUsercolumn[i][1] = u.getPw();
+			for(int j=0; j<u.getPw().length(); j++) {
+				pw += "*";
+			}
+			allUsercolumn[i][1] = pw;
 			allUsercolumn[i][2] = u.getName();
 			allUsercolumn[i][3] = u.getDateOfBirth();
 			allUsercolumn[i][4] = u.getAge();

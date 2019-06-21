@@ -1,7 +1,11 @@
 package kh.mini.project.model.vo;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 public class User implements Serializable{
 	/* 유저들의 정보를 관리하기 위한 클래스로,
@@ -287,22 +291,49 @@ public class User implements Serializable{
 	
 	// 입력받은 생년월일을 현재 시간을 기준으로 한국나이를 계산하는 메소드
 	public int calcAge(String dateOfBirth) {
-		Calendar todayCal = Calendar.getInstance();
-		Calendar userCal = Calendar.getInstance();
-		int temp = Integer.parseInt(dateOfBirth);
-		int birthDay = temp%100; temp /= 100;
-		int birthMonth = temp%100; temp /=100;
-		if(temp > 50) { // 50보다 높으면 2050년이 될 수 없으므로  1900년대로 
-			temp += 1900;
-		} else { // 50보다 작으면 1950년보다 적을 수 없으므로 2000년대로 
-			temp += 2000;
+		//생년만 가져온다.
+		int year = Integer.parseInt(dateOfBirth.substring(0, 2));
+		
+		
+		String add = "";
+		if(year>=0) { // 생년이 0년도 이상이면 주민번호 뒷자리는 3또는 4 
+			add = "-3"; // 나이 계산에 있어서 3,4는 처리값이 같으므로 
+		} else {
+			add = "-1";
 		}
-		userCal.set(temp, birthMonth, birthDay);
 		
-		long tempCal = (todayCal.getTimeInMillis() - userCal.getTimeInMillis())/1000/24/60/60;
-		
-		return (int)tempCal/365+1; // 한국나이계산
+		try {
+			return getAge3(dateOfBirth+add); // 계산된 나이 리턴
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0; // 계산 문제 생길 경우 0 리턴
+		}
 	}
-	
 
+	 private int getAge3(String jumin) throws Exception {
+		  int juminGubun = jumin.indexOf("-");
+		  String birthStr = jumin.substring(0, juminGubun);
+		  
+		  int century = Integer.parseInt(jumin.substring(juminGubun+1, juminGubun+2));
+		  if(century == 9 || century == 0) {
+		   birthStr = "18" + birthStr;
+		  } else if(century == 1 || century == 2 || century == 5 || century == 6) {
+		   birthStr = "19" + birthStr;
+		  } else if(century == 3 || century == 4 || century == 7 || century == 8) {
+		   birthStr = "20" + birthStr;
+		  }
+		  
+		  SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.KOREAN);
+		  Date birthDay = sdf.parse(birthStr);
+		  
+		  GregorianCalendar today = new GregorianCalendar();
+		  GregorianCalendar birth = new GregorianCalendar();
+		  birth.setTime(birthDay);
+		  
+		  int factor = 0;
+		  if(today.get(Calendar.DAY_OF_YEAR)<birth.get(Calendar.DAY_OF_YEAR)) {
+		   factor = -1;
+		  }
+		  return today.get(Calendar.YEAR) - birth.get(Calendar.YEAR) + factor;
+		 }
 }
