@@ -59,10 +59,10 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import kh.mini.project.GameRoom.Question;
 import kh.mini.project.db.UserController;
 import kh.mini.project.main.view.Main;
 import kh.mini.project.model.vo.User;
-import kh.mini.project.paint.Question;
 
 public class MainServer extends JPanel {
    private static final long serialVersionUID = 1216070372320522836L;

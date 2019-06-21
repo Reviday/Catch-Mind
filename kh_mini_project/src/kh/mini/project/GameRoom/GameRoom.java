@@ -1,4 +1,4 @@
-package kh.mini.project.paint;
+package kh.mini.project.GameRoom;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -43,7 +43,7 @@ import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
 import kh.mini.project.waiting_room.view.WaitingRoom;
 
-public class PaintEx extends JFrame implements ActionListener {
+public class GameRoom extends JFrame implements ActionListener {
 
 	private StartThread startT;
 	private StopWatch clock = new StopWatch();
@@ -138,17 +138,17 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 	
 	private ImageIcon roundImg = new ImageIcon();
-	private ImageIcon resultImage = new ImageIcon(PaintEx.class.getResource("/images/resultImage.png"));
-	private ImageIcon endGameImage = new ImageIcon(PaintEx.class.getResource("/images/endGameImage.png"));
+	private ImageIcon resultImage = new ImageIcon(GameRoom.class.getResource("/images/resultImage.png"));
+	private ImageIcon endGameImage = new ImageIcon(GameRoom.class.getResource("/images/endGameImage.png"));
 	
 	
-	private Image pen_black = tk.getImage(PaintEx.class.getResource("/images/pen_black.png"));
-	private Image pen_red = tk.getImage(PaintEx.class.getResource("/images/pen_red.png"));
-	private Image pen_blue = tk.getImage(PaintEx.class.getResource("/images/pen_blue.png"));
-	private Image pen_green = tk.getImage(PaintEx.class.getResource("/images/pen_green.png"));
-	private Image pen_yellow = tk.getImage(PaintEx.class.getResource("/images/pen_yellow.png"));
-	private Image eraserImg = tk.getImage(PaintEx.class.getResource("/images/eraser.png"));
-	private Image clearImg = tk.getImage(PaintEx.class.getResource("/images/clear.png"));
+	private Image pen_black = tk.getImage(GameRoom.class.getResource("/images/pen_black.png"));
+	private Image pen_red = tk.getImage(GameRoom.class.getResource("/images/pen_red.png"));
+	private Image pen_blue = tk.getImage(GameRoom.class.getResource("/images/pen_blue.png"));
+	private Image pen_green = tk.getImage(GameRoom.class.getResource("/images/pen_green.png"));
+	private Image pen_yellow = tk.getImage(GameRoom.class.getResource("/images/pen_yellow.png"));
+	private Image eraserImg = tk.getImage(GameRoom.class.getResource("/images/eraser.png"));
+	private Image clearImg = tk.getImage(GameRoom.class.getResource("/images/clear.png"));
 	
 	
 	private Cursor blackCursor = tk.createCustomCursor(pen_black, new Point(0,0), "WaterDrop");
@@ -163,13 +163,13 @@ public class PaintEx extends JFrame implements ActionListener {
 	
 // Textfield
 	private JTextField chatting_tf; // 채팅 내용을 입력받기 위한 텍스트필드	
-	private ImageIcon chatAreaBackground = new ImageIcon(PaintEx.class.getResource("/images/wordBubble.png"));
+	private ImageIcon chatAreaBackground = new ImageIcon(GameRoom.class.getResource("/images/wordBubble.png"));
 	
 	
 // Network 자원 변수
 	private DataOutputStream dos;
 
-	public PaintEx(int room_No) {
+	public GameRoom(int room_No) {
 		// 사용자의 id를 이어받아온다.
 		id = MainView.getId();
 		// 게임방 번호를 어이받아온다.
@@ -208,7 +208,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		suggest_lb.setVisible(false);
 		getContentPane().add(suggest_lb);
 		
-		suggest_Background = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/suggest_Background.png")));
+		suggest_Background = new JLabel(new ImageIcon(GameRoom.class.getResource("/images/suggest_Background.png")));
 		suggest_Background.setBounds(430,32,148,35);
 		getContentPane().add(suggest_Background);
 		suggest_Background.setVisible(false);
@@ -309,10 +309,10 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		//색깔 버튼
 		color_black = new JButton("black");
-		color_black.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_black.png")));
+		color_black.setIcon(new ImageIcon(GameRoom.class.getResource("/images/color_black.png")));
 		color_black.setContentAreaFilled(false);
 		color_black.setBounds(486, 620, 122, 60);
-		color_black.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_blackCLK.png")));
+		color_black.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/color_blackCLK.png")));
 		color_black.setFocusPainted(false);
 		color_black.setBorderPainted(false);
 		getContentPane().add(color_black);
@@ -329,10 +329,10 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_black.setVisible(true);
 
 		color_red = new JButton("red");
-		color_red.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_red.png")));
+		color_red.setIcon(new ImageIcon(GameRoom.class.getResource("/images/color_red.png")));
 		color_red.setContentAreaFilled(false);
 		color_red.setBounds(486, 685, 122, 60);
-		color_red.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_redCLK.png")));
+		color_red.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/color_redCLK.png")));
 		color_red.setFocusPainted(false);
 		color_red.setBorderPainted(false);
 		getContentPane().add(color_red);
@@ -349,9 +349,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_red.setVisible(true);
 
 		color_blue = new JButton("blue");
-		color_blue.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_blue.png")));
+		color_blue.setIcon(new ImageIcon(GameRoom.class.getResource("/images/color_blue.png")));
 		color_blue.setContentAreaFilled(false);
-		color_blue.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_blueCLK.png")));
+		color_blue.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/color_blueCLK.png")));
 		color_blue.setFocusPainted(false);
 		color_blue.setBorderPainted(false);
 		color_blue.setBounds(615, 620, 122, 60);
@@ -369,9 +369,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_blue.setVisible(true);
 
 		color_green = new JButton("green");
-		color_green.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_green.png")));
+		color_green.setIcon(new ImageIcon(GameRoom.class.getResource("/images/color_green.png")));
 		color_green.setContentAreaFilled(false);
-		color_green.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_greenCLK.png")));
+		color_green.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/color_greenCLK.png")));
 		color_green.setFocusPainted(false);
 		color_green.setBorderPainted(false);
 		color_green.setBounds(615, 685, 122, 60);
@@ -389,9 +389,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_green.setVisible(true);
 
 		color_yellow = new JButton("yellow");
-		color_yellow.setIcon(new ImageIcon(PaintEx.class.getResource("/images/color_yellow.png")));
+		color_yellow.setIcon(new ImageIcon(GameRoom.class.getResource("/images/color_yellow.png")));
 		color_yellow.setContentAreaFilled(false);
-		color_yellow.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/color_yellowCLK.png")));
+		color_yellow.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/color_yellowCLK.png")));
 		color_yellow.setFocusPainted(false);
 		color_yellow.setBorderPainted(false);
 		color_yellow.setBounds(743, 620, 122, 60);
@@ -409,9 +409,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		color_yellow.setVisible(true);
 
 		//지우개 버튼
-		eraser = new JButton(new ImageIcon(PaintEx.class.getResource("/images/eraser.png")));
+		eraser = new JButton(new ImageIcon(GameRoom.class.getResource("/images/eraser.png")));
 		eraser.setContentAreaFilled(false);
-		eraser.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/eraserCLK.png")));
+		eraser.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/eraserCLK.png")));
 		eraser.setFocusPainted(false);
 		eraser.setBorderPainted(false);
 		eraser.setBounds(752, 693, 50, 42);
@@ -430,9 +430,9 @@ public class PaintEx extends JFrame implements ActionListener {
 
 		//클리어 버튼
 		clear = new JButton("clear");
-		clear.setIcon(new ImageIcon(PaintEx.class.getResource("/images/clear.png")));
+		clear.setIcon(new ImageIcon(GameRoom.class.getResource("/images/clear.png")));
 		clear.setContentAreaFilled(false);
-		clear.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/clearCLK.png")));
+		clear.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/clearCLK.png")));
 		clear.setBackground(Color.lightGray);
 		clear.setFocusPainted(false);
 		clear.setBorderPainted(false);
@@ -450,9 +450,9 @@ public class PaintEx extends JFrame implements ActionListener {
 		clear.addActionListener(this);
 
 		//펜 굵기 버튼
-		thick_Bold = new JButton(new ImageIcon(PaintEx.class.getResource("/images/thick_Bold.png")));
+		thick_Bold = new JButton(new ImageIcon(GameRoom.class.getResource("/images/thick_Bold.png")));
 		thick_Bold.setContentAreaFilled(false);
-		thick_Bold.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/thick_BoldCLK.png")));
+		thick_Bold.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/thick_BoldCLK.png")));
 		thick_Bold.setFocusPainted(false);
 		thick_Bold.setBorderPainted(false);
 		thick_Bold.setBounds(868, 628, 97, 23);
@@ -469,9 +469,9 @@ public class PaintEx extends JFrame implements ActionListener {
 			});
 		thick_Bold.setVisible(true);
 
-		thick_Sharp = new JButton(new ImageIcon(PaintEx.class.getResource("/images/thick_Sharp.png")));
+		thick_Sharp = new JButton(new ImageIcon(GameRoom.class.getResource("/images/thick_Sharp.png")));
 		thick_Sharp.setContentAreaFilled(false);
-		thick_Sharp.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/thick_SharpCLK.png")));
+		thick_Sharp.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/thick_SharpCLK.png")));
 		thick_Sharp.setFocusPainted(false);
 		thick_Sharp.setBorderPainted(false);
 		thick_Sharp.setBounds(868, 654, 97, 23);
@@ -488,9 +488,9 @@ public class PaintEx extends JFrame implements ActionListener {
 			});
 		thick_Sharp.setVisible(true);
 
-		exit = new JButton(new ImageIcon(PaintEx.class.getResource("/images/gameroom_Exit.png"))); // 버튼 액션 해야됨
+		exit = new JButton(new ImageIcon(GameRoom.class.getResource("/images/gameroom_Exit.png"))); // 버튼 액션 해야됨
 		exit.setContentAreaFilled(false);
-		exit.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/gameroom_ExitCLK.png")));
+		exit.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/gameroom_ExitCLK.png")));
 		exit.setBounds(991, 2, 19, 25);
 		menuBar.add(exit);
 		exit.setVisible(true);
@@ -527,9 +527,9 @@ public class PaintEx extends JFrame implements ActionListener {
 			}
 		});
 		
-		giveUpBt = new JButton(new ImageIcon(PaintEx.class.getResource("/images/giveup.png")));
+		giveUpBt = new JButton(new ImageIcon(GameRoom.class.getResource("/images/giveup.png")));
 		giveUpBt.setContentAreaFilled(false);
-		giveUpBt.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/giveupCLK.png")));
+		giveUpBt.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/giveupCLK.png")));
 		giveUpBt.setFocusPainted(false);
 		giveUpBt.setBorderPainted(false);
 		giveUpBt.setBounds(885, 700, 63, 24);
@@ -547,8 +547,8 @@ public class PaintEx extends JFrame implements ActionListener {
 		giveUpBt.setVisible(true);
 		
 		mute.setBounds(30,730,30,30);
-		mute.setIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOn.png")));
-		mute.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOnCLK.png")));	
+		mute.setIcon(new ImageIcon(GameRoom.class.getResource("/images/BsoundOn.png")));
+		mute.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/BsoundOnCLK.png")));	
 		mute.setContentAreaFilled(false);
 		mute.setFocusPainted(false);
 		mute.setBorderPainted(false);
@@ -557,14 +557,14 @@ public class PaintEx extends JFrame implements ActionListener {
 			public void mouseClicked(MouseEvent e) {
 				if(muteSel) {
 					muteSel=false;
-					mute.setIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOn.png")));
-					mute.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOnCLK.png")));	
+					mute.setIcon(new ImageIcon(GameRoom.class.getResource("/images/BsoundOn.png")));
+					mute.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/BsoundOnCLK.png")));	
 					
 				}
 				else {
 					muteSel=true;
-					mute.setIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOff.png")));
-					mute.setRolloverIcon(new ImageIcon(PaintEx.class.getResource("/images/BsoundOffCLK.png")));
+					mute.setIcon(new ImageIcon(GameRoom.class.getResource("/images/BsoundOff.png")));
+					mute.setRolloverIcon(new ImageIcon(GameRoom.class.getResource("/images/BsoundOffCLK.png")));
 				}
 				soundOn(muteSel);
 			}
@@ -574,25 +574,25 @@ public class PaintEx extends JFrame implements ActionListener {
 		
 		
 		//levelUp 이미지
-		levelUpImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/levelUpImg.gif")));
+		levelUpImg = new JLabel(new ImageIcon(GameRoom.class.getResource("/images/levelUpImg.gif")));
 		getContentPane().add(levelUpImg);
 		levelUpImg.setBounds(356,169,300,350);
 		levelUpImg.setVisible(false);
 		
 		//ready이미지
-		readyImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/readyImg.png")));
+		readyImg = new JLabel(new ImageIcon(GameRoom.class.getResource("/images/readyImg.png")));
 		getContentPane().add(readyImg);
 		readyImg.setBounds(356,169,300,300);
 		readyImg.setVisible(false);
 		
 		//start이미지
-		startImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/startImg.png")));
+		startImg = new JLabel(new ImageIcon(GameRoom.class.getResource("/images/startImg.png")));
 		getContentPane().add(startImg);
 		startImg.setBounds(356,169,300,300);
 		startImg.setVisible(false);
 		
 		//포기이미지
-		giveUpImg = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/giveupImage.png")));
+		giveUpImg = new JLabel(new ImageIcon(GameRoom.class.getResource("/images/giveupImage.png")));
 		getContentPane().add(giveUpImg);
 		giveUpImg.setBounds(306, 169, 400, 300);
 		giveUpImg.setVisible(false);
@@ -600,7 +600,7 @@ public class PaintEx extends JFrame implements ActionListener {
 		clock.setBounds(156, 620, 252, 99);
 		getContentPane().add(clock);
 		
-		gameRoombackground = new JLabel(new ImageIcon(PaintEx.class.getResource("/images/GameRoom_Background.png")));
+		gameRoombackground = new JLabel(new ImageIcon(GameRoom.class.getResource("/images/GameRoom_Background.png")));
 		gameRoombackground.setBounds(0, 0, 1024, 768);
 		getContentPane().add(gameRoombackground);
 		
@@ -1054,7 +1054,7 @@ public class PaintEx extends JFrame implements ActionListener {
 					
 					// 이미지를 라운드에 맞게 조정하고 보이게 한다.
 					String address = "/Images/Round" + round + ".png";
-					roundImg = new ImageIcon(PaintEx.class.getResource(address));
+					roundImg = new ImageIcon(GameRoom.class.getResource(address));
 					roundImg_lb.setIcon(roundImg);
 					roundImg_lb.setVisible(true);
 					

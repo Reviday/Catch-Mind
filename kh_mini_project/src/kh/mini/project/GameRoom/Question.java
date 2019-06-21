@@ -1,4 +1,4 @@
-package kh.mini.project.paint;
+package kh.mini.project.GameRoom;
 
 public class Question {
    private static String[] question; // 제시어 100개 저장용

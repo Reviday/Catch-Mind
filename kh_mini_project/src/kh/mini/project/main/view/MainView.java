@@ -32,8 +32,8 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import kh.mini.project.paint.Music;
-import kh.mini.project.paint.PaintEx;
+import kh.mini.project.GameRoom.GameRoom;
+import kh.mini.project.GameRoom.Music;
 import kh.mini.project.waiting_room.view.WaitingRoom;
 
 public class MainView extends JFrame{
@@ -69,7 +69,7 @@ public class MainView extends JFrame{
 	private boolean changePoint = true; // MainView에서 WaitingRoom으로 넘어가는 창전환이 발생하면 false로 바꾸어 해당 run 메소드의 실행을 멈춘다.
 	private boolean flag = false;
 	private WaitingRoom wr; // WaitingRoom 클래스 객체
-	private PaintEx paint; // Paint 클래스 객체
+	private GameRoom paint; // Paint 클래스 객체
 	private Toolkit tk = Toolkit.getDefaultToolkit();
 	//커서
 	private Image cursorBasic = tk.getImage(Main.class.getResource("/images/pencilCursor.png"));
@@ -568,7 +568,7 @@ public class MainView extends JFrame{
 			int room_No = Integer.parseInt(st.nextToken()); // 방 번호
 			
 			// 넘겨 받은 방 번호로 Paint 창을 연다.
-			paint = new PaintEx(room_No);
+			paint = new GameRoom(room_No);
 			
 			// 방에 입장함을  서버에 알리는 것은 Paint 클래스에서 진행
 			

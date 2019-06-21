@@ -1,4 +1,4 @@
-package kh.mini.project.paint;
+package kh.mini.project.GameRoom;
 
 
 import java.awt.Color;

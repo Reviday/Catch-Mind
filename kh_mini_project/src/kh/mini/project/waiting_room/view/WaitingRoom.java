@@ -54,12 +54,12 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import kh.mini.project.GameRoom.GameRoom;
+import kh.mini.project.GameRoom.Music;
 import kh.mini.project.main.view.Main;
 import kh.mini.project.main.view.MainView;
 import kh.mini.project.model.vo.RoomInfo;
 import kh.mini.project.model.vo.UserInfo;
-import kh.mini.project.paint.Music;
-import kh.mini.project.paint.PaintEx;
 
 public class WaitingRoom extends JFrame{
 // Frame, Panel
